@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="16C41b" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="StatusMenuItemViewController" customModule="LIFX_Remote" customModuleProvider="target">
+            <connections>
+                <outlet property="brightnessSlider" destination="pBo-ud-YMl" id="wkm-Rw-Jxz"/>
+                <outlet property="labelTextField" destination="kuB-aP-UJn" id="JtD-a3-ZDQ"/>
+                <outlet property="lightColorView" destination="eUP-yV-IVb" id="MD9-S1-mx0"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="QUV-Sr-WaH"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="Hz6-mo-xeY" customClass="HighlightingView" customModule="LIFX_Remote" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="200" height="37"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pBo-ud-YMl">
+                    <rect key="frame" x="18" y="0.0" width="164" height="19"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <sliderCell key="cell" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="pCv-CF-98P"/>
+                    <connections>
+                        <action selector="updateBrightness:" target="-2" id="BO8-gy-f6g"/>
+                    </connections>
+                </slider>
+                <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eUP-yV-IVb" customClass="StatusMenuColorView" customModule="LIFX_Remote" customModuleProvider="target">
+                    <rect key="frame" x="166" y="20" width="16" height="16"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                </customView>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kuB-aP-UJn">
+                    <rect key="frame" x="19" y="20" width="142" height="17"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" allowsUndo="NO" sendsActionOnEndEditing="YES" title="Label" id="OVT-t9-7re">
+                        <font key="font" metaFont="menu"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+            </subviews>
+            <gestureRecognizers>
+                <clickGestureRecognizer delaysPrimaryMouseButtonEvents="YES" numberOfClicksRequired="1" id="fid-IZ-9A1">
+                    <connections>
+                        <action selector="showHud:" target="-2" id="vON-J8-v9I"/>
+                    </connections>
+                </clickGestureRecognizer>
+            </gestureRecognizers>
+            <connections>
+                <outlet property="label" destination="kuB-aP-UJn" id="qTO-ul-sRU"/>
+            </connections>
+            <point key="canvasLocation" x="111" y="190"/>
+        </customView>
+    </objects>
+</document>
