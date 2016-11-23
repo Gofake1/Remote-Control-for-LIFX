@@ -35,5 +35,4 @@ class StatusMenuColorView: NSView {
             path.stroke()
         }
     }
-    
 }

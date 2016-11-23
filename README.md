@@ -1,5 +1,5 @@
 # [LIFX Remote](http://gofake1.net/projects/lifx_remote.html)
-LIFX smart lightbulb app for macOS
+LIFX smart lightbulb status bar app for macOS
 
 ![LIFX Remote screenshot](http://gofake1.net/images/lifx_remote.png)
 
@@ -9,5 +9,9 @@ LIFX Remote features:
 
 LIFX Remote doesn't feature:
 * Registering LIFX bulbs
-* Renaming bulbs
 * Updating bulb firmware
+
+# Credits
+[Bitter](https://github.com/uraimo/Bitter) (Umberto Raimondi)
+
+*This project is available under the GPLv3 License*

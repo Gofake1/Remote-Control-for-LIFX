@@ -16,6 +16,12 @@ class HudController: NSWindowController {
     
     private var device: LIFXDevice?
     private static var openedWindows = [LIFXDevice:HudController]()
+    
+    override func windowDidLoad() {
+        let hudViewController = HudViewController()
+        hudViewController.device = device
+        window?.contentViewController = hudViewController
+    }
 
     class func show(_ device: LIFXDevice) {
         if let hudController = HudController.openedWindows[device] {
@@ -29,5 +35,4 @@ class HudController: NSWindowController {
         HudController.openedWindows[device] = hudController
         hudController.showWindow(nil)
     }
-    
 }

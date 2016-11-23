@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="16C41b" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="16C48b" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
@@ -31,6 +31,13 @@
                 <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eUP-yV-IVb" customClass="StatusMenuColorView" customModule="LIFX_Remote" customModuleProvider="target">
                     <rect key="frame" x="166" y="20" width="16" height="16"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <gestureRecognizers>
+                        <clickGestureRecognizer delaysPrimaryMouseButtonEvents="YES" numberOfClicksRequired="1" id="Mhf-BR-sNI">
+                            <connections>
+                                <action selector="toggleBulbState:" target="-2" id="77g-ko-9g2"/>
+                            </connections>
+                        </clickGestureRecognizer>
+                    </gestureRecognizers>
                 </customView>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kuB-aP-UJn">
                     <rect key="frame" x="19" y="20" width="142" height="17"/>

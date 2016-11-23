@@ -29,5 +29,4 @@ class HighlightingView: NSView {
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
         return true
     }
-    
 }

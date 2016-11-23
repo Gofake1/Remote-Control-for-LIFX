@@ -18,8 +18,8 @@ class StatusMenuController: NSObject {
     }
     
     enum ToggleAllState: String {
-        case on  = "Turn On All Lights"
-        case off = "Turn Off All Lights"
+        case turnOn  = "Turn On All Lights"
+        case turnOff = "Turn Off All Lights"
     }
     
     @IBOutlet weak var statusMenu: NSMenu!
@@ -27,6 +27,7 @@ class StatusMenuController: NSObject {
     @IBOutlet weak var toggleAllMenuItem:     NSMenuItem!
     @IBOutlet weak var placeholderMenuItem:   NSMenuItem!
     private let statusItem      = NSStatusBar.system().statusItem(withLength: NSSquareStatusItemLength)
+    private var deviceMenuItems = [LIFXDevice:NSMenuItem]()
     private let preferences     = PreferencesWindowController()
     private var model           = LIFXModel()
     private var statusMessage   = StatusMessage.searching {
@@ -34,8 +35,14 @@ class StatusMenuController: NSObject {
             statusMessageMenuItem.title = statusMessage.rawValue
         }
     }
-    private var toggleAllState  = ToggleAllState.on
-    private var deviceMenuItems = [LIFXDevice:NSMenuItem]()
+    private var toggleAllState: ToggleAllState {
+        for device in model.devices {
+            if device.power == .enabled {
+                return .turnOff
+            }
+        }
+        return .turnOn
+    }
     
     override func awakeFromNib() {
         statusItem.image            = NSImage(named: "StatusBarButtonImage")
@@ -43,7 +50,7 @@ class StatusMenuController: NSObject {
         toggleAllMenuItem.title     = toggleAllState.rawValue
         statusItem.menu             = statusMenu
         
-        model.scan {
+        model.scan { response in
             self.updateMenu()
             self.statusMessage = .normal
         }
@@ -84,13 +91,8 @@ class StatusMenuController: NSObject {
     func doNothing(_ sender: NSMenuItem) {}
     
     @IBAction func toggleAllLights(_ sender: NSMenuItem) {
-        switch toggleAllState {
-        case .on:
-            toggleAllState = .off
-        case .off:
-            toggleAllState = .on
-        }
-        model.changeAllDevices(state: (toggleAllState == .on ? LIFXDevice.PowerState.on : LIFXDevice.PowerState.off))
+        model.changeAllDevices(state: toggleAllState == .turnOn ? LIFXDevice.PowerState.enabled :
+                                                                  LIFXDevice.PowerState.standby)
         toggleAllMenuItem.title = toggleAllState.rawValue
     }
     

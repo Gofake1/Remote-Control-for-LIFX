@@ -9,43 +9,45 @@
 import Darwin
 import Cocoa
 
-struct LIFXModel {
-    enum NetworkState {
-        case inactive
-        case activeSearching
-        case activeWorking
+typealias Label    = String
+typealias Duration = UInt32
+
+class LIFXModel {
+    
+    enum LIFXError: Error {
+        case duplicateDeviceLabel
     }
     
+    var error: LIFXError? = nil
     var network = LIFXNetworkController()
-    var state: NetworkState = .inactive
     var devices: [LIFXDevice] = []
     
     func getDevice(withLabel label: String) -> LIFXDevice? {
-        for device in devices {
-            if label == device.label {
-                return device
-            }
+        return devices.first(where: { (device) -> Bool in
+            return device.label == label
+        })
+    }
+    
+    /// Discover devices
+    func scan(_ completionHandler: @escaping ([UInt8]) -> Void) {
+        network.send(Packet(type: DeviceMessage.getService)) { response in
+            completionHandler(response)
         }
+        self.error = self.add(device: LIFXLight(network: self.network, address: 0, label: "Foo"))
+        self.error = self.add(device: LIFXLight(network: self.network, address: 0, label: "Foo 2"))
+    }
+    
+    func add(device: LIFXDevice) -> LIFXError? {
+        if devices.contains(device) {
+            return LIFXError.duplicateDeviceLabel
+        }
+        devices.append(device)
         return nil
     }
     
-    mutating func scan(_ completionHandler: @escaping () -> Void) {
-        //network.send(Packet(tagged: true, target: 0, ack: false, res: true, type: 2))
-        add(device: LIFXLight(network: network))
-        let foo2 = LIFXLight(network: network)
-        foo2.label = "Foo 2"
-        foo2.color = nil
-        add(device: foo2)
-        completionHandler()
-    }
-    
-    mutating func add(device: LIFXDevice) {
-        devices.append(device)
-    }
-    
-    mutating func removeDevice(withLabel label: String) {
-        devices = devices.filter { (device) -> Bool in
-            return device.label != label
+    func remove(device: LIFXDevice) {
+        devices = devices.filter { (_device) -> Bool in
+            return device != _device
         }
     }
     
@@ -65,185 +67,321 @@ struct LIFXModel {
 }
 
 class LIFXNetworkController {
-//    var socket: CFSocket?
-    var sock: Int32
     
-//    var callback: @convention(c)(CFSocket!, CFSocketCallBackType, CFData!, UnsafePointer<Void>, UnsafeMutablePointer<Void>) -> Void = {
-//        (s, callbackType, address, data, info) in
-//        print(data)
-//    }
+    /// `Receiver` continually receives UDP packets and executes their associated completion handlers
+    class Receiver {
+        private var socket: Int32
+        private var isReceiving = false
+        /// Maps devices to their pending completion handlers
+        private var tasks: [String:([UInt8]) -> Void] = [:]
+        
+        init(socket: Int32) {
+            self.socket = socket
+        }
+        
+        func listen() {
+            isReceiving = true
+            DispatchQueue.global(qos: .utility).async {
+                var resLen = socklen_t(MemoryLayout<sockaddr>.size)
+                while self.isReceiving {
+                    var recvaddr = sockaddr_in()
+                    let response = [UInt8](repeating: 0, count: 128)
+                    withUnsafePointer(to: &recvaddr) {
+                        let n = recvfrom(self.socket,
+                                         UnsafeMutablePointer(mutating: response),
+                                         response.count,
+                                         0,
+                                         unsafeBitCast($0, to: UnsafeMutablePointer<sockaddr>.self),
+                                         &resLen)
+                        assert(n >= 0)
+                        
+                        print("Foo")
+                        guard let packet = Packet(bytes: response) else {
+                            print("response:\n\t\(response)")
+                            print(recvaddr)
+                            return
+                        }
+                        
+                        // Get relevant task
+                        let taskId = "\(packet.header.target)\(packet.header.type.message)"
+                        guard let task = self.tasks[taskId] else { return }
+                        
+                        // Execute the relevant task
+                        DispatchQueue.main.async {
+                            if let payload = packet.payload {
+                                task(payload.bytes)
+                            }
+                        }
+                        
+                        self.tasks[taskId] = nil
+                    }
+                }
+            }
+        }
+        
+        func stopListening() {
+            isReceiving = false
+        }
+        
+        func addTask(header: Header, _ task: @escaping ([UInt8]) -> Void) {
+            let correspondingMessageTypes: [UInt16:UInt16] = [
+                DeviceMessage.getService.rawValue     : DeviceMessage.stateService.rawValue,
+                DeviceMessage.getHostInfo.rawValue    : DeviceMessage.stateHostInfo.rawValue,
+                DeviceMessage.getHostFirmware.rawValue: DeviceMessage.stateHostFirmware.rawValue,
+                DeviceMessage.getWifiInfo.rawValue    : DeviceMessage.stateWifiInfo.rawValue,
+                DeviceMessage.getWifiFirmware.rawValue: DeviceMessage.stateHostFirmware.rawValue,
+                DeviceMessage.getPower.rawValue       : DeviceMessage.statePower.rawValue,
+                DeviceMessage.getLabel.rawValue       : DeviceMessage.stateLabel.rawValue,
+                DeviceMessage.getVersion.rawValue     : DeviceMessage.stateVersion.rawValue,
+                DeviceMessage.getInfo.rawValue        : DeviceMessage.stateInfo.rawValue,
+                DeviceMessage.getLocation.rawValue    : DeviceMessage.stateLocation.rawValue,
+                DeviceMessage.getGroup.rawValue       : DeviceMessage.stateGroup.rawValue,
+                DeviceMessage.echoRequest.rawValue    : DeviceMessage.echoResponse.rawValue,
+                LightMessage.getState.rawValue        : LightMessage.state.rawValue,
+                LightMessage.getPower.rawValue        : LightMessage.statePower.rawValue,
+                LightMessage.getInfrared.rawValue     : LightMessage.stateInfrared.rawValue
+            ]
+            tasks["\(header.target)\(correspondingMessageTypes[header.type.message]!)"] = task
+        }
+        
+        deinit {
+            stopListening()
+        }
+    }
+    
+    enum State {
+        case active
+        case inactive
+    }
+    
+    let receiver: Receiver
+    var state:    State = .inactive
+    var sock:     Int32
+    private var operationCount = 0 {
+        didSet {
+            state = operationCount > 0 ? .active : .inactive
+        }
+    }
     
     init() {
-//        self.socket = CFSocketCreate(kCFAllocatorDefault, PF_INET, SOCK_DGRAM, IPPROTO_UDP, CFSocketCallBackType.DataCallBack.rawValue, callback, nil)
-//        let socketSource = CFSocketCreateRunLoopSource(kCFAllocatorDefault, self.socket, 0)
-//        CFRunLoopAddSource(CFRunLoopGetCurrent(), socketSource, kCFRunLoopDefaultMode)
-        self.sock = socket(PF_INET, SOCK_DGRAM, 0)
-        if self.sock == -1 {
-            perror("socket error")
-        }
+        let _sock = socket(PF_INET, SOCK_DGRAM, 0)
+        assert(_sock >= 0)
         var broadcastFlag = 1
-        let optErr = setsockopt(self.sock, SOL_SOCKET, SO_BROADCAST, &broadcastFlag, socklen_t(MemoryLayout<Int>.size))
-        if optErr == -1 {
-            perror("setsockopt error")
-        }
-    }
-    
-    func send(_ packet: Packet, toDevice device: LIFXDevice? = nil) {
-//        let data = NSData(packet)
-//        var sin = sockaddr_in()
-//        sin.sin_len = UInt8(sizeof(sockaddr_in))
-//        sin.sin_family = sa_family_t(AF_INET)
-//        sin.sin_port = UInt16(56700).bigEndian //UInt16(device!.port)
-//        inet_aton("255.255.255.255", &sin.sin_addr)
-//        var sin_data: CFData?
-//        withUnsafePointer(&sin) {
-//            sin_data = CFDataCreate(kCFAllocatorDefault, UnsafePointer($0), sizeof(sockaddr_in))
-//            let error = CFSocketSendData(self.socket, sin_data, data as CFData, 5) // 5 second timeout
-//            if error != .Success {
-//                switch error {
-//                case .Timeout:
-//                    print("Socket timed out")
-//                case .Error:
-//                    print("Socket error")
-//                default: break
-//                }
-//            }
-//        }
-        let data = Data(packet)
+        let setSuccess = setsockopt(_sock,
+                                    SOL_SOCKET,
+                                    SO_BROADCAST,
+                                    &broadcastFlag,
+                                    socklen_t(MemoryLayout<Int>.size))
+        assert(setSuccess == 0)
+        
         var addr = sockaddr_in()
-        addr.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
-        addr.sin_family = sa_family_t(AF_INET)
-        addr.sin_port = UInt16(56700).bigEndian
-        inet_aton("255.255.255.255", &addr.sin_addr)
+        addr.sin_len         = UInt8(MemoryLayout<sockaddr_in>.size)
+        addr.sin_family      = sa_family_t(AF_INET)
+        addr.sin_addr.s_addr = INADDR_ANY
+        addr.sin_port        = UInt16(56700).bigEndian
         withUnsafePointer(to: &addr) {
-            let n = Darwin.sendto(self.sock, (data as NSData).bytes, data.count, 0, unsafeBitCast($0, to: UnsafePointer<sockaddr>.self), socklen_t(MemoryLayout<sockaddr_in>.size))
-            if n == -1 {
-                perror("sendto error")
-            }
+            let bindSuccess = bind(_sock,
+                                   unsafeBitCast($0, to: UnsafePointer<sockaddr>.self),
+                                   socklen_t(MemoryLayout<sockaddr>.size))
+            assert(bindSuccess == 0)
         }
         
-        let res = [UInt8](repeating: 0, count: 128)
-        var resLen = socklen_t(MemoryLayout<sockaddr>.size)
-        withUnsafePointer(to: &addr) {
-            let n = Darwin.recvfrom(self.sock, UnsafeMutablePointer(mutating: res), res.count, 0, unsafeBitCast($0, to: UnsafeMutablePointer<sockaddr>.self), &resLen)
-            if n == -1 {
-                perror("recvfrom error")
+        self.sock     = _sock
+        self.receiver = Receiver(socket: self.sock)
+        self.receiver.listen()
+    }
+    
+    /// Send packet and pass response to handler
+    func send(_ packet: Packet, _ completionHandler: (([UInt8]) -> Void)? = nil) {
+        operationCount += 1
+        DispatchQueue.global(qos: .utility).async {
+            print(packet)
+            guard let data = Data(packet: packet) else { return }
+            var broadcastAddr = sockaddr_in()
+            broadcastAddr.sin_len         = UInt8(MemoryLayout<sockaddr>.size)
+            broadcastAddr.sin_family      = sa_family_t(AF_INET)
+            broadcastAddr.sin_addr.s_addr = INADDR_BROADCAST
+            broadcastAddr.sin_port        = UInt16(56700).bigEndian
+            withUnsafePointer(to: &broadcastAddr) {
+                let n = sendto(self.sock,
+                               (data as NSData).bytes,
+                               data.count,
+                               0,
+                               unsafeBitCast($0, to: UnsafePointer<sockaddr>.self),
+                               socklen_t(MemoryLayout<sockaddr_in>.size))
+                assert(n >= 0)
             }
-            print(res)
+            
+            if packet.header.res {
+                self.receiver.addTask(header: packet.header) { response in
+                    if let completionHandler = completionHandler {
+                        completionHandler(response)
+                    }
+                    self.operationCount -= 1
+                }
+            } else {
+                DispatchQueue.main.async {
+                    // There usually isn't a completionHandler if no response is expected
+                    if let completionHandler = completionHandler {
+                        completionHandler([UInt8]())
+                    }
+                    self.operationCount -= 1
+                }
+            }
         }
     }
     
-    func receive(_ packet: Packet, fromDevice device: LIFXDevice) {
-        
+    deinit {
+        self.receiver.stopListening()
+        let _ = close(self.sock)
     }
-    
-    func addDevice(_ device: LIFXDevice) {
-        
+}
+
+extension Data {
+    init?(packet: Packet) {
+        guard let payload = packet.payload else {
+            self.init(bytes: packet.header.bytes)
+            return
+        }
+        self.init(bytes: packet.header.bytes + payload.bytes)
     }
 }
 
 class LIFXDevice {
-    enum Service {
-        case udp
+    
+    enum Service: UInt8 {
+        case udp = 1
     }
     
     enum PowerState: UInt16 {
-        case on  = 56700
-        case off = 0
+        case enabled = 65535
+        case standby = 0
+        
+        var bytes: [UInt8] {
+            return [rawValue[0].toU8, rawValue[1].toU8]
+        }
     }
     
     var network: LIFXNetworkController
     var service: Service = .udp
     var port:    UInt32 = 56700
-    var address: String
-    var label:   String {
-        //get { return getLabel() }
-        //set {}
+    var address: UInt64
+    var label: Label {
         didSet {
             setLabel(label)
         }
     }
-    var power:   PowerState = .off {
-        //get { return getPower() }
-        //set {}
+    var power: PowerState = .standby {
         didSet {
-            setPower(level: power.rawValue)
+            setPower(level: power)
         }
     }
     
-    init(network: LIFXNetworkController) {
+    init(network: LIFXNetworkController, address: UInt64, label: Label) {
         self.network = network
-        self.address = ""
-        self.label   = "Foo"
+        self.address = address
+        self.label   = label
     }
     
-    private func getPower() -> UInt16 {
-        return 0
+    func getPower() {
+        network.send(Packet(type: DeviceMessage.getPower, to: address)) { response in
+            self.power = .enabled
+        }
     }
     
-    private func setPower(level: UInt16, duration: UInt32 = 0) {
-        
+    func setPower(level: PowerState, duration: Duration = 1024) {
+        network.send(Packet(type: DeviceMessage.setPower,
+                            with: level.bytes + duration.bytes,
+                            to:   address))
     }
     
-    fileprivate func getLabel() -> String {
-        return "Foo"
+    func getLabel() {
+        network.send(Packet(type: DeviceMessage.getLabel, to: address)) { response in
+            guard let label = String(bytes: response, encoding: .utf8) else {
+                print("getLabel error")
+                return
+            }
+            self.label = label
+        }
     }
     
-    fileprivate func setLabel(_ label: String) {
-        
+    func setLabel(_ label: String) {
+        network.send(Packet(type: DeviceMessage.setLabel, with: label.bytes, to: address))
+    }
+    
+    /// Get device service and port
+    func getService() {
+        network.send(Packet(type: DeviceMessage.getService, to: address)) { response in
+            if let service = Service(rawValue: response[0]) {
+                self.service = service
+            }
+            self.port = UnsafePointer(Array(response[1...4])).withMemoryRebound(to: UInt32.self,
+                                                                                capacity: 1,
+                                                                                { $0.pointee })
+        }
     }
     
     /*
-    /// - returns: device service and port
-    func getService() -> (Service, UInt32) {
-        network.send(Packet(tagged: true, target: 0, ack: false, res: false, type: 0), toDevice: self)
-    }
-    
-    /// - returns: host signal, tx, rx
+    /// Get host signal, tx, rx
     func getHostInfo() -> (Float32, UInt32, UInt32) {
         
     }
     
-    /// - returns: host firmware build, version
+    /// Get host firmware build, version
     func getHostFirmware() -> (UInt64, UInt32) {
         
     }
     
-    /// - returns: Wifi subsystem signal, tx, rx
+    /// Get Wifi subsystem signal, tx, rx
     func getWifiInfo() -> (Float32, UInt32, UInt32) {
         
     }
     
-    /// - returns: Wifi subsystem build, version
+    /// Get Wifi subsystem build, version
     func getWifiFirmware() -> (UInt64, UInt32) {
         
     }
     
-    /// - returns: device hardware vendor, product, version
+    /// Get device hardware vendor, product, version
     func getVersion() -> (UInt32, UInt32, UInt32) {
 
     }
+    */
     
-    /// - returns: device time, uptime, downtime
-    func getInfo() -> (UInt64, UInt64, UInt64) {
-
+    /// Print device time, uptime, downtime
+    func getInfo() {
+        network.send(Packet(type: DeviceMessage.getInfo, to: address)) { response in
+            let dtime    = UnsafePointer(Array(response[0...8])).withMemoryRebound(to: UInt64.self,
+                                                                                   capacity: 1,
+                                                                                   { $0.pointee })
+            let uptime   = UnsafePointer(Array(response[8...16])).withMemoryRebound(to: UInt64.self,
+                                                                                    capacity: 1,
+                                                                                    { $0.pointee })
+            let downtime = UnsafePointer(Array(response[16...24])).withMemoryRebound(to: UInt64.self,
+                                                                                     capacity: 1,
+                                                                                     { $0.pointee })
+            print("Device time: \(dtime), uptime: \(uptime), downtime: \(downtime)")
+        }
     }
     
-    /// - returns: device location, label, updated_at
+    /*
+    /// Get device location, label, updated_at
     func getLocation() -> ([UInt8], String, UInt64) {
 
     }
     
-    /// - returns: group, label, updated_at
+    /// Get group, label, updated_at
     func getGroup() -> ([UInt8], String, UInt64) {
 
     }
-    
-    /// - returns: echoed payload
-    func echoRequest(payload: [UInt8]) -> [UInt8] {
-
-    }
     */
+    
+    /// Send payload to device and print echo
+    func echoRequest(payload: [UInt8]) {
+        network.send(Packet(type: DeviceMessage.echoRequest, with: payload, to: address)) { response in
+            print("echo:\n\t\(response)")
+        }
+    }
 }
 
 extension LIFXDevice: Equatable {
@@ -259,52 +397,91 @@ extension LIFXDevice: Hashable {
 }
 
 class LIFXLight: LIFXDevice {
+    
     struct Color {
         var hue:        UInt16
         var saturation: UInt16
         var brightness: UInt16
         var kelvin:     UInt16
-    }
-    
-    var color: Color? = Color(hue: 128, saturation: 128, brightness: 128, kelvin: 0) //{
-        //get { /*return self.getState().0*/ }
-        //set {}
-    //}
-    
-    override init(network: LIFXNetworkController) {
-        super.init(network: network)
-        self.color = Color(hue: 0, saturation: 0, brightness: 0, kelvin: 0)
-    }
-    
-     /*
-    override private func getPower() -> UInt16 {
         
+        var brightnessAsPercentage: Int {
+            return Int(Double(brightness)/Double(UInt16.max) * 100)
+        }
+        
+        var bytes: [UInt8] {
+            let hue:        [UInt8] = [self.hue[0].toU8, self.hue[1].toU8]
+            let saturation: [UInt8] = [self.saturation[0].toU8, self.saturation[1].toU8]
+            let brightness: [UInt8] = [self.brightness[0].toU8, self.brightness[1].toU8]
+            let kelvin:     [UInt8] = [self.kelvin[0].toU8, self.kelvin[1].toU8]
+            return hue + saturation + brightness + kelvin
+        }
+    }
+    
+    var color: Color? = Color(hue: 21485, saturation: 65355, brightness: 30000, kelvin: 3500) {
+        didSet {
+            if let color = color {
+                setColor(color: color)
+            }
+        }
+    }
+    
+    override func getPower() {
+        network.send(Packet(type: LightMessage.getPower, to: address)) { response in
+            if let power = PowerState(rawValue: UnsafePointer(Array(response[0...2])).withMemoryRebound(
+                               to: UInt16.self, capacity: 1, { $0.pointee })) {
+                self.power = power
+            }
+        }
     }
 
-    override private func setPower(level: UInt16, duration: UInt32) {
-        
+    override func setPower(level: PowerState, duration: Duration = 1024) {
+        network.send(Packet(type: LightMessage.setPower,
+                            with: level.bytes + duration.bytes,
+                            to:   address))
     }
     
-    /// - returns: light color, power, label
-    func getState() -> (Color, UInt16, String) {
-        
+    func getState() {
+        network.send(Packet(type: LightMessage.getState)) { response in
+            self.color =
+                Color(hue:        UnsafePointer(Array(response[0...1])).withMemoryRebound(to: UInt16.self,
+                                                                                          capacity: 1,
+                                                                                          { $0.pointee }),
+                      saturation: UnsafePointer(Array(response[2...3])).withMemoryRebound(to: UInt16.self,
+                                                                                          capacity: 1,
+                                                                                          { $0.pointee }),
+                      brightness: UnsafePointer(Array(response[4...5])).withMemoryRebound(to: UInt16.self,
+                                                                                          capacity: 1,
+                                                                                          { $0.pointee }),
+                      kelvin:     UnsafePointer(Array(response[6...7])).withMemoryRebound(to: UInt16.self,
+                                                                                          capacity: 1,
+                                                                                          { $0.pointee }))
+            if let power =
+                PowerState(rawValue: UnsafePointer(Array(response[10...11])).withMemoryRebound(to: UInt16.self,
+                                                                                               capacity: 1,
+                                                                                               { $0.pointee })) {
+                self.power = power
+            }
+            if let label = String(bytes: response[12...43], encoding: .utf8) {
+                self.label = label
+            }
+        }
     }
     
-    func setColor(color: Color, duration: UInt32) {
-        self.color = color
+    func setColor(color: Color, duration: Duration = 1024) {
+        network.send(Packet(type: LightMessage.setColor,
+                            with: [0] + color.bytes + duration.bytes,
+                            to:   address))
     }
-    */
 }
 
-extension NSColor {
-    convenience init?(from color: LIFXLight.Color?) {
-        if let _ = color {
-            self.init(hue:        0.5, //CGFloat(color.hue),
-                      saturation: 0.6, //CGFloat(color.saturation),
-                      brightness: 0.7, //CGFloat(color.brightness),
-                      alpha:      1.0)
-        } else {
-            return nil
-        }
+extension Label {
+    var bytes: [UInt8] {
+        return [UInt8](utf8)
+    }
+}
+
+extension Duration {
+    var bytes: [UInt8] {
+        return [self[0].toU8, self[1].toU8, self[2].toU8, self[3].toU8]
     }
 }

@@ -21,5 +21,4 @@ class PreferencesWindowController: NSWindowController {
         self.window?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
-    
 }
