@@ -20,7 +20,11 @@ class StatusMenuItemViewController: NSViewController {
     var device: LIFXDevice!
     
     override func viewDidLoad() {
-        labelTextField.stringValue = device.label
+        updateViews()
+    }
+    
+    func updateViews() {
+        labelTextField.stringValue = device.label ?? "Unknown"
         if let light = device as? LIFXLight {
             brightnessSlider.integerValue = light.color!.brightnessAsPercentage
             lightColorView.color = NSColor(from: light.color)
@@ -36,10 +40,6 @@ class StatusMenuItemViewController: NSViewController {
         if let light = device as? LIFXLight {
             light.color!.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
         }
-    }
-    
-    @IBAction func toggleBulbState(_ sender: NSClickGestureRecognizer) {
-        device.power = (device.power == .enabled) ? .standby : .enabled
     }
 }
 

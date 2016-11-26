@@ -8,13 +8,11 @@
 
 import Cocoa
 
-class StatusMenuController: NSObject {
+class StatusMenuController: NSObject, NSMenuDelegate {
     
     enum StatusMessage: String {
         case normal    = "LIFX: Normal"
-        case error     = "LIFX: Error"
         case searching = "LIFX: Looking for Devices..."
-        case none      = "LIFX: No Devices Found"
     }
     
     enum ToggleAllState: String {
@@ -30,7 +28,7 @@ class StatusMenuController: NSObject {
     private var deviceMenuItems = [LIFXDevice:NSMenuItem]()
     private let preferences     = PreferencesWindowController()
     private var model           = LIFXModel()
-    private var statusMessage   = StatusMessage.searching {
+    private var statusMessage   = StatusMessage.normal {
         didSet {
             statusMessageMenuItem.title = statusMessage.rawValue
         }
@@ -50,27 +48,29 @@ class StatusMenuController: NSObject {
         toggleAllMenuItem.title     = toggleAllState.rawValue
         statusItem.menu             = statusMenu
         
-        model.scan { response in
+        model.onDiscovery {
             self.updateMenu()
-            self.statusMessage = .normal
         }
+        model.discover()
     }
     
     private func updateMenu() {
+        // Remove menu items that don't have a corresponding device after model update
+        for (oldDevice, menuItem) in deviceMenuItems {
+            if !model.devices.contains(oldDevice) {
+                statusMenu.removeItem(menuItem)
+                deviceMenuItems[oldDevice] = nil
+            }
+        }
+        
         if model.devices.count > 0 {
             placeholderMenuItem.isHidden = true
-            // Remove menu items that don't have a corresponding device after model update
-            for (oldDevice, menuItem) in deviceMenuItems {
-                if !model.devices.contains(oldDevice) {
-                    statusMenu.removeItem(menuItem)
-                    deviceMenuItems[oldDevice] = nil
-                }
-            }
-            // Add new menu items for new devices after model update
             for device in model.devices {
+                // Skip existing menu item views
                 if deviceMenuItems[device] != nil {
                     continue
                 }
+                // Add new menu items for new devices after model update
                 let menuItemController = StatusMenuItemViewController()
                 menuItemController.device = device
                 let menuItem = NSMenuItem()
@@ -80,6 +80,11 @@ class StatusMenuController: NSObject {
                 menuItem.action = #selector(doNothing(_:))
                 statusMenu.insertItem(menuItem, at: statusMenu.index(of: placeholderMenuItem))
                 deviceMenuItems[device] = menuItem
+                model.onUpdate(device: device, {
+                    print("model: device update\n")
+                    (self.deviceMenuItems[device]?.representedObject as!
+                        StatusMenuItemViewController).updateViews()
+                })
             }
         } else {
             toggleAllMenuItem.isEnabled  = false
@@ -87,7 +92,7 @@ class StatusMenuController: NSObject {
         }
     }
     
-    // Needed so that validateMenuItem: returns true and allows HighlightingView to draw highlight
+    // Needed so that validateMenuItem() returns true and allows HighlightingView to draw highlight
     func doNothing(_ sender: NSMenuItem) {}
     
     @IBAction func toggleAllLights(_ sender: NSMenuItem) {
@@ -98,6 +103,17 @@ class StatusMenuController: NSObject {
     
     @IBAction func showPreferences(_ sender: NSMenuItem) {
         preferences.showWindow(nil)
+    }
+    
+    // MARK: - NSMenuDelegate
+    
+    func menuWillOpen(_ menu: NSMenu) {
+        for device in model.devices {
+            if let light = device as? LIFXLight {
+                light.getState()
+            }
+        }
+        updateMenu()
     }
 
 }

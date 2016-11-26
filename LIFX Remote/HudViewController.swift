@@ -19,10 +19,10 @@ class HudViewController: NSViewController {
     var device: LIFXDevice!
 
     override func viewDidLoad() {
-        labelTextField.stringValue = device.label
+        labelTextField.stringValue = device.label ?? "Unknown"
     }
     
     @IBAction func togglePower(_ sender: NSButton) {
-        device.setPower(level: .enabled)
+        device.power = (device.power == .enabled) ? .standby : .enabled
     }
 }

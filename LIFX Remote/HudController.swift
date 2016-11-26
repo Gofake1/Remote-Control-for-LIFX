@@ -31,7 +31,7 @@ class HudController: NSWindowController {
         
         let hudController = HudController()
         hudController.device = device
-        hudController.window?.title = device.label
+        hudController.window?.title = device.label ?? "Unknown"
         HudController.openedWindows[device] = hudController
         hudController.showWindow(nil)
     }

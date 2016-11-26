@@ -31,13 +31,6 @@
                 <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eUP-yV-IVb" customClass="StatusMenuColorView" customModule="LIFX_Remote" customModuleProvider="target">
                     <rect key="frame" x="166" y="20" width="16" height="16"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <gestureRecognizers>
-                        <clickGestureRecognizer delaysPrimaryMouseButtonEvents="YES" numberOfClicksRequired="1" id="Mhf-BR-sNI">
-                            <connections>
-                                <action selector="toggleBulbState:" target="-2" id="77g-ko-9g2"/>
-                            </connections>
-                        </clickGestureRecognizer>
-                    </gestureRecognizers>
                 </customView>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kuB-aP-UJn">
                     <rect key="frame" x="19" y="20" width="142" height="17"/>

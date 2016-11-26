@@ -68,27 +68,28 @@ struct Packet {
     var payload: Payload?
     
     /// - parameter target: MAC address or nil (all devices)
-    init(type: Messagable, with payload: [UInt8]? = nil, to target: UInt64? = nil) {
+    init(type: Messagable, with payload: [UInt8]? = nil, to target: Address? = nil) {
         self.header  = Header(type: type, target: target)
         self.payload = Payload(bytes: payload)
     }
     
     init?(bytes: [UInt8]) {
-        guard let header = Header(bytes: Array(bytes[0...36])) else { return nil }
+        guard let header = Header(bytes: Array(bytes[0...35])) else { return nil }
         self.header  = header
-        self.payload = Payload(bytes: Array(bytes[36...bytes.count]))
+        self.payload = Payload(bytes: Array(bytes[36..<bytes.count]))
     }
 }
 
 extension Packet: CustomStringConvertible {
     var description: String {
-        var d = "header:\n\ttype: \(header.type)\n\tbytes: \(header.bytes)\n"        
-        if let payload = payload {
-            d += "payload:\n\tbytes: \(payload.bytes)"
-        } else {
-            d += "payload:\n\tnone"
-        }
-        return d
+//        var d = "header:\n\ttype: \(header.type)\n\ttarget: \(header.target)\n\tbytes: \(header.bytes)\n"
+//        if let payload = payload {
+//            d += "payload:\n\tbytes: \(payload.bytes)"
+//        } else {
+//            d += "payload:\n\tnone"
+//        }
+//        return d
+        return "\(header.type) packet to \(header.target)"
     }
 }
 
@@ -111,7 +112,7 @@ struct Header {
     var source: UInt32 = 0
     
     // Frame address
-    var target: UInt64 // MAC address or 0 (broadcast)
+    var target: Address // MAC address or 0 (broadcast)
     var ack: Bool = false
     var res: Bool = false
     var sequence: UInt8 {
@@ -139,14 +140,14 @@ struct Header {
             source[1].toU8,
             source[2].toU8,
             source[3].toU8,
-            target[0].toU8,
-            target[1].toU8,
-            target[2].toU8,
-            target[3].toU8,
-            target[4].toU8,
-            target[5].toU8,
-            target[6].toU8,
             target[7].toU8,
+            target[6].toU8,
+            target[5].toU8,
+            target[4].toU8,
+            target[3].toU8,
+            target[2].toU8,
+            target[1].toU8,
+            target[0].toU8,
             0, 0, 0, 0, 0, 0,       // Frame address reserved
             flags,
             sequence,
@@ -157,7 +158,7 @@ struct Header {
         ]
     }
     
-    init(type: Messagable, target: UInt64?) {
+    init(type: Messagable, target: Address?) {
         self.type = type
         self.target = target ?? 0
         
@@ -189,14 +190,15 @@ struct Header {
         let rawValue = UnsafePointer(Array(bytes[32...33])).withMemoryRebound(to: UInt16.self,
                                                                               capacity: 1,
                                                                               { $0.pointee })
-        if let type: Messagable = rawValue > 100 ? DeviceMessage(rawValue: rawValue) :
-                                                   LightMessage(rawValue: rawValue) {
+        if let type: Messagable = rawValue > 100 ? LightMessage(rawValue: rawValue) :
+                                                   DeviceMessage(rawValue: rawValue) {
             self.type = type
         } else {
+            print("\tunknown packet type value: \(rawValue)\n")
             return nil
         }
         
-        self.target = UnsafePointer(Array(bytes[8...16])).withMemoryRebound(to: UInt64.self,
+        self.target = UnsafePointer(Array(bytes[8...15])).withMemoryRebound(to: Address.self,
                                                                             capacity: 1,
                                                                             { $0.pointee })
     }
