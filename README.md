@@ -13,5 +13,3 @@ LIFX Remote doesn't feature:
 
 # Credits
 [Bitter](https://github.com/uraimo/Bitter) (Umberto Raimondi)
-
-*This project is available under the GPLv3 License*

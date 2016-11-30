@@ -85,7 +85,7 @@ class LIFXModel {
 
 class LIFXNetworkController {
     
-    /// `Receiver` continually receives state updates and executes their associated completion handlers
+    /// `Receiver` continually receives device state updates and executes their associated completion handlers
     class Receiver {
         private var socket: Int32
         private var isReceiving = false
@@ -124,18 +124,21 @@ class LIFXNetworkController {
                                          &recvAddrLen)
                         assert(n >= 0, String(validatingUTF8: strerror(errno))!)
                         
-                        print("response:")
-                        //print("\t\(recvAddr.sin_addr.s_addr.bigEndian):\(recvAddr.sin_port.bigEndian)")
-                        guard let packet = Packet(bytes: response) else { return }
-                        //print("response: \(response)")
-                        //print("packet:   \(packet.header.bytes + (packet.payload?.bytes ?? [UInt8]()))")
-                        print("\tfrom \(packet.header.target.bigEndian)")
-                        print("\t\(packet.header.type)\n")
+                        var log = "response:\n"
+                        guard let packet = Packet(bytes: response) else {
+                            log += "\tunknown packet type\n"
+                            print(log)
+                            return
+                        }
+                        log += "\tfrom \(packet.header.target.bigEndian)\n"
+                        log += "\t\(packet.header.type)\n"
+                        print(log)
                         
                         let target    = packet.header.target.bigEndian
                         let type      = packet.header.type.message
                         var _response = packet.payload?.bytes ?? [UInt8]()
                         var task: (([UInt8]) -> Void)?
+                        
                         // Handle discovery response
                         if type == DeviceMessage.stateService.rawValue {
                             // This packet is from a known address
@@ -153,6 +156,7 @@ class LIFXNetworkController {
                                 task = tasks[type]
                             }
                         }
+                        
                         // Execute the task
                         guard let _task = task else { return }
                         DispatchQueue.main.async {
@@ -256,21 +260,42 @@ class LIFXDevice {
         }
     }
     
+    struct WifiInfo {
+        var signal:  Float32?
+        var tx:      UInt32?
+        var rx:      UInt32?
+        var build:   UInt64?
+        var version: UInt32?
+    }
+    
+    struct DeviceInfo {
+        var vendor:  UInt32?
+        var product: UInt32?
+        var version: UInt32?
+    }
+    
+    struct Location {
+        var location:  [UInt8]?
+        var label:     String?
+        var updatedAt: UInt64?
+    }
+    
+    struct Group {
+        var group:     [UInt8]?
+        var label:     String?
+        var updatedAt: UInt64?
+    }
+    
     var network: LIFXNetworkController
-    var service: Service = .udp
-    var port:    UInt32 = 56700
+    var service  = Service.udp
+    var port     = UInt32(56700)
     var address: Address
-    var label: Label? {
-        didSet {
-            guard let label = label else { return }
-            setLabel(label)
-        }
-    }
-    var power: PowerState = .standby {
-        didSet {
-            setPower(level: power)
-        }
-    }
+    var label:   Label?
+    var power    = PowerState.standby
+    var wifi     = WifiInfo()
+    var device   = DeviceInfo()
+    var location = Location()
+    var group    = Group()
     
     init(network: LIFXNetworkController, address: Address, label: Label?) {
         self.network = network
@@ -311,9 +336,10 @@ class LIFXDevice {
         network.send(Packet(type: DeviceMessage.getPower, to: address))
     }
     
-    func setPower(level: PowerState, duration: Duration = 1024) {
+    func setPower(level power: PowerState, duration: Duration = 1024) {
+        self.power = power
         network.send(Packet(type: DeviceMessage.setPower,
-                            with: level.bytes + duration.bytes,
+                            with: power.bytes + duration.bytes,
                             to:   address))
     }
     
@@ -327,22 +353,20 @@ class LIFXDevice {
         network.send(Packet(type: DeviceMessage.getLabel, to: address))
     }
     
-    func setLabel(_ label: String) {
+    func setLabel(_ label: Label) {
+        self.label = label
         network.send(Packet(type: DeviceMessage.setLabel, with: label.bytes, to: address))
     }
     
     func stateLabel(_ response: [UInt8]) {
-        guard let label = String(bytes: response[0...35], encoding: .utf8) else {
-            print("getLabel error")
-            return
+        if let label = String(bytes: response[0...31], encoding: .utf8) {
+            self.label = label
         }
-        self.label = label
     }
     
-    /*
     /// Get host signal, tx, rx
-    func getHostInfo() -> (Float32, UInt32, UInt32) {
-        
+    func getHostInfo() {
+        network.send(Packet(type: DeviceMessage.getHostInfo, to: address))
     }
     
     func stateHostInfo(_ response: [UInt8]) {
@@ -350,8 +374,8 @@ class LIFXDevice {
     }
     
     /// Get host firmware build, version
-    func getHostFirmware() -> (UInt64, UInt32) {
-        
+    func getHostFirmware() {
+        network.send(Packet(type: DeviceMessage.getHostFirmware, to: address))
     }
     
     func stateHostFirmware(_ response: [UInt8]) {
@@ -359,32 +383,52 @@ class LIFXDevice {
     }
     
     /// Get Wifi subsystem signal, tx, rx
-    func getWifiInfo() -> (Float32, UInt32, UInt32) {
-        
+    func getWifiInfo() {
+        network.send(Packet(type: DeviceMessage.getWifiInfo, to: address))
     }
     
     func stateWifiInfo(_ response: [UInt8]) {
-    
+        self.wifi.signal = UnsafePointer(Array(response[0...3])).withMemoryRebound(to: Float32.self,
+                                                                                   capacity: 1,
+                                                                                   { $0.pointee })
+        self.wifi.tx = UnsafePointer(Array(response[4...7])).withMemoryRebound(to: UInt32.self,
+                                                                               capacity: 1,
+                                                                               { $0.pointee })
+        self.wifi.rx = UnsafePointer(Array(response[8...11])).withMemoryRebound(to: UInt32.self,
+                                                                                capacity: 1,
+                                                                                { $0.pointee })
     }
     
     /// Get Wifi subsystem build, version
-    func getWifiFirmware() -> (UInt64, UInt32) {
-        
+    func getWifiFirmware() {
+        network.send(Packet(type: DeviceMessage.getWifiFirmware, to: address))
     }
     
     func stateWifiFirmware(_ response: [UInt8]) {
-    
+        self.wifi.build = UnsafePointer(Array(response[0...7])).withMemoryRebound(to: UInt64.self,
+                                                                                  capacity: 1,
+                                                                                  { $0.pointee })
+        self.wifi.version = UnsafePointer(Array(response[16...19])).withMemoryRebound(to: UInt32.self,
+                                                                                      capacity: 1,
+                                                                                      { $0.pointee })
     }
     
     /// Get device hardware vendor, product, version
-    func getVersion() -> (UInt32, UInt32, UInt32) {
-
+    func getVersion() {
+        network.send(Packet(type: DeviceMessage.getVersion, to: address))
     }
     
     func stateVersion(_ response: [UInt8]) {
-    
+        self.device.vendor = UnsafePointer(Array(response[0...3])).withMemoryRebound(to: UInt32.self,
+                                                                                     capacity: 1,
+                                                                                     { $0.pointee })
+        self.device.product = UnsafePointer(Array(response[4...7])).withMemoryRebound(to: UInt32.self,
+                                                                                      capacity: 1,
+                                                                                      { $0.pointee })
+        self.device.version = UnsafePointer(Array(response[8...11])).withMemoryRebound(to: UInt32.self,
+                                                                                       capacity: 1,
+                                                                                       { $0.pointee })
     }
-    */
     
     /// Print device time, uptime, downtime
     func getInfo() {
@@ -392,44 +436,54 @@ class LIFXDevice {
     }
     
     func stateInfo(_ response: [UInt8]) {
-        let dtime    = UnsafePointer(Array(response[0...8])).withMemoryRebound(to: UInt64.self,
-                                                                               capacity: 1,
-                                                                               { $0.pointee })
-        let uptime   = UnsafePointer(Array(response[8...16])).withMemoryRebound(to: UInt64.self,
-                                                                                capacity: 1,
-                                                                                { $0.pointee })
+        let dtime = UnsafePointer(Array(response[0...8])).withMemoryRebound(to: UInt64.self,
+                                                                            capacity: 1,
+                                                                            { $0.pointee })
+        let uptime = UnsafePointer(Array(response[8...16])).withMemoryRebound(to: UInt64.self,
+                                                                              capacity: 1,
+                                                                              { $0.pointee })
         let downtime = UnsafePointer(Array(response[16...24])).withMemoryRebound(to: UInt64.self,
                                                                                  capacity: 1,
                                                                                  { $0.pointee })
-        print("Device time: \(dtime), uptime: \(uptime), downtime: \(downtime)")
+        print("Device time: \(dtime), uptime: \(uptime), downtime: \(downtime)\n")
     }
     
-    /*
     /// Get device location, label, updated_at
-    func getLocation() -> ([UInt8], String, UInt64) {
-
+    func getLocation() {
+        network.send(Packet(type: DeviceMessage.getLocation, to: address))
     }
     
     func stateLocation(_ response: [UInt8]) {
-    
+        self.location.location = Array(response[0...15])
+        if let label = String(bytes: response[16...47], encoding: .utf8) {
+            self.location.label = label
+        }
+        self.location.updatedAt = UnsafePointer(Array(response[48...55])).withMemoryRebound(to: UInt64.self,
+                                                                                            capacity: 1,
+                                                                                            { $0.pointee })
     }
     
     /// Get group, label, updated_at
-    func getGroup() -> ([UInt8], String, UInt64) {
-
+    func getGroup() {
+        network.send(Packet(type: DeviceMessage.getGroup, to: address))
     }
     
     func stateGroup(_ response: [UInt8]) {
-    
+        self.group.group = Array(response[0...15])
+        if let label = String(bytes: response[16...47], encoding: .utf8) {
+            self.group.label = label
+        }
+        self.group.updatedAt = UnsafePointer(Array(response[48...55])).withMemoryRebound(to: UInt64.self,
+                                                                                         capacity: 1,
+                                                                                         { $0.pointee })
     }
-    */
     
     func echoRequest(payload: [UInt8]) {
         network.send(Packet(type: DeviceMessage.echoRequest, with: payload, to: address))
     }
     
     func echoResponse(_ response: [UInt8]) {
-        print("echo:\n\t\(response)")
+        print("echo:\n\t\(response)\n")
     }
 }
 
@@ -472,13 +526,8 @@ class LIFXLight: LIFXDevice {
         }
     }
     
-    var color: Color? = Color(hue: 21485, saturation: 65355, brightness: 30000, kelvin: 3500) {
-        didSet {
-            if let color = color {
-                setColor(color: color)
-            }
-        }
-    }
+    var color: Color?
+    var infrared: UInt16?
     
     override init(network: LIFXNetworkController, address: Address, label: Label?) {
         super.init(network: network, address: address, label: label)
@@ -486,9 +535,12 @@ class LIFXLight: LIFXDevice {
         self.network.receiver.register(address: address, type: LightMessage.statePower, task: { response in
             self.statePower(response)
         })
-        // State change handler replaced by LIFXModel.onUpdate
+        // This handler is replaced in LIFXModel.onUpdate
         self.network.receiver.register(address: address, type: LightMessage.state, task: { response in
             self.state(response)
+        })
+        self.network.receiver.register(address: address, type: LightMessage.stateInfrared, task: { response in
+            self.stateInfrared(response)
         })
     }
     
@@ -496,9 +548,10 @@ class LIFXLight: LIFXDevice {
         network.send(Packet(type: LightMessage.getPower, to: address))
     }
 
-    override func setPower(level: PowerState, duration: Duration = 1024) {
+    override func setPower(level power: PowerState, duration: Duration = 1024) {
+        self.power = power
         network.send(Packet(type: LightMessage.setPower,
-                            with: level.bytes + duration.bytes,
+                            with: power.bytes + duration.bytes,
                             to:   address))
     }
     
@@ -514,18 +567,18 @@ class LIFXLight: LIFXDevice {
     
     func state(_ response: [UInt8]) {
         self.color =
-            Color(hue:        UnsafePointer(Array(response[0...1])).withMemoryRebound(to: UInt16.self,
-                                                                                      capacity: 1,
-                                                                                      { $0.pointee }),
+            Color(hue: UnsafePointer(Array(response[0...1])).withMemoryRebound(to: UInt16.self,
+                                                                               capacity: 1,
+                                                                               { $0.pointee }),
                   saturation: UnsafePointer(Array(response[2...3])).withMemoryRebound(to: UInt16.self,
                                                                                       capacity: 1,
                                                                                       { $0.pointee }),
                   brightness: UnsafePointer(Array(response[4...5])).withMemoryRebound(to: UInt16.self,
                                                                                       capacity: 1,
                                                                                       { $0.pointee }),
-                  kelvin:     UnsafePointer(Array(response[6...7])).withMemoryRebound(to: UInt16.self,
-                                                                                      capacity: 1,
-                                                                                      { $0.pointee }))
+                  kelvin: UnsafePointer(Array(response[6...7])).withMemoryRebound(to: UInt16.self,
+                                                                                  capacity: 1,
+                                                                                  { $0.pointee }))
         if let power =
             PowerState(rawValue: UnsafePointer(Array(response[10...11])).withMemoryRebound(to: UInt16.self,
                                                                                            capacity: 1,
@@ -537,25 +590,27 @@ class LIFXLight: LIFXDevice {
         }
     }
     
-    func setColor(color: Color, duration: Duration = 1024) {
+    func setColor(_ color: Color, duration: Duration = 1024) {
+        self.color = color
         network.send(Packet(type: LightMessage.setColor,
                             with: [0] + color.bytes + duration.bytes,
                             to:   address))
     }
     
-    /*
     func getInfrared() {
-        network.send(Packet(type: LightMessage.getInfrared))
+        network.send(Packet(type: LightMessage.getInfrared, to: address))
     }
     
-    func setInfrared() {
-        network.send(Packet(type: LightMessage.setInfrared))
+    func setInfrared(level infrared: UInt16) {
+        self.infrared = infrared
+        network.send(Packet(type: LightMessage.setInfrared, with: [], to: address))
     }
     
     func stateInfrared(_ response: [UInt8]) {
-        
+        self.infrared = UnsafePointer(Array(response[0...1])).withMemoryRebound(to: UInt16.self,
+                                                                                capacity: 1,
+                                                                                { $0.pointee })
     }
-    */
 }
 
 extension Label {

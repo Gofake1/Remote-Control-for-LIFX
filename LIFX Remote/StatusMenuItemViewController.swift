@@ -23,11 +23,14 @@ class StatusMenuItemViewController: NSViewController {
         updateViews()
     }
     
+    // Can be called by StatusMenuController
     func updateViews() {
         labelTextField.stringValue = device.label ?? "Unknown"
+        brightnessSlider.isEnabled = (device.power == .enabled) ? true : false
         if let light = device as? LIFXLight {
-            brightnessSlider.integerValue = light.color!.brightnessAsPercentage
-            lightColorView.color = NSColor(from: light.color)
+            guard let color = light.color else { return }
+            brightnessSlider.integerValue = color.brightnessAsPercentage
+            lightColorView.color = NSColor(from: color)
         }
     }
     
@@ -36,9 +39,10 @@ class StatusMenuItemViewController: NSViewController {
     }
     
     @IBAction func updateBrightness(_ sender: NSSlider) {
-        print("\(device.label) brightness: \(UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max)))")
         if let light = device as? LIFXLight {
-            light.color!.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
+            guard var color = light.color else { return }
+            color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
+            light.setColor(color)
         }
     }
 }

@@ -16,6 +16,7 @@
 		4A5B5B541D37569F009CD119 /* StatusMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B5B531D37569F009CD119 /* StatusMenuController.swift */; };
 		4A5B85101DE26039006A9C54 /* HudViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B850E1DE26039006A9C54 /* HudViewController.swift */; };
 		4A5B85121DE26047006A9C54 /* HudViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A5B85141DE26047006A9C54 /* HudViewController.xib */; };
+		4A5B85161DEA6DAE006A9C54 /* ColorWheel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B85151DEA6DAE006A9C54 /* ColorWheel.swift */; };
 		4A62C9881DD98C74000F77FE /* HudController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A62C9861DD98C74000F77FE /* HudController.swift */; };
 		4A62C98A1DD98C87000F77FE /* HudController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A62C98C1DD98C87000F77FE /* HudController.xib */; };
 		4A62C98D1DD98CAD000F77FE /* PreferencesWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A62C98F1DD98CAD000F77FE /* PreferencesWindowController.xib */; };
@@ -51,6 +52,7 @@
 		4A5B5B531D37569F009CD119 /* StatusMenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusMenuController.swift; sourceTree = "<group>"; };
 		4A5B850E1DE26039006A9C54 /* HudViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HudViewController.swift; sourceTree = "<group>"; };
 		4A5B85131DE26047006A9C54 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/HudViewController.xib; sourceTree = "<group>"; };
+		4A5B85151DEA6DAE006A9C54 /* ColorWheel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorWheel.swift; sourceTree = "<group>"; };
 		4A62C9861DD98C74000F77FE /* HudController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HudController.swift; sourceTree = "<group>"; };
 		4A62C98B1DD98C87000F77FE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/HudController.xib; sourceTree = "<group>"; };
 		4A62C98E1DD98CAD000F77FE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/PreferencesWindowController.xib; sourceTree = "<group>"; };
@@ -104,6 +106,7 @@
 				4A62C98C1DD98C87000F77FE /* HudController.xib */,
 				4A5B850E1DE26039006A9C54 /* HudViewController.swift */,
 				4A5B85141DE26047006A9C54 /* HudViewController.xib */,
+				4A5B85151DEA6DAE006A9C54 /* ColorWheel.swift */,
 				4A55E89C1D379F6C0048B0C6 /* PreferencesWindowController.swift */,
 				4A62C98F1DD98CAD000F77FE /* PreferencesWindowController.xib */,
 				4AA6BDC31D14C52300F0D0CF /* LIFXModel.swift */,
@@ -202,6 +205,7 @@
 				4A62C9951DD995B2000F77FE /* StatusMenuItemViewController.swift in Sources */,
 				4A55E89E1D379F6C0048B0C6 /* PreferencesWindowController.swift in Sources */,
 				4A583AD51D139800005A4691 /* LIFXProtocol.swift in Sources */,
+				4A5B85161DEA6DAE006A9C54 /* ColorWheel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

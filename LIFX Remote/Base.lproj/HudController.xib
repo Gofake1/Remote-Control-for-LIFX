@@ -16,7 +16,7 @@
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" frameAutosaveName="" animationBehavior="default" id="s28-II-e6W" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" utility="YES" HUD="YES"/>
             <windowPositionMask key="initialPositionMask" rightStrut="YES" topStrut="YES"/>
-            <rect key="contentRect" x="1752" y="900" width="160" height="270"/>
+            <rect key="contentRect" x="1752" y="882" width="160" height="270"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1200"/>
             <view key="contentView" id="pm0-0N-cBF">
                 <rect key="frame" x="0.0" y="0.0" width="160" height="270"/>

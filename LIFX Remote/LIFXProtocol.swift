@@ -82,13 +82,6 @@ struct Packet {
 
 extension Packet: CustomStringConvertible {
     var description: String {
-//        var d = "header:\n\ttype: \(header.type)\n\ttarget: \(header.target)\n\tbytes: \(header.bytes)\n"
-//        if let payload = payload {
-//            d += "payload:\n\tbytes: \(payload.bytes)"
-//        } else {
-//            d += "payload:\n\tnone"
-//        }
-//        return d
         return "\(header.type) packet to \(header.target)"
     }
 }
@@ -194,7 +187,6 @@ struct Header {
                                                    DeviceMessage(rawValue: rawValue) {
             self.type = type
         } else {
-            print("\tunknown packet type value: \(rawValue)\n")
             return nil
         }
         

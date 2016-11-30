@@ -16,13 +16,39 @@ class HudViewController: NSViewController {
     
     @IBOutlet weak var labelTextField: NSTextField!
     @IBOutlet weak var powerButton: NSButton!
+    @IBOutlet weak var brightnessSlider: NSSlider!
+    @IBOutlet weak var wifiTextField: NSTextField!
+    @IBOutlet weak var modelTextLabel: NSTextField!
     var device: LIFXDevice!
+    var devicePower: NSNumber = 0 {
+        didSet {
+            device.setPower(level: (devicePower == 1) ? .enabled : .standby)
+            brightnessSlider.isEnabled = (devicePower == 1) ? true : false
+        }
+    }
 
     override func viewDidLoad() {
-        labelTextField.stringValue = device.label ?? "Unknown"
+        updateViews()
     }
     
-    @IBAction func togglePower(_ sender: NSButton) {
-        device.power = (device.power == .enabled) ? .standby : .enabled
+    override func viewWillAppear() {
+        updateViews()
+    }
+    
+    func updateViews() {
+        labelTextField.stringValue = device.label ?? "Unknown"
+        devicePower = (device.power == .enabled) ? 1 : 0
+        if let light = device as? LIFXLight {
+            guard let color = light.color else { return }
+            brightnessSlider.integerValue = color.brightnessAsPercentage
+        }
+    }
+    
+    @IBAction func updateBrightness(_ sender: NSSlider) {
+        if let light = device as? LIFXLight {
+            guard var color = light.color else { return }
+            color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
+            light.setColor(color)
+        }
     }
 }
