@@ -26,7 +26,6 @@ class StatusMenuController: NSObject, NSMenuDelegate {
     @IBOutlet weak var placeholderMenuItem:   NSMenuItem!
     private let statusItem      = NSStatusBar.system().statusItem(withLength: NSSquareStatusItemLength)
     private var deviceMenuItems = [LIFXDevice:NSMenuItem]()
-    private let preferences     = PreferencesWindowController()
     private var model           = LIFXModel()
     private var statusMessage   = StatusMessage.normal {
         didSet {
@@ -41,6 +40,7 @@ class StatusMenuController: NSObject, NSMenuDelegate {
         }
         return .turnOn
     }
+    private var preferences = PreferencesWindowController()
     
     override func awakeFromNib() {
         statusItem.image            = NSImage(named: "StatusBarButtonImage")
@@ -102,6 +102,7 @@ class StatusMenuController: NSObject, NSMenuDelegate {
     }
     
     @IBAction func showPreferences(_ sender: NSMenuItem) {
+        preferences.model = model
         preferences.showWindow(nil)
     }
     

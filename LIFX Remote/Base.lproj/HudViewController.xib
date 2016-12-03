@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="16C48b" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="16C53a" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
@@ -9,8 +9,9 @@
         <customObject id="-2" userLabel="File's Owner" customClass="HudViewController" customModule="LIFX_Remote" customModuleProvider="target">
             <connections>
                 <outlet property="brightnessSlider" destination="Ucm-GV-8xF" id="D4J-9e-v7d"/>
+                <outlet property="colorWheel" destination="xfd-eC-xzJ" id="tjR-Rc-pCv"/>
                 <outlet property="labelTextField" destination="pHq-Zb-l6c" id="MFe-wO-UKQ"/>
-                <outlet property="modelTextLabel" destination="1vm-JY-Rvb" id="r9u-Gg-AcQ"/>
+                <outlet property="modelTextField" destination="1vm-JY-Rvb" id="MX8-0H-KEB"/>
                 <outlet property="powerButton" destination="8Vt-UE-O6h" id="m7q-AE-oxe"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
                 <outlet property="wifiTextField" destination="czn-g7-Onr" id="MLO-Qz-3nI"/>
@@ -23,7 +24,7 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pHq-Zb-l6c">
-                    <rect key="frame" x="8" y="245" width="120" height="17"/>
+                    <rect key="frame" x="8" y="245" width="129" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="LIFX Bulb" id="czn-OX-RFc">
                         <font key="font" metaFont="system"/>
@@ -49,12 +50,7 @@
                 </button>
                 <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xfd-eC-xzJ" customClass="ColorWheel" customModule="LIFX_Remote" customModuleProvider="target">
                     <rect key="frame" x="5" y="89" width="150" height="150"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
-                    <userDefinedRuntimeAttributes>
-                        <userDefinedRuntimeAttribute type="color" keyPath="selectedColor">
-                            <color key="value" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
-                        </userDefinedRuntimeAttribute>
-                    </userDefinedRuntimeAttributes>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                 </customView>
                 <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ucm-GV-8xF">
                     <rect key="frame" x="3" y="64" width="154" height="19"/>
@@ -83,18 +79,18 @@
                     </textFieldCell>
                 </textField>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1vm-JY-Rvb">
-                    <rect key="frame" x="79" y="11" width="72" height="14"/>
+                    <rect key="frame" x="51" y="11" width="100" height="14"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Label" id="cKa-Uq-ula">
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="right" title="Unknown" id="cKa-Uq-ula">
                         <font key="font" metaFont="smallSystem"/>
                         <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="czn-g7-Onr">
-                    <rect key="frame" x="79" y="33" width="72" height="14"/>
+                    <rect key="frame" x="51" y="33" width="100" height="14"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Label" id="u1j-b2-Kzz">
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="right" title="Unknown" id="u1j-b2-Kzz">
                         <font key="font" metaFont="smallSystem"/>
                         <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -105,6 +101,6 @@
         </customView>
     </objects>
     <resources>
-        <image name="HudPowerButtonImage" width="177" height="202"/>
+        <image name="HudPowerButtonImage" width="89" height="101"/>
     </resources>
 </document>

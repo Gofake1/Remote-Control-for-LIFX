@@ -14,9 +14,9 @@ class StatusMenuItemViewController: NSViewController {
         return "StatusMenuItemViewController"
     }
     
-    @IBOutlet weak var labelTextField: NSTextField!
+    @IBOutlet weak var labelTextField:   NSTextField!
     @IBOutlet weak var brightnessSlider: NSSlider!
-    @IBOutlet weak var lightColorView: StatusMenuColorView!
+    @IBOutlet weak var lightColorView:   StatusMenuColorView!
     var device: LIFXDevice!
     
     override func viewDidLoad() {

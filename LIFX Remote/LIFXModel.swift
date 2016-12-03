@@ -36,6 +36,8 @@ class LIFXModel {
                                                                                    { $0.pointee })
             print("new device found\n\(light)\n")
             light.getState()
+            light.getWifiInfo()
+            light.getVersion()
             self.devices.append(light)
             
             completionHandler()
@@ -68,17 +70,9 @@ class LIFXModel {
         }
     }
     
-    func change(device: LIFXDevice, state: LIFXDevice.PowerState) {
-        if let _device = devices.first(where: { (_device) -> Bool in
-            return device == _device
-        }) {
-            _device.power = state
-        }
-    }
-    
     func changeAllDevices(state: LIFXDevice.PowerState) {
         for device in devices {
-            device.power = state
+            device.setPower(level: state)
         }
     }
 }
@@ -194,7 +188,6 @@ class LIFXNetworkController {
         let sock = socket(PF_INET, SOCK_DGRAM, 0)
         assert(sock >= 0)
         
-        // Enable broadcasting
         var broadcastFlag = 1
         let setSuccess = setsockopt(sock,
                                     SOL_SOCKET,
@@ -269,9 +262,48 @@ class LIFXDevice {
     }
     
     struct DeviceInfo {
+        
+        enum Product: UInt32, CustomStringConvertible {
+            case original1000   = 1
+            case color650       = 3
+            case white800LV     = 10
+            case white800HV     = 11
+            case white900BR30LV = 18
+            case color1000BR30  = 20
+            case color1000      = 22
+            case lifxA19        = 27
+            case lifxBR30       = 28
+            case lifxPlusA19    = 29
+            case lifxPlusBR30   = 30
+            case lifxZ          = 31
+            
+            var description: String {
+                switch self {
+                case .original1000:   return "Original 1000"
+                case .color650:       return "Color 650"
+                case .white800LV:     return "White 800 LV"
+                case .white800HV:     return "White 800 HV"
+                case .white900BR30LV: return "White 900 BR30 LV"
+                case .color1000BR30:  return "Color 1000 BR30"
+                case .color1000:      return "Color 1000"
+                case .lifxA19:        return "LIFX A19"
+                case .lifxBR30:       return "LIFX BR30"
+                case .lifxPlusA19:    return "LIFX + A19"
+                case .lifxPlusBR30:   return "LIFX + BR30"
+                case .lifxZ:          return "LIFX Z"
+                }
+            }
+        }
+        
         var vendor:  UInt32?
-        var product: UInt32?
+        var product: Product?
         var version: UInt32?
+    }
+    
+    struct RuntimeInfo {
+        var time:     UInt64?
+        var uptime:   UInt64?
+        var downtime: UInt64?
     }
     
     struct Location {
@@ -294,6 +326,7 @@ class LIFXDevice {
     var power    = PowerState.standby
     var wifi     = WifiInfo()
     var device   = DeviceInfo()
+    var runtime  = RuntimeInfo()
     var location = Location()
     var group    = Group()
     
@@ -301,7 +334,6 @@ class LIFXDevice {
         self.network = network
         self.address = address
         self.label   = label
-        // Register handlers
         self.network.receiver.register(address: address, type: DeviceMessage.stateService, task: { response in
             self.stateService(response)
         })
@@ -310,6 +342,12 @@ class LIFXDevice {
         })
         self.network.receiver.register(address: address, type: DeviceMessage.stateLabel, task: { response in
             self.stateLabel(response)
+        })
+        self.network.receiver.register(address: address, type: DeviceMessage.stateWifiInfo, task: { response in
+            self.stateWifiInfo(response)
+        })
+        self.network.receiver.register(address: address, type: DeviceMessage.stateVersion, task: { response in
+            self.stateVersion(response)
         })
         self.network.receiver.register(address: address, type: DeviceMessage.stateInfo, task: { response in
             self.stateInfo(response)
@@ -422,9 +460,10 @@ class LIFXDevice {
         self.device.vendor = UnsafePointer(Array(response[0...3])).withMemoryRebound(to: UInt32.self,
                                                                                      capacity: 1,
                                                                                      { $0.pointee })
-        self.device.product = UnsafePointer(Array(response[4...7])).withMemoryRebound(to: UInt32.self,
-                                                                                      capacity: 1,
-                                                                                      { $0.pointee })
+        self.device.product = DeviceInfo.Product(rawValue:
+            UnsafePointer(Array(response[4...7])).withMemoryRebound(to: UInt32.self,
+                                                                    capacity: 1,
+                                                                    { $0.pointee }))
         self.device.version = UnsafePointer(Array(response[8...11])).withMemoryRebound(to: UInt32.self,
                                                                                        capacity: 1,
                                                                                        { $0.pointee })
@@ -436,16 +475,15 @@ class LIFXDevice {
     }
     
     func stateInfo(_ response: [UInt8]) {
-        let dtime = UnsafePointer(Array(response[0...8])).withMemoryRebound(to: UInt64.self,
-                                                                            capacity: 1,
-                                                                            { $0.pointee })
-        let uptime = UnsafePointer(Array(response[8...16])).withMemoryRebound(to: UInt64.self,
-                                                                              capacity: 1,
-                                                                              { $0.pointee })
-        let downtime = UnsafePointer(Array(response[16...24])).withMemoryRebound(to: UInt64.self,
-                                                                                 capacity: 1,
-                                                                                 { $0.pointee })
-        print("Device time: \(dtime), uptime: \(uptime), downtime: \(downtime)\n")
+        runtime.time = UnsafePointer(Array(response[0...8])).withMemoryRebound(to: UInt64.self,
+                                                                               capacity: 1,
+                                                                               { $0.pointee })
+        runtime.uptime = UnsafePointer(Array(response[8...16])).withMemoryRebound(to: UInt64.self,
+                                                                                  capacity: 1,
+                                                                                  { $0.pointee })
+        runtime.downtime = UnsafePointer(Array(response[16...24])).withMemoryRebound(to: UInt64.self,
+                                                                                     capacity: 1,
+                                                                                     { $0.pointee })
     }
     
     /// Get device location, label, updated_at
@@ -524,6 +562,46 @@ class LIFXLight: LIFXDevice {
             let kelvin:     [UInt8] = [self.kelvin[0].toU8,     self.kelvin[1].toU8    ]
             return hue + saturation + brightness + kelvin
         }
+        
+        var cgColor: CGColor {
+            let h = CGFloat(hue)/CGFloat(UInt16.max) * 6
+            let s = CGFloat(saturation)/CGFloat(UInt16.max)
+            let v = CGFloat(brightness)/CGFloat(UInt16.max)
+            let i = floor(h)
+            let f = h - i
+            let p = v * (1.0 - s)
+            let q = v * (1.0 - s * f)
+            let t = v * (1.0 - s * (1.0 - f))
+            var r, g, b: CGFloat
+            
+            switch i {
+            case 0:
+                r = v
+                g = t
+                b = p
+            case 1:
+                r = q
+                g = v
+                b = p
+            case 2:
+                r = p
+                g = v
+                b = t
+            case 3:
+                r = p
+                g = q
+                b = v
+            case 4:
+                r = t
+                g = p
+                b = v
+            default:
+                r = v
+                g = p
+                b = q
+            }
+            return CGColor(red: r, green: g, blue: b, alpha: 1)
+        }
     }
     
     var color: Color?
@@ -531,7 +609,6 @@ class LIFXLight: LIFXDevice {
     
     override init(network: LIFXNetworkController, address: Address, label: Label?) {
         super.init(network: network, address: address, label: label)
-        // Register handlers
         self.network.receiver.register(address: address, type: LightMessage.statePower, task: { response in
             self.statePower(response)
         })
