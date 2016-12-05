@@ -1,6 +1,6 @@
 //
 //  StatusMenuItemViewController.swift
-//  LIFX Remote
+//  Remote Control for LIFX
 //
 //  Created by David Wu on 11/13/16.
 //  Copyright © 2016 Gofake1. All rights reserved.
@@ -45,6 +45,10 @@ class StatusMenuItemViewController: NSViewController {
             light.setColor(color)
         }
     }
+}
+
+struct StatusMenuItemViewModel {
+    
 }
 
 extension NSColor {

@@ -1,6 +1,6 @@
 //
 //  HudViewController.swift
-//  LIFX Remote
+//  Remote Control for LIFX
 //
 //  Created by David Wu on 11/20/16.
 //  Copyright © 2016 Gofake1. All rights reserved.

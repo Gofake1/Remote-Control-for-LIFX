@@ -1,6 +1,6 @@
 //
 //  PreferencesWindowController.swift
-//  LIFX Remote
+//  Remote Control for LIFX
 //
 //  Created by David Wu on 7/14/16.
 //  Copyright © 2016 Gofake1. All rights reserved.
@@ -19,8 +19,8 @@ class PreferencesWindowController: NSWindowController {
 
     override func windowDidLoad() {
         numDevicesFoundTextField.stringValue = "\(model!.devices.count) Devices Found"
-        self.window?.center()
-        self.window?.makeKeyAndOrderFront(nil)
+        window?.center()
+        window?.makeKeyAndOrderFront(nil)
     }
     
     @IBAction func searchForDevices(_ sender: NSButton) {
