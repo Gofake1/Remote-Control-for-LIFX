@@ -1,5 +1,5 @@
 //
-//  StatusMenuColorView.swift
+//  StatusMenuItemColorView.swift
 //  Remote Control for LIFX
 //
 //  Created by David Wu on 11/13/16.
@@ -7,9 +7,10 @@
 //
 
 import Cocoa
+import ReactiveSwift
 
 @IBDesignable
-class StatusMenuColorView: NSView {
+class StatusMenuItemColorView: NSView {
     
     override var allowsVibrancy: Bool {
         return true
@@ -22,8 +23,8 @@ class StatusMenuColorView: NSView {
     }
     
     override func draw(_ dirtyRect: NSRect) {
-        let path = NSBezierPath(ovalIn: NSRect(x: dirtyRect.origin.x+2,
-                                               y: dirtyRect.origin.y+2,
+        let path = NSBezierPath(ovalIn: NSRect(x:      dirtyRect.origin.x+2,
+                                               y:      dirtyRect.origin.y+2,
                                                width:  dirtyRect.width-4,
                                                height: dirtyRect.height-4))
         NSColor.textColor.setStroke()
@@ -31,8 +32,18 @@ class StatusMenuColorView: NSView {
             c.setFill()
             path.fill()
         } else {
-            //NSColor.clear.setFill()
+            NSColor.clear.setFill()
             path.stroke()
         }
+    }
+}
+
+extension Reactive where Base: StatusMenuItemColorView {
+    var colorValue: BindingTarget<NSColor?> {
+        return BindingTarget(on: UIScheduler(), lifetime: lifetime, setter: { [weak base = self.base] value in
+            if let base = base {
+                base.color = value
+            }
+        })
     }
 }

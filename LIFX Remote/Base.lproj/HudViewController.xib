@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="16C53a" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="16C63a" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="HudViewController" customModule="LIFX_Remote" customModuleProvider="target">
+        <customObject id="-2" userLabel="File's Owner" customClass="HudViewController" customModule="Remote_Control_for_LIFX" customModuleProvider="target">
             <connections>
                 <outlet property="brightnessSlider" destination="Ucm-GV-8xF" id="D4J-9e-v7d"/>
                 <outlet property="colorWheel" destination="xfd-eC-xzJ" id="tjR-Rc-pCv"/>
@@ -24,7 +24,7 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pHq-Zb-l6c">
-                    <rect key="frame" x="8" y="245" width="129" height="17"/>
+                    <rect key="frame" x="8" y="246" width="129" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="LIFX Bulb" id="czn-OX-RFc">
                         <font key="font" metaFont="system"/>
@@ -40,15 +40,10 @@
                         <font key="font" metaFont="system"/>
                     </buttonCell>
                     <connections>
-                        <binding destination="-2" name="value" keyPath="self.devicePower" id="PWm-0v-5qy">
-                            <dictionary key="options">
-                                <bool key="NSAllowsEditingMultipleValuesSelection" value="NO"/>
-                                <bool key="NSConditionallySetsEnabled" value="NO"/>
-                            </dictionary>
-                        </binding>
+                        <action selector="togglePower:" target="-2" id="mCC-G9-PMo"/>
                     </connections>
                 </button>
-                <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xfd-eC-xzJ" customClass="ColorWheel" customModule="LIFX_Remote" customModuleProvider="target">
+                <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xfd-eC-xzJ" customClass="ColorWheel" customModule="Remote_Control_for_LIFX" customModuleProvider="target">
                     <rect key="frame" x="5" y="89" width="150" height="150"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                 </customView>
@@ -57,7 +52,7 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <sliderCell key="cell" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="wDE-K9-dlW"/>
                     <connections>
-                        <action selector="updateBrightness:" target="-2" id="cFU-Be-Yph"/>
+                        <action selector="setBrightness:" target="-2" id="f1R-KZ-XnE"/>
                     </connections>
                 </slider>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="h7l-k6-tl6">

@@ -76,7 +76,7 @@ struct Packet {
     init?(bytes: [UInt8]) {
         guard let header = Header(bytes: Array(bytes[0...35])) else { return nil }
         self.header  = header
-        self.payload = Payload(bytes: Array(bytes[36..<bytes.count]))
+        self.payload = Payload(bytes: Array(bytes[36..<Int(header.size)]))
     }
 }
 
@@ -88,24 +88,39 @@ extension Packet: CustomStringConvertible {
 
 struct Header {
     // Frame
+    /// Size of the whole packet (header and payload)
     var size: UInt16 {
         switch type {
-        case DeviceMessage.setLabel:
-            return 68
-        case DeviceMessage.setPower: fallthrough
-        case LightMessage.setPower:
-            return 38
-        case LightMessage.setColor:
-            return 49
-        default:
-            return 36
+        case DeviceMessage.stateService:      return 41
+        case DeviceMessage.stateHostInfo:     return 50
+        case DeviceMessage.stateHostFirmware: return 56
+        case DeviceMessage.stateWifiInfo:     return 50
+        case DeviceMessage.stateWifiFirmware: return 56
+        case DeviceMessage.setPower:          return 38
+        case DeviceMessage.statePower:        return 38
+        case DeviceMessage.setLabel:          return 68
+        case DeviceMessage.stateLabel:        return 68
+        case DeviceMessage.stateVersion:      return 48
+        case DeviceMessage.stateInfo:         return 60
+        case DeviceMessage.stateLocation:     return 92
+        case DeviceMessage.stateGroup:        return 92
+        case DeviceMessage.echoRequest:       return 100
+        case DeviceMessage.echoResponse:      return 100
+        case LightMessage.setColor:           return 49
+        case LightMessage.state:              return 84
+        case LightMessage.setPower:           return 42
+        case LightMessage.statePower:         return 38
+        case LightMessage.stateInfrared:      return 38
+        case LightMessage.setInfrared:        return 38
+        default:                              return 36
         }
     }
     var tagged: Bool   = false
     var source: UInt32 = 0
     
     // Frame address
-    var target: Address // MAC address or 0 (broadcast)
+    /// MAC address or 0 (broadcast)
+    var target: Address
     var ack: Bool = false
     var res: Bool = false
     var sequence: UInt8 {
@@ -157,8 +172,8 @@ struct Header {
         
         switch type {
         case DeviceMessage.getService:
-            tagged = true
-            res    = true
+            self.tagged = true
+            self.res    = true
         case DeviceMessage.getHostInfo:     fallthrough
         case DeviceMessage.getHostFirmware: fallthrough
         case DeviceMessage.getWifiInfo:     fallthrough
@@ -173,16 +188,15 @@ struct Header {
         case LightMessage.getState:         fallthrough
         case LightMessage.getPower:         fallthrough
         case LightMessage.getInfrared:
-            res = true
+            self.res = true
         default:
             break
         }
     }
     
     init?(bytes: [UInt8]) {
-        let rawValue = UnsafePointer(Array(bytes[32...33])).withMemoryRebound(to: UInt16.self,
-                                                                              capacity: 1,
-                                                                              { $0.pointee })
+        let rawValue = UnsafePointer(Array(bytes[32...33]))
+                           .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee })
         if let type: Messagable = rawValue > 100 ? LightMessage(rawValue: rawValue) :
                                                    DeviceMessage(rawValue: rawValue) {
             self.type = type
@@ -190,9 +204,8 @@ struct Header {
             return nil
         }
         
-        self.target = UnsafePointer(Array(bytes[8...15])).withMemoryRebound(to: Address.self,
-                                                                            capacity: 1,
-                                                                            { $0.pointee })
+        self.target = UnsafePointer(Array(bytes[8...15]))
+                          .withMemoryRebound(to: Address.self, capacity: 1, { $0.pointee })
     }
 }
 

@@ -7,6 +7,8 @@
 //
 
 import Cocoa
+import ReactiveSwift
+import ReactiveCocoa
 
 class StatusMenuItemViewController: NSViewController {
     
@@ -16,39 +18,43 @@ class StatusMenuItemViewController: NSViewController {
     
     @IBOutlet weak var labelTextField:   NSTextField!
     @IBOutlet weak var brightnessSlider: NSSlider!
-    @IBOutlet weak var lightColorView:   StatusMenuColorView!
+    @IBOutlet weak var lightColorView:   StatusMenuItemColorView!
     var device: LIFXDevice!
-    
+
     override func viewDidLoad() {
-        updateViews()
-    }
-    
-    // Can be called by StatusMenuController
-    func updateViews() {
-        labelTextField.stringValue = device.label ?? "Unknown"
-        brightnessSlider.isEnabled = (device.power == .enabled) ? true : false
+        labelTextField.reactive.stringValue <~ device.label.map { (label) -> String in
+            return label ?? "Unknown"
+        }
+        brightnessSlider.reactive.isEnabled <~ device.power.map { (power) -> Bool in
+            return power == .enabled
+        }
         if let light = device as? LIFXLight {
-            guard let color = light.color else { return }
-            brightnessSlider.integerValue = color.brightnessAsPercentage
-            lightColorView.color = NSColor(from: color)
+            brightnessSlider.reactive.integerValue <~ light.color.map { (color) -> Int in
+                guard let color = color else { return 0 }
+                return color.brightnessAsPercentage
+            }
+            lightColorView.reactive.colorValue <~ light.color.map { (color) -> NSColor? in
+                guard let color = color else { return nil }
+                return NSColor(from: color)
+            }
         }
     }
-    
+
     @IBAction func showHud(_ sender: NSClickGestureRecognizer) {
         HudController.show(device)
     }
+
+    @IBAction func togglePower(_ sender: NSClickGestureRecognizer) {
+        device.setPower(level: (device.power.value == .enabled) ? .standby : .enabled)
+    }
     
-    @IBAction func updateBrightness(_ sender: NSSlider) {
+    @IBAction func setBrightness(_ sender: NSSlider) {
         if let light = device as? LIFXLight {
-            guard var color = light.color else { return }
+            guard var color = light.color.value else { return }
             color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
             light.setColor(color)
         }
     }
-}
-
-struct StatusMenuItemViewModel {
-    
 }
 
 extension NSColor {

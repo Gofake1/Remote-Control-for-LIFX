@@ -7,6 +7,8 @@
 //
 
 import Cocoa
+import ReactiveSwift
+import ReactiveCocoa
 
 class HudViewController: NSViewController {
     
@@ -20,50 +22,63 @@ class HudViewController: NSViewController {
     @IBOutlet weak var brightnessSlider: NSSlider!
     @IBOutlet weak var wifiTextField:    NSTextField!
     @IBOutlet weak var modelTextField:   NSTextField!
-    var device:      LIFXDevice!
-    var devicePower: NSNumber = 0 { // Binding
-        didSet {
-            device.setPower(level: (devicePower == 1) ? .enabled : .standby)
-            brightnessSlider.isEnabled = (devicePower == 1) ? true : false
-        }
-    }
+    var device: LIFXDevice!
 
     override func viewDidLoad() {
-        colorWheel.target = self
-        colorWheel.action = #selector(updateColor(_:))
-        updateViews()
-    }
-    
-    override func viewWillAppear() {
-        updateViews()
-    }
-    
-    func updateViews() {
-        labelTextField.stringValue = device.label ?? "Unknown"
-        devicePower = (device.power == .enabled) ? 1 : 0
+        labelTextField.reactive.stringValue <~ device.label.map { (label) -> String in
+            return label ?? "Unknown"
+        }
+        brightnessSlider.reactive.isEnabled <~ device.power.map { (power) -> Bool in
+            return power == .enabled
+        }
         if let light = device as? LIFXLight {
-            guard let color = light.color else { return }
-            colorWheel.selectedColor = color.cgColor
-            brightnessSlider.integerValue = color.brightnessAsPercentage
+            brightnessSlider.reactive.integerValue <~ light.color.map { (color) -> Int in
+                guard let color = color else { return 0 }
+                return color.brightnessAsPercentage
+            }
+            colorWheel.reactive.colorValue <~ light.color.map { (color) -> CGColor in
+                guard let color = color else { return CGColor(red: 1, green: 1, blue: 1, alpha: 1) }
+                return color.cgColor
+            }
         }
-        if let signal = device.wifi.signal {
-            wifiTextField.stringValue = String(signal) + "mw"
+        wifiTextField.reactive.stringValue <~ device.wifi.map { (wifi) -> String in
+            guard let signal = wifi.signal else { return "Unknown" }
+            let dBm = log(signal)
+            switch dBm {
+            case _ where dBm > -35: return "••••"
+            case _ where dBm > -50: return "•••◦"
+            case _ where dBm > -65: return "••◦◦"
+            case _ where dBm > -80: return "•◦◦◦"
+            case _ where dBm > -95: return "◦◦◦◦"
+            default:                return "Error"
+            }
         }
-        if let model = device.device.product {
-            modelTextField.stringValue = String(describing: model)
+        modelTextField.reactive.stringValue <~ device.deviceInfo.map { (deviceInfo) -> String in
+            guard let model = deviceInfo.product else { return "Unknown" }
+            return String(describing: model)
         }
+        colorWheel.target = self
+        colorWheel.action = #selector(setColor(_:))
     }
-    
-    func updateColor(_ sender: ColorWheel) {
+
+    override func viewWillAppear() {
+        device.getWifiInfo()
+    }
+
+    func setColor(_ sender: ColorWheel) {
         if let light = device as? LIFXLight {
             guard let color = LIFXLight.Color(cgColor: sender.selectedColor) else { return }
             light.setColor(color)
         }
     }
+
+    @IBAction func togglePower(_ sender: NSButton) {
+        device.setPower(level: (device.power.value == .enabled) ? .standby : .enabled)
+    }
     
-    @IBAction func updateBrightness(_ sender: NSSlider) {
+    @IBAction func setBrightness(_ sender: NSSlider) {
         if let light = device as? LIFXLight {
-            guard var color = light.color else { return }
+            guard var color = light.color.value else { return }
             color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
             light.setColor(color)
         }

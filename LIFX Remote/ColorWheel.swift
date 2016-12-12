@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import ReactiveSwift
 
 @IBDesignable
 class ColorWheel: NSControl {
@@ -84,10 +85,8 @@ class ColorWheel: NSControl {
         init(at point: (x: Int, y: Int), origin: (x: Int, y: Int)) {
             let angle      = atan2(Float(origin.x - point.x), Float(origin.y - point.y)) + Float(M_PI)
             let distance   = sqrtf(powf(Float(origin.x - point.x), 2) + powf(Float(origin.y - point.y), 2))
-            var hue        = angle / Float(M_PI * 2)
-            hue            = max(min(hue, 1), 0)
-            var saturation = distance / Float(origin.x) // origin.x or origin.y could be used to represent radius
-            saturation     = max(min(saturation, 1), 0)
+            let hue        = max(min(angle / Float(M_PI * 2), 1), 0)
+            let saturation = max(min(distance / Float(origin.x), 1), 0) // origin represents radius
             self.init(hue: hue, saturation: saturation, brightness: 1)
         }
     }
@@ -123,8 +122,7 @@ class ColorWheel: NSControl {
             needsDisplay = true
         }
     }
-    //var selectedPoint: (CGFloat, CGFloat)?
-    static var radialImage: CGImage?
+    static var colorImage: CGImage?
     
     private func point(for color: CGColor, origin: (x: CGFloat, y: CGFloat)) -> (x: CGFloat, y: CGFloat)? {
         guard let components = color.components else { return nil }
@@ -140,7 +138,7 @@ class ColorWheel: NSControl {
         let width  = Int(dirtyRect.width)
         let height = Int(dirtyRect.height)
         
-        if ColorWheel.radialImage == nil {
+        if ColorWheel.colorImage == nil {
             var imageData: [RGBA] = Array<RGBA>(repeating: RGBA(), count: width*height)
             
             for y in 0..<height {
@@ -149,21 +147,24 @@ class ColorWheel: NSControl {
                 }
             }
             
-            ColorWheel.radialImage = CGImage(width: width,
-                                             height: height,
-                                             bitsPerComponent: 8,
-                                             bitsPerPixel: 32,
-                                             bytesPerRow: width * MemoryLayout<RGBA>.size,
-                                             space: CGColorSpaceCreateDeviceRGB(),
-                                             bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.last.rawValue),
-                                             provider: CGDataProvider(data: NSData(bytes: &imageData,
-                                                                                   length: imageData.count *
-                                                                                   MemoryLayout<RGBA>.size))!,
-                                             decode: nil,
-                                             shouldInterpolate: true,
-                                             intent: .defaultIntent)
+            ColorWheel.colorImage =
+                CGImage(width: width,
+                        height: height,
+                        bitsPerComponent: 8,
+                        bitsPerPixel: 32,
+                        bytesPerRow: width * MemoryLayout<RGBA>.size,
+                        space: CGColorSpaceCreateDeviceRGB(),
+                        bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.last.rawValue),
+                        provider: CGDataProvider(data: NSData(bytes: &imageData,
+                                                              length: imageData.count * MemoryLayout<RGBA>.size))!,
+                        decode: nil,
+                        shouldInterpolate: true,
+                        intent: .defaultIntent)
         }
-        NSGraphicsContext.current()?.cgContext.draw(ColorWheel.radialImage!, in: dirtyRect)
+        let circularImageMask = CGRect(origin: dirtyRect.origin, size: dirtyRect.size)
+        NSGraphicsContext.current()?.cgContext.addEllipse(in: circularImageMask)
+        NSGraphicsContext.current()?.cgContext.clip()
+        NSGraphicsContext.current()?.cgContext.draw(ColorWheel.colorImage!, in: circularImageMask)
         
         guard let point = self.point(for: selectedColor, origin: (x: CGFloat(width)/2, CGFloat(height)/2))
             else { return }
@@ -185,5 +186,15 @@ class ColorWheel: NSControl {
         selectedColor = RGBA(at:     (x: Int(x), y: Int(y)),
                              origin: (x: Int(frame.width/2), y: Int(frame.height/2))).cgColor
         NSApp.sendAction(action!, to: target, from: self)
+    }
+}
+
+extension Reactive where Base: ColorWheel {
+    var colorValue: BindingTarget<CGColor> {
+        return BindingTarget(on: UIScheduler(), lifetime: lifetime, setter: { [weak base = self.base] value in
+            if let base = base {
+                base.selectedColor = value
+            }
+        })
     }
 }

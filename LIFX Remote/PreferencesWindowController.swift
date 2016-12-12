@@ -7,6 +7,8 @@
 //
 
 import Cocoa
+import ReactiveSwift
+import ReactiveCocoa
 
 class PreferencesWindowController: NSWindowController {
     
@@ -15,12 +17,12 @@ class PreferencesWindowController: NSWindowController {
     }
     
     @IBOutlet weak var numDevicesFoundTextField: NSTextField!
-    var model: LIFXModel?
+    var model: LIFXModel!
 
     override func windowDidLoad() {
-        numDevicesFoundTextField.stringValue = "\(model!.devices.count) Devices Found"
-        window?.center()
-        window?.makeKeyAndOrderFront(nil)
+        numDevicesFoundTextField.reactive.stringValue <~ model.devices.map { (devices) -> String in
+            return "\(devices.count) Devices Found"
+        }
     }
     
     @IBAction func searchForDevices(_ sender: NSButton) {

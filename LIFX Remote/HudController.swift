@@ -31,8 +31,12 @@ class HudController: NSWindowController {
         
         let hudController = HudController()
         hudController.device = device
-        hudController.window?.title = device.label ?? "Unknown"
+        hudController.window?.title = device.label.value ?? "Unknown"
         HudController.openedWindows[device] = hudController
         hudController.showWindow(nil)
+    }
+
+    class func reset() {
+        HudController.openedWindows = [:]
     }
 }

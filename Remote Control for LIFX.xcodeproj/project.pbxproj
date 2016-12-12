@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4A00EA9D1DF2CF010076EACD /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9A1DF2CF010076EACD /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		4A00EA9E1DF2CF010076EACD /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9B1DF2CF010076EACD /* ReactiveSwift.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		4A00EA9F1DF2CF010076EACD /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9C1DF2CF010076EACD /* Result.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		4A1543FB1D91B9DB0052706C /* Bitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1543FA1D91B9DB0052706C /* Bitter.swift */; };
 		4A55E89E1D379F6C0048B0C6 /* PreferencesWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A55E89C1D379F6C0048B0C6 /* PreferencesWindowController.swift */; };
 		4A583ABC1D134B31005A4691 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A583ABB1D134B31005A4691 /* AppDelegate.swift */; };
@@ -25,9 +22,16 @@
 		4A62C98D1DD98CAD000F77FE /* PreferencesWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A62C98F1DD98CAD000F77FE /* PreferencesWindowController.xib */; };
 		4A62C9951DD995B2000F77FE /* StatusMenuItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A62C9931DD995B2000F77FE /* StatusMenuItemViewController.swift */; };
 		4A62C9971DD995C3000F77FE /* StatusMenuItemViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A62C9991DD995C3000F77FE /* StatusMenuItemViewController.xib */; };
-		4A62C99B1DD99F55000F77FE /* StatusMenuColorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A62C99A1DD99F55000F77FE /* StatusMenuColorView.swift */; };
+		4A62C99B1DD99F55000F77FE /* StatusMenuItemColorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A62C99A1DD99F55000F77FE /* StatusMenuItemColorView.swift */; };
 		4A62C99E1DDAAB93000F77FE /* HighlightingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A62C99D1DDAAB93000F77FE /* HighlightingView.swift */; };
+		4AA517A11DFA3C1600C148C4 /* LIFXDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AA517A01DFA3C1600C148C4 /* LIFXDevice.swift */; };
 		4AA6BDC41D14C52300F0D0CF /* LIFXModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AA6BDC31D14C52300F0D0CF /* LIFXModel.swift */; };
+		4AAE71631DF64FEC00BC795A /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9A1DF2CF010076EACD /* ReactiveCocoa.framework */; };
+		4AAE71641DF64FEC00BC795A /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9B1DF2CF010076EACD /* ReactiveSwift.framework */; };
+		4AAE71671DF651E500BC795A /* ReactiveCocoa.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9A1DF2CF010076EACD /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4AAE71691DF651E500BC795A /* ReactiveSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9B1DF2CF010076EACD /* ReactiveSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4AAE716A1DF651E500BC795A /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9C1DF2CF010076EACD /* Result.framework */; };
+		4AAE716B1DF651E500BC795A /* Result.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9C1DF2CF010076EACD /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,6 +41,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				4AAE716B1DF651E500BC795A /* Result.framework in Embed Frameworks */,
+				4AAE71671DF651E500BC795A /* ReactiveCocoa.framework in Embed Frameworks */,
+				4AAE71691DF651E500BC795A /* ReactiveSwift.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -61,14 +68,16 @@
 		4A5B850E1DE26039006A9C54 /* HudViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HudViewController.swift; sourceTree = "<group>"; };
 		4A5B85131DE26047006A9C54 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/HudViewController.xib; sourceTree = "<group>"; };
 		4A5B85151DEA6DAE006A9C54 /* ColorWheel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorWheel.swift; sourceTree = "<group>"; };
+		4A5CB2BF1DFD213E00F8530E /* Changelog.md */ = {isa = PBXFileReference; explicitFileType = net.daringfireball.markdown; path = Changelog.md; sourceTree = "<group>"; };
 		4A62C9861DD98C74000F77FE /* HudController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HudController.swift; sourceTree = "<group>"; };
 		4A62C98B1DD98C87000F77FE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/HudController.xib; sourceTree = "<group>"; };
 		4A62C98E1DD98CAD000F77FE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/PreferencesWindowController.xib; sourceTree = "<group>"; };
 		4A62C9931DD995B2000F77FE /* StatusMenuItemViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusMenuItemViewController.swift; sourceTree = "<group>"; };
 		4A62C9981DD995C3000F77FE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/StatusMenuItemViewController.xib; sourceTree = "<group>"; };
-		4A62C99A1DD99F55000F77FE /* StatusMenuColorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusMenuColorView.swift; sourceTree = "<group>"; };
+		4A62C99A1DD99F55000F77FE /* StatusMenuItemColorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusMenuItemColorView.swift; sourceTree = "<group>"; };
 		4A62C99C1DDA4EA3000F77FE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4A62C99D1DDAAB93000F77FE /* HighlightingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HighlightingView.swift; sourceTree = "<group>"; };
+		4AA517A01DFA3C1600C148C4 /* LIFXDevice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LIFXDevice.swift; sourceTree = "<group>"; };
 		4AA6BDC31D14C52300F0D0CF /* LIFXModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LIFXModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -77,9 +86,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A00EA9D1DF2CF010076EACD /* ReactiveCocoa.framework in Frameworks */,
-				4A00EA9E1DF2CF010076EACD /* ReactiveSwift.framework in Frameworks */,
-				4A00EA9F1DF2CF010076EACD /* Result.framework in Frameworks */,
+				4AAE71631DF64FEC00BC795A /* ReactiveCocoa.framework in Frameworks */,
+				4AAE71641DF64FEC00BC795A /* ReactiveSwift.framework in Frameworks */,
+				4AAE716A1DF651E500BC795A /* Result.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,10 +109,11 @@
 			isa = PBXGroup;
 			children = (
 				4A62C99C1DDA4EA3000F77FE /* README.md */,
+				4A5CB2BF1DFD213E00F8530E /* Changelog.md */,
 				4A00EA981DF2C8D30076EACD /* Cartfile */,
 				4A583ABA1D134B31005A4691 /* Remote Control for LIFX */,
-				4A583AB91D134B31005A4691 /* Products */,
 				4A00EA991DF2CF000076EACD /* Frameworks */,
+				4A583AB91D134B31005A4691 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -123,7 +133,7 @@
 				4A583ABF1D134B31005A4691 /* MainMenu.xib */,
 				4A62C9931DD995B2000F77FE /* StatusMenuItemViewController.swift */,
 				4A62C9991DD995C3000F77FE /* StatusMenuItemViewController.xib */,
-				4A62C99A1DD99F55000F77FE /* StatusMenuColorView.swift */,
+				4A62C99A1DD99F55000F77FE /* StatusMenuItemColorView.swift */,
 				4A62C99D1DDAAB93000F77FE /* HighlightingView.swift */,
 				4A62C9861DD98C74000F77FE /* HudController.swift */,
 				4A62C98C1DD98C87000F77FE /* HudController.xib */,
@@ -133,6 +143,7 @@
 				4A55E89C1D379F6C0048B0C6 /* PreferencesWindowController.swift */,
 				4A62C98F1DD98CAD000F77FE /* PreferencesWindowController.xib */,
 				4AA6BDC31D14C52300F0D0CF /* LIFXModel.swift */,
+				4AA517A01DFA3C1600C148C4 /* LIFXDevice.swift */,
 				4A583AD41D139800005A4691 /* LIFXProtocol.swift */,
 				4A1543FA1D91B9DB0052706C /* Bitter.swift */,
 				4A583AC21D134B31005A4691 /* Info.plist */,
@@ -228,7 +239,8 @@
 			files = (
 				4AA6BDC41D14C52300F0D0CF /* LIFXModel.swift in Sources */,
 				4A1543FB1D91B9DB0052706C /* Bitter.swift in Sources */,
-				4A62C99B1DD99F55000F77FE /* StatusMenuColorView.swift in Sources */,
+				4AA517A11DFA3C1600C148C4 /* LIFXDevice.swift in Sources */,
+				4A62C99B1DD99F55000F77FE /* StatusMenuItemColorView.swift in Sources */,
 				4A62C9881DD98C74000F77FE /* HudController.swift in Sources */,
 				4A5B5B541D37569F009CD119 /* StatusMenuController.swift in Sources */,
 				4A5B85101DE26039006A9C54 /* HudViewController.swift in Sources */,
@@ -326,7 +338,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -367,7 +379,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
