@@ -14,25 +14,50 @@ class HudController: NSWindowController {
         return "HudController"
     }
     
-    private var device: LIFXDevice?
-    private static var openedWindows = [LIFXDevice:HudController]()
+    private var item: Either<LIFXGroup, LIFXDevice>?
+    private static var openedWindows = [AnyHashable:HudController]()
     
     override func windowDidLoad() {
-        let hudViewController = HudViewController()
-        hudViewController.device = device
-        window?.contentViewController = hudViewController
+        guard let item = item else { return }
+        switch item {
+        case .left(let group):
+            let hudViewController = HudGroupViewController()
+            hudViewController.group = group
+            window?.contentViewController = hudViewController
+            
+        case .right(let device):
+            let hudViewController = HudDeviceViewController()
+            hudViewController.device = device
+            window?.contentViewController = hudViewController
+        }
     }
 
-    class func show(_ device: LIFXDevice) {
-        if let hudController = HudController.openedWindows[device] {
-            hudController.showWindow(nil)
-            return
+    class func show(_ item: Either<LIFXGroup, LIFXDevice>) {
+        var hashable: AnyHashable
+        var title: String
+
+        switch item {
+        case .left(let group):
+            if let HudController = HudController.openedWindows[group] {
+                HudController.showWindow(nil)
+                return
+            }
+            hashable = group
+            title = group.name.value
+
+        case .right(let device):
+            if let hudController = HudController.openedWindows[device] {
+                hudController.showWindow(nil)
+                return
+            }
+            hashable = device
+            title = device.label.value ?? "Unknown"
         }
-        
+
         let hudController = HudController()
-        hudController.device = device
-        hudController.window?.title = device.label.value ?? "Unknown"
-        HudController.openedWindows[device] = hudController
+        hudController.item = item
+        hudController.window?.title = title
+        HudController.openedWindows[hashable] = hudController
         hudController.showWindow(nil)
     }
 

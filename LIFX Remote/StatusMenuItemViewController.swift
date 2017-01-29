@@ -16,43 +16,63 @@ class StatusMenuItemViewController: NSViewController {
         return "StatusMenuItemViewController"
     }
     
-    @IBOutlet weak var labelTextField:   NSTextField!
-    @IBOutlet weak var brightnessSlider: NSSlider!
-    @IBOutlet weak var lightColorView:   StatusMenuItemColorView!
-    var device: LIFXDevice!
+    @IBOutlet var labelTextField:   NSTextField!
+    @IBOutlet var brightnessSlider: NSSlider!
+    @IBOutlet var lightColorView:   StatusMenuItemColorView!
+    var item: Either<LIFXGroup, LIFXDevice>?
 
     override func viewDidLoad() {
-        labelTextField.reactive.stringValue <~ device.label.map { (label) -> String in
-            return label ?? "Unknown"
-        }
-        brightnessSlider.reactive.isEnabled <~ device.power.map { (power) -> Bool in
-            return power == .enabled
-        }
-        if let light = device as? LIFXLight {
-            brightnessSlider.reactive.integerValue <~ light.color.map { (color) -> Int in
-                guard let color = color else { return 0 }
-                return color.brightnessAsPercentage
-            }
-            lightColorView.reactive.colorValue <~ light.color.map { (color) -> NSColor? in
-                guard let color = color else { return nil }
-                return NSColor(from: color)
+        guard let item = item else { return }
+        switch item {
+        case .left(let group):
+            labelTextField.reactive.stringValue <~ group.name
+            brightnessSlider.reactive.isEnabled <~ group.power.map { return $0 == .enabled }
+            brightnessSlider.reactive.integerValue <~ group.color.map { return $0?.brightnessAsPercentage ?? 0 }
+            lightColorView.reactive.colorValue <~ group.color.map { return NSColor(from: $0) }
+        case .right(let device):
+            labelTextField.reactive.stringValue <~ device.label.map { return $0 ?? "Unknown" }
+            brightnessSlider.reactive.isEnabled <~ device.power.map { return $0 == .enabled }
+            if let light = device as? LIFXLight {
+                brightnessSlider.reactive.integerValue <~
+                    light.color.map { return $0?.brightnessAsPercentage ?? 0 }
+                lightColorView.reactive.colorValue <~ light.color.map { return NSColor(from: $0) }
             }
         }
     }
 
     @IBAction func showHud(_ sender: NSClickGestureRecognizer) {
-        HudController.show(device)
+        guard let item = item else { return }
+        switch item {
+        case .left(let group):
+            HudController.show(Either.left(group))
+        case .right(let device):
+            HudController.show(Either.right(device))
+        }
     }
 
     @IBAction func togglePower(_ sender: NSClickGestureRecognizer) {
-        device.setPower(level: (device.power.value == .enabled) ? .standby : .enabled)
+        guard let item = item else { return }
+        switch item {
+        case .left(let group):
+            group.setPower((group.power.value == .enabled) ? .standby : .enabled)
+        case .right(let device):
+            device.setPower((device.power.value == .enabled) ? .standby : .enabled)
+        }
     }
     
     @IBAction func setBrightness(_ sender: NSSlider) {
-        if let light = device as? LIFXLight {
-            guard var color = light.color.value else { return }
+        guard let item = item else { return }
+        switch item {
+        case .left(let group):
+            guard var color = group.color.value else { return }
             color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
-            light.setColor(color)
+            group.setColor(color)
+        case .right(let device):
+            if let light = device as? LIFXLight {
+                guard var color = light.color.value else { return }
+                color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
+                light.setColor(color)
+            }
         }
     }
 }
@@ -60,9 +80,9 @@ class StatusMenuItemViewController: NSViewController {
 extension NSColor {
     convenience init?(from color: LIFXLight.Color?) {
         if let color = color {
-            self.init(hue:        CGFloat(color.hue)/CGFloat(UInt16.max),
-                      saturation: CGFloat(color.saturation)/CGFloat(UInt16.max),
-                      brightness: CGFloat(color.brightness)/CGFloat(UInt16.max),
+            self.init(hue:        CGFloat(color.hue)        / CGFloat(UInt16.max),
+                      saturation: CGFloat(color.saturation) / CGFloat(UInt16.max),
+                      brightness: CGFloat(color.brightness) / CGFloat(UInt16.max),
                       alpha:      1.0)
         } else {
             return nil

@@ -92,11 +92,12 @@ class LIFXDevice {
         var updatedAt: UInt64?
     }
 
-    var network:   LIFXNetworkController
+    fileprivate var network: LIFXNetworkController
     var service    = Service.udp
     var port       = UInt32(56700)
     var address:   Address
-    var label:     MutableProperty<Label?>
+    //var ipAddress  = MutableProperty<String?>(nil)
+    var label      = MutableProperty<Label?>(nil)
     let power      = MutableProperty(PowerState.standby)
     var wifi       = MutableProperty(WifiInfo())
     var deviceInfo = MutableProperty(DeviceInfo())
@@ -107,37 +108,43 @@ class LIFXDevice {
     init(network: LIFXNetworkController, address: Address, label: Label?) {
         self.network = network
         self.address = address
-        self.label   = MutableProperty(label)
-        self.network.receiver.register(address: address, type: DeviceMessage.stateService, task: { response in
-            self.stateService(response)
-        })
-        self.network.receiver.register(address: address, type: DeviceMessage.statePower, task: { response in
-            self.statePower(response)
-        })
-        self.network.receiver.register(address: address, type: DeviceMessage.stateLabel, task: { response in
-            self.stateLabel(response)
-        })
-        self.network.receiver.register(address: address, type: DeviceMessage.stateHostInfo, task: { response in
-            self.stateHostInfo(response)
-        })
-        self.network.receiver.register(address: address, type: DeviceMessage.stateHostFirmware, task: { response in
-            self.stateHostFirmware(response)
-        })
-        self.network.receiver.register(address: address, type: DeviceMessage.stateWifiInfo, task: { response in
-            self.stateWifiInfo(response)
-        })
-        self.network.receiver.register(address: address, type: DeviceMessage.stateWifiFirmware, task: { response in
-            self.stateWifiFirmware(response)
-        })
-        self.network.receiver.register(address: address, type: DeviceMessage.stateVersion, task: { response in
-            self.stateVersion(response)
-        })
-        self.network.receiver.register(address: address, type: DeviceMessage.stateInfo, task: { response in
-            self.stateInfo(response)
-        })
-        self.network.receiver.register(address: address, type: DeviceMessage.echoResponse, task: { response in
-            self.echoResponse(response)
-        })
+        self.label.value = label
+        self.network.receiver.register(address: address, type: DeviceMessage.stateService) {
+            self.stateService($0)
+        }
+        self.network.receiver.register(address: address, type: DeviceMessage.statePower) {
+            self.statePower($0)
+        }
+        self.network.receiver.register(address: address, type: DeviceMessage.stateLabel) {
+            self.stateLabel($0)
+        }
+        self.network.receiver.register(address: address, type: DeviceMessage.stateHostInfo) {
+            self.stateHostInfo($0)
+        }
+        self.network.receiver.register(address: address, type: DeviceMessage.stateHostFirmware) {
+            self.stateHostFirmware($0)
+        }
+        self.network.receiver.register(address: address, type: DeviceMessage.stateWifiInfo) {
+            self.stateWifiInfo($0)
+        }
+        self.network.receiver.register(address: address, type: DeviceMessage.stateWifiFirmware) {
+            self.stateWifiFirmware($0)
+        }
+        self.network.receiver.register(address: address, type: DeviceMessage.stateVersion) {
+            self.stateVersion($0)
+        }
+        self.network.receiver.register(address: address, type: DeviceMessage.stateInfo) {
+            self.stateInfo($0)
+        }
+        self.network.receiver.register(address: address, type: DeviceMessage.echoResponse) {
+            self.echoResponse($0)
+        }
+    }
+
+    convenience init(network: LIFXNetworkController, csvLine: CSV.Line) {
+        guard let address = UInt64(csvLine.values[1]) else { fatalError() }
+        let label = csvLine.values[2]
+        self.init(network: network, address: address, label: label)
     }
 
     func getService() {
@@ -156,7 +163,7 @@ class LIFXDevice {
         network.send(Packet(type: DeviceMessage.getPower, to: address))
     }
 
-    func setPower(level power: PowerState, duration: Duration = 1024) {
+    func setPower(_ power: PowerState, duration: Duration = 1024) {
         self.power.value = power
         network.send(Packet(type: DeviceMessage.setPower,
                             with: power.bytes + duration.bytes,
@@ -313,9 +320,16 @@ extension LIFXDevice: Hashable {
     }
 }
 
+extension LIFXDevice: CSVEncodable {
+    var csvString: String {
+        return CSV.Line("device", String(address), label.value ?? "").csvString
+    }
+}
+
 class LIFXLight: LIFXDevice {
 
     struct Color {
+
         var hue:        UInt16
         var saturation: UInt16
         var brightness: UInt16
@@ -372,6 +386,35 @@ class LIFXLight: LIFXDevice {
             }
             return CGColor(red: r, green: g, blue: b, alpha: 1)
         }
+
+        init(hue: UInt16, saturation: UInt16, brightness: UInt16, kelvin: UInt16) {
+            self.hue        = hue
+            self.saturation = saturation
+            self.brightness = brightness
+            self.kelvin     = kelvin
+        }
+
+        init?(cgColor: CGColor) {
+            guard let rgb = cgColor.components else { return nil }
+            let r = rgb[0]
+            let g = rgb[1]
+            let b = rgb[2]
+            let minRgb = min(r, min(g, b))
+            let maxRgb = max(r, max(g, b))
+            var hue, saturation, brightness: UInt16
+            if minRgb == maxRgb {
+                hue        = 0
+                saturation = 0
+                brightness = UInt16(maxRgb * CGFloat(UInt16.max))
+            } else {
+                let d: CGFloat = (r == minRgb) ? g - b : ((b == minRgb) ? r - g : b - r)
+                let h: CGFloat = (r == minRgb) ? 3 : ((b == minRgb) ? 1 : 5)
+                hue        = UInt16((h - d/(maxRgb - minRgb)) / 6 * CGFloat(UInt16.max))
+                saturation = UInt16((maxRgb - minRgb) / maxRgb * CGFloat(UInt16.max))
+                brightness = UInt16(maxRgb * CGFloat(UInt16.max))
+            }
+            self.init(hue: hue, saturation: saturation, brightness: brightness, kelvin: 0)
+        }
     }
 
     let color = MutableProperty<Color?>(nil)
@@ -379,22 +422,22 @@ class LIFXLight: LIFXDevice {
 
     override init(network: LIFXNetworkController, address: Address, label: Label?) {
         super.init(network: network, address: address, label: label)
-        self.network.receiver.register(address: address, type: LightMessage.statePower, task: { response in
-            self.statePower(response)
-        })
-        self.network.receiver.register(address: address, type: LightMessage.state, task: { response in
-            self.state(response)
-        })
-        self.network.receiver.register(address: address, type: LightMessage.stateInfrared, task: { response in
-            self.stateInfrared(response)
-        })
+        self.network.receiver.register(address: address, type: LightMessage.statePower) {
+            self.statePower($0)
+        }
+        self.network.receiver.register(address: address, type: LightMessage.state) {
+            self.state($0)
+        }
+        self.network.receiver.register(address: address, type: LightMessage.stateInfrared) {
+            self.stateInfrared($0)
+        }
     }
 
     override func getPower() {
         network.send(Packet(type: LightMessage.getPower, to: address))
     }
 
-    override func setPower(level power: PowerState, duration: Duration = 1024) {
+    override func setPower(_ power: PowerState, duration: Duration = 1024) {
         self.power.value = power
         network.send(Packet(type: LightMessage.setPower,
                             with: power.bytes + duration.bytes,

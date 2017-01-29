@@ -9,6 +9,21 @@
 import Cocoa
 
 @NSApplicationMain
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject {
 
+    private lazy var preferences: NSWindowController? = {
+        return NSStoryboard(name: "Preferences", bundle: nil)
+                   .instantiateInitialController() as? NSWindowController
+    }()
+
+    @IBAction func showPreferences(_ sender: NSMenuItem) {
+        NSApp.activate(ignoringOtherApps: true)
+        preferences?.showWindow(nil)
+    }
+}
+
+extension AppDelegate: NSApplicationDelegate {
+    func applicationWillTerminate(_ notification: Notification) {
+        LIFXModel.shared.saveState()
+    }
 }
