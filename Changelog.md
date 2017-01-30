@@ -1,7 +1,7 @@
 ### 1.2.1 (__ ___. ____) - 
 * Choose which lightbulbs and groups to show
 
-### 1.2.0 (__ Jan. 2017) - Customization Update
+### 1.2.0 (28 Jan. 2017) - Customization Update
 * Make and control 'Groups' of your LIFX bulbs
 * New Preferences window
 * Refined HUD window

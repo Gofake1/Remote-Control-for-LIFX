@@ -81,17 +81,17 @@ class StatusMenuController: NSObject {
             for item in array {
                 // Check if existing menu items should be hidden
                 if menuItems[item] != nil {
-//                    if model.itemVisibility[item] != true {
-//                        // Remove item because isHidden property doesn't work correctly
-//                        statusMenu.removeItem(menuItems[item]!)
-//                        menuItems[item] = nil
-//                    }
+                    if model.itemVisibility[item] != true {
+                        // Remove item because isHidden property doesn't work as expected
+                        statusMenu.removeItem(menuItems[item]!)
+                        menuItems[item] = nil
+                    }
                     continue
                 }
                 // Don't create menu item if it should be hidden
-//                if model.itemVisibility[item] != true {
-//                    continue
-//                }
+                if model.itemVisibility[item] != true {
+                    continue
+                }
                 // Add new menu items for new groups and devices after model update
                 let menuItemController = StatusMenuItemViewController()
                 var index: Int

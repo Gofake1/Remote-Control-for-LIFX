@@ -17,7 +17,7 @@ class LIFXModel {
     /// Device connection state determined by `stateService` or `acknowledgement` messages
     //private(set) var deviceConnectedState: [LIFXDevice:Bool] = [:]
     /// Device and group visibility state in the status menu
-    //private(set) var itemVisibility: [AnyHashable:Bool] = [:]
+    private(set) var itemVisibility: [AnyHashable:Bool] = [:]
     private(set) var network = LIFXNetworkController()
     private var discoveryHandlers: [() -> Void] = []
     static private var savedStateCSVPath: String = {
@@ -68,23 +68,23 @@ class LIFXModel {
                 self.add(device: LIFXLight(network: self.network, csvLine: line), connected: true)
             case "group":
                 self.add(group: LIFXGroup(csvLine: line))
-//            case "visibility":
-//                guard let visibility = Bool($0.values[3]) else { fatalError() }
-//                switch $0.values[1] {
-//                case "device":
-//                    guard
-//                        let address = Address($0.values[2]),
-//                        let device = self.device(for: address)
-//                    else { fatalError() }
-//                    self.setVisibility(for: device, visibility)
-//                case "group":
-//                    guard
-//                        let id = String($0.values[2]),
-//                        let group = self.group(for: id)
-//                    else { fatalError() }
-//                    self.setVisibility(for: group, visibility)
-//                default: break
-//                }
+            case "visibility":
+                guard let visibility = Bool(line.values[3]) else { fatalError() }
+                switch line.values[1] {
+                case "device":
+                    guard
+                        let address = Address(line.values[2]),
+                        let device = self.device(for: address)
+                    else { fatalError() }
+                    self.setVisibility(for: device, visibility)
+                case "group":
+                    guard
+                        let id = String(line.values[2]),
+                        let group = self.group(for: id)
+                    else { fatalError() }
+                    self.setVisibility(for: group, visibility)
+                default: break
+                }
             default: break
             }
         }
@@ -123,18 +123,18 @@ class LIFXModel {
     }
 
     func removeGroup(at index: Int) {
-        //let group = groups.value[index]
+        let group = groups.value[index]
         groups.value.remove(at: index)
-        //itemVisibility[group] = nil
+        itemVisibility[group] = nil
     }
-
-//    func setVisibility(for item: AnyHashable, _ isVisible: Bool) {
-//        itemVisibility[item] = isVisible
-//    }
 
 //    func setConnectedState(for device: LIFXDevice, _ isConnected: Bool) {
 //        deviceConnectedState[device] = isConnected
 //    }
+
+    func setVisibility(for item: AnyHashable, _ isVisible: Bool) {
+        itemVisibility[item] = isVisible
+    }
 
     /// Execute given handler on newly discovered device
     func onDiscovery(_ completionHandler: @escaping () -> Void) {
@@ -144,7 +144,13 @@ class LIFXModel {
     func discover() {
         devices.value        = []
         //deviceConnectedState = [:]
-        //itemVisibility       = [:]
+        itemVisibility.forEach { (item) in
+            switch item.key {
+            case let device as LIFXDevice:
+                itemVisibility[device] = nil
+            default: break
+            }
+        }
         HudController.reset()
         network.receiver.reset()
         network.send(Packet(type: DeviceMessage.getService))

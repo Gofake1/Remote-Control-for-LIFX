@@ -26,12 +26,12 @@ class GeneralViewController: NSViewController {
     }
 
     @IBAction func toggleShouldDisplay(_ sender: NSButton) {
-//        switch model.item(at: tableView.row(for: sender)) {
-//        case .left(let group):
-//            model.setVisibility(for: group, sender.state == 1)
-//        case .right(let device):
-//            model.setVisibility(for: device, sender.state == 1)
-//        }
+        switch model.item(at: tableView.row(for: sender)) {
+        case .left(let group):
+            model.setVisibility(for: group, sender.state == 1)
+        case .right(let device):
+            model.setVisibility(for: device, sender.state == 1)
+        }
     }
 }
 
@@ -46,18 +46,19 @@ extension GeneralViewController: NSTableViewDelegate {
         guard let tableColumn = tableColumn else { return nil }
 
         switch tableColumn.identifier {
-//        case "shouldDisplay":
-//            let view = tableView.make(withIdentifier: "shouldDisplayCell", owner: nil) as? CheckboxTableCellView
-//            switch model.item(at: row) {
-//            case .left(let group):
-//                if let visibility = model.itemVisibility[group] {
-//                    view?.checkbox.state = visibility ? 1 : 0
-//                }
-//            case .right(let device):
-//                print(device)
-//                view?.checkbox.state = model.itemVisibility[device]! ? 1 : 0
-//            }
-//            return view
+        case "shouldDisplay":
+            let view = tableView.make(withIdentifier: "shouldDisplayCell", owner: nil) as? CheckboxTableCellView
+            switch model.item(at: row) {
+            case .left(let group):
+                if let visibility = model.itemVisibility[group] {
+                    view?.checkbox.state = visibility ? 1 : 0
+                }
+            case .right(let device):
+                if let visibility = model.itemVisibility[device] {
+                    view?.checkbox.state = visibility ? 1 : 0
+                }
+            }
+            return view
 
         case "deviceOrGroup":
             switch model.item(at: row) {

@@ -24,13 +24,13 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView focusRingType="none" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" rowHeight="19" headerView="1od-FR-44P" viewBased="YES" id="4ZZ-zl-SUc">
-                                            <rect key="frame" x="0.0" y="0.0" width="411" height="209"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="423" height="209"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <size key="intercellSpacing" width="3" height="2"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                             <tableColumns>
-                                                <tableColumn identifier="shouldDisplay" editable="NO" maxWidth="20" hidden="YES" id="2Fb-B5-w4x">
+                                                <tableColumn identifier="shouldDisplay" editable="NO" width="18" maxWidth="20" id="2Fb-B5-w4x">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -42,11 +42,11 @@
                                                     </buttonCell>
                                                     <prototypeCellViews>
                                                         <tableCellView identifier="shouldDisplayCell" id="ysA-ZP-NdQ" customClass="CheckboxTableCellView" customModule="Remote_Control_for_LIFX" customModuleProvider="target">
-                                                            <rect key="frame" x="1" y="1" width="-3" height="18"/>
+                                                            <rect key="frame" x="1" y="1" width="18" height="18"/>
                                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                             <subviews>
                                                                 <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mrg-eO-z0n">
-                                                                    <rect key="frame" x="-1.5" y="0.0" width="18" height="18"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="18" height="18"/>
                                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                     <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="left" inset="2" id="H9n-Jb-E0Y">
                                                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -63,7 +63,7 @@
                                                         </tableCellView>
                                                     </prototypeCellViews>
                                                 </tableColumn>
-                                                <tableColumn identifier="deviceOrGroup" editable="NO" width="405" minWidth="200" maxWidth="500" id="1R0-zo-i7P">
+                                                <tableColumn identifier="deviceOrGroup" editable="NO" width="386" minWidth="200" maxWidth="400" id="1R0-zo-i7P">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Devices &amp; Groups">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -76,11 +76,11 @@
                                                     </textFieldCell>
                                                     <prototypeCellViews>
                                                         <tableCellView identifier="deviceCell" id="5Ej-UN-m17">
-                                                            <rect key="frame" x="1" y="1" width="405" height="17"/>
+                                                            <rect key="frame" x="22" y="1" width="386" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="x2a-sQ-zby">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="405" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="386" height="17"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Unknown Device" id="tgq-Ja-mEm">
                                                                         <font key="font" metaFont="system"/>
@@ -94,11 +94,11 @@
                                                             </connections>
                                                         </tableCellView>
                                                         <tableCellView identifier="groupCell" id="5hW-Wn-zKc">
-                                                            <rect key="frame" x="1" y="20" width="405" height="17"/>
+                                                            <rect key="frame" x="22" y="20" width="386" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hys-MY-weT">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="405" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="386" height="17"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Group" id="rX1-ND-sXH">
                                                                         <font key="font" metaFont="system"/>
@@ -113,7 +113,7 @@
                                                         </tableCellView>
                                                     </prototypeCellViews>
                                                 </tableColumn>
-                                                <tableColumn identifier="ipAddress" editable="NO" maxWidth="200" id="6uq-ra-onV">
+                                                <tableColumn identifier="ipAddress" editable="NO" width="10" maxWidth="200" id="6uq-ra-onV">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="IP Address">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -126,11 +126,11 @@
                                                     </textFieldCell>
                                                     <prototypeCellViews>
                                                         <tableCellView identifier="ipAddressCell" id="CUz-kp-LHl">
-                                                            <rect key="frame" x="409" y="1" width="0.0" height="17"/>
+                                                            <rect key="frame" x="411" y="1" width="10" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NEQ-kW-Tpl">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="4" height="17"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="14" height="17"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Unknown" id="E1z-b1-ZQx">
                                                                         <font key="font" metaFont="system"/>
@@ -162,7 +162,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <tableHeaderView key="headerView" id="1od-FR-44P">
-                                    <rect key="frame" x="0.0" y="0.0" width="411" height="23"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="423" height="23"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
