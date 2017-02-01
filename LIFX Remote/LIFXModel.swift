@@ -49,11 +49,15 @@ class LIFXModel {
             light.service = LIFXDevice.Service(rawValue: response[36]) ?? .udp
             light.port = UnsafePointer(Array(response[37...40]))
                 .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
+            if response.count > 40 {
+                light.ipAddress = String(bytes: response[41..<response.count], encoding: .utf8)
+            }
             light.getState()
             light.getVersion()
 
             self.add(device: light, connected: true)
-            //self.setVisibility(for: light, true)
+            //self.setConnectedState(for: light, true)
+            self.setVisibility(for: light, true)
             self.discoveryHandlers.forEach { $0() }
         }
     }
@@ -71,18 +75,18 @@ class LIFXModel {
             case "visibility":
                 guard let visibility = Bool(line.values[3]) else { fatalError() }
                 switch line.values[1] {
-                case "device":
-                    guard
-                        let address = Address(line.values[2]),
-                        let device = self.device(for: address)
-                    else { fatalError() }
-                    self.setVisibility(for: device, visibility)
                 case "group":
                     guard
                         let id = String(line.values[2]),
                         let group = self.group(for: id)
                     else { fatalError() }
                     self.setVisibility(for: group, visibility)
+//                case "device":
+//                    guard
+//                        let address = Address(line.values[2]),
+//                        let device = self.device(for: address)
+//                    else { fatalError() }
+//                    self.setVisibility(for: device, visibility)
                 default: break
                 }
             default: break
@@ -115,7 +119,6 @@ class LIFXModel {
 
     func add(device: LIFXDevice, connected: Bool) {
         devices.value.append(device)
-        //deviceConnectedState[device] = connected
     }
 
     func add(group: LIFXGroup) {
@@ -143,9 +146,10 @@ class LIFXModel {
     
     func discover() {
         devices.value        = []
+        groups.value.forEach { $0.reset() }
         //deviceConnectedState = [:]
-        itemVisibility.forEach { (item) in
-            switch item.key {
+        itemVisibility.forEach {
+            switch $0.key {
             case let device as LIFXDevice:
                 itemVisibility[device] = nil
             default: break
@@ -179,16 +183,16 @@ class LIFXModel {
         savedStateCSV.append(line: CSV.Line("version", "1"))
         devices.value.forEach { savedStateCSV.append(lineString: $0.csvString) }
         groups.value.forEach { savedStateCSV.append(lineString: $0.csvString) }
-//        itemVisibility.forEach {
-//            switch $0.key {
-//            case let group as LIFXGroup:
-//                savedStateCSV.append(line: CSV.Line("visibility", "group", group.id, String($0.value)))
+        itemVisibility.forEach {
+            switch $0.key {
+            case let group as LIFXGroup:
+                savedStateCSV.append(line: CSV.Line("visibility", "group", group.id, String($0.value)))
 //            case let device as LIFXDevice:
 //                savedStateCSV.append(line: CSV.Line("visibility", "device", String(device.address),
 //                                                    String($0.value)))
-//            default: break
-//            }
-//        }
+            default: break
+            }
+        }
         do { try savedStateCSV.write(to: LIFXModel.savedStateCSVPath) }
         catch { fatalError() }
     }
@@ -239,7 +243,8 @@ class LIFXNetworkController {
                                          &recvAddrLen)
                         assert(n >= 0, String(validatingUTF8: strerror(errno)) ?? "Couldn't display error")
 
-                        var log = "response:\n"
+                        let recvIp = String(validatingUTF8: inet_ntoa(recvAddr.sin_addr)) ?? "couldn't parse IP"
+                        var log = "response: \(recvIp):\n"
                         guard let packet = Packet(bytes: res) else {
                             log += "\tunknown packet type\n"
                             print(log)
@@ -249,25 +254,29 @@ class LIFXNetworkController {
                         log += "\t\(packet.header.type)\n"
                         print(log)
                         
-                        let target    = packet.header.target.bigEndian
-                        let type      = packet.header.type.message
-                        var response  = packet.payload?.bytes ?? [UInt8]()
+                        let address  = packet.header.target.bigEndian
+                        let type     = packet.header.type.message
+                        var response = packet.payload?.bytes ?? [UInt8]()
                         var task: (([UInt8]) -> Void)?
                         
                         // Handle discovery response
                         if type == DeviceMessage.stateService.rawValue {
                             // This packet is from a known address
-                            if let tasks = self.tasks[target] {
+                            if let tasks = self.tasks[address] {
                                 task = tasks[type]
                             // This packet is from a new address
                             } else {
                                 task = self.tasks[0]![type]
-                                // Handler needs the packet header to get the address
+                                // Handler needs the packet header to get the MAC address
                                 response = packet.header.bytes + response
+                                // Append the IP address in byte form
+                                if let ipAddress = String(validatingUTF8: inet_ntoa(recvAddr.sin_addr)) {
+                                    response += Array(ipAddress.utf8)
+                                }
                             }
                         // Handle all other responses
                         } else {
-                            if let tasks = self.tasks[target] {
+                            if let tasks = self.tasks[address] {
                                 task = tasks[type]
                             }
                         }

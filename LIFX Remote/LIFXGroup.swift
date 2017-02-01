@@ -75,6 +75,10 @@ class LIFXGroup {
         self.color.value = color
         devices.value.forEach { ($0 as? LIFXLight)?.setColor(color) }
     }
+
+    func reset() {
+        devices.value = []
+    }
 }
 
 extension LIFXGroup: Equatable {

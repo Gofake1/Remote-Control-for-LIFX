@@ -96,7 +96,7 @@ class LIFXDevice {
     var service    = Service.udp
     var port       = UInt32(56700)
     var address:   Address
-    //var ipAddress  = MutableProperty<String?>(nil)
+    var ipAddress: String? = nil
     var label      = MutableProperty<Label?>(nil)
     let power      = MutableProperty(PowerState.standby)
     var wifi       = MutableProperty(WifiInfo())

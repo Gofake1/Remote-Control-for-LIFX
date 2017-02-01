@@ -78,18 +78,15 @@ extension GeneralViewController: NSTableViewDelegate {
                 return view
             }
 
-//        case "ipAddress":
-//            switch model.item(at: row) {
-//            case .left:
-//                return nil
-//            case .right(let device):
-//                guard
-//                    let view = tableView.make(withIdentifier: "ipAddressCell", owner: nil) as? NSTableCellView,
-//                    let textField = view.textField
-//                else { return nil }
-//                textField.reactive.stringValue <~ device.ipAddress.map { return $0 ?? "Unknown" }
-//                return view
-//            }
+        case "ipAddress":
+            let view = tableView.make(withIdentifier: "ipAddressCell", owner: nil) as? NSTableCellView
+            switch model.item(at: row) {
+            case .left:
+                view?.textField?.stringValue = "-"
+            case .right(let device):
+                view?.textField?.stringValue = device.ipAddress ?? "Unknown"
+            }
+            return view
 
         default: return nil
         }

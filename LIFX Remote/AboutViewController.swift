@@ -10,8 +10,13 @@ import Cocoa
 
 class AboutViewController: NSViewController {
 
+    @IBOutlet var acknowledgementsText: NSTextView!
+
     override func viewDidLoad() {
         preferredContentSize = NSSize(width: 450, height: 300)
+        if let path = Bundle.main.path(forResource: "Acknowledgements", ofType: "rtf") {
+            acknowledgementsText.readRTFD(fromFile: path)
+        }
     }
 
     @IBAction func openWebsite(_ sender: NSButton) {

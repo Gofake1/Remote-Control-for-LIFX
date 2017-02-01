@@ -29,10 +29,10 @@
 		4A62C9951DD995B2000F77FE /* StatusMenuItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A62C9931DD995B2000F77FE /* StatusMenuItemViewController.swift */; };
 		4A62C9971DD995C3000F77FE /* StatusMenuItemViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A62C9991DD995C3000F77FE /* StatusMenuItemViewController.xib */; };
 		4A62C99B1DD99F55000F77FE /* StatusMenuItemColorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A62C99A1DD99F55000F77FE /* StatusMenuItemColorView.swift */; };
-		4A62C99E1DDAAB93000F77FE /* HighlightingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A62C99D1DDAAB93000F77FE /* HighlightingView.swift */; };
 		4A70F4D21E10CFDA0026ED27 /* Preferences.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4A70F4D41E10CFDA0026ED27 /* Preferences.storyboard */; };
 		4A8147A31E1CCF0900118BB7 /* LIFXGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A8147A21E1CCF0900118BB7 /* LIFXGroup.swift */; };
 		4A90B7DA1E380557004E24CE /* CSV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A90B7D91E380557004E24CE /* CSV.swift */; };
+		4AA2DBAE1E3EC4F2002406BC /* Acknowledgements.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 4AA2DBAD1E3EC4F2002406BC /* Acknowledgements.rtf */; };
 		4AA517A11DFA3C1600C148C4 /* LIFXDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AA517A01DFA3C1600C148C4 /* LIFXDevice.swift */; };
 		4AA6BDC41D14C52300F0D0CF /* LIFXModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AA6BDC31D14C52300F0D0CF /* LIFXModel.swift */; };
 		4AAE71631DF64FEC00BC795A /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9A1DF2CF010076EACD /* ReactiveCocoa.framework */; };
@@ -95,6 +95,7 @@
 		4A70F4D31E10CFDA0026ED27 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Preferences.storyboard; sourceTree = "<group>"; };
 		4A8147A21E1CCF0900118BB7 /* LIFXGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LIFXGroup.swift; sourceTree = "<group>"; };
 		4A90B7D91E380557004E24CE /* CSV.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSV.swift; sourceTree = "<group>"; };
+		4AA2DBAD1E3EC4F2002406BC /* Acknowledgements.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Acknowledgements.rtf; sourceTree = "<group>"; };
 		4AA517A01DFA3C1600C148C4 /* LIFXDevice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LIFXDevice.swift; sourceTree = "<group>"; };
 		4AA6BDC31D14C52300F0D0CF /* LIFXModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LIFXModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -181,6 +182,7 @@
 				4A90B7D91E380557004E24CE /* CSV.swift */,
 				4A1543FA1D91B9DB0052706C /* Bitter.swift */,
 				4A56A9E41E28497100A37C90 /* Custom Views */,
+				4AA2DBAD1E3EC4F2002406BC /* Acknowledgements.rtf */,
 				4A583AC21D134B31005A4691 /* Info.plist */,
 				4A00EA971DF12CD80076EACD /* Remote Control for LIFX.entitlements */,
 				4A583ABD1D134B31005A4691 /* Assets.xcassets */,
@@ -257,6 +259,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A50ABD91E2C2741007EB692 /* HudGroupViewController.xib in Resources */,
+				4AA2DBAE1E3EC4F2002406BC /* Acknowledgements.rtf in Resources */,
 				4A62C9971DD995C3000F77FE /* StatusMenuItemViewController.xib in Resources */,
 				4A70F4D21E10CFDA0026ED27 /* Preferences.storyboard in Resources */,
 				4A583ABE1D134B31005A4691 /* Assets.xcassets in Resources */,
@@ -289,7 +292,6 @@
 				4A5B85101DE26039006A9C54 /* HudDeviceViewController.swift in Sources */,
 				4A583ABC1D134B31005A4691 /* AppDelegate.swift in Sources */,
 				4A56A9E11E26C76B00A37C90 /* CheckboxTableCellView.swift in Sources */,
-				4A62C99E1DDAAB93000F77FE /* HighlightingView.swift in Sources */,
 				4A62C9951DD995B2000F77FE /* StatusMenuItemViewController.swift in Sources */,
 				4A61D0E41E220DB50026221A /* GroupsViewController.swift in Sources */,
 				4A583AD51D139800005A4691 /* LIFXProtocol.swift in Sources */,
