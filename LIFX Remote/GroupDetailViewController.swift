@@ -19,7 +19,8 @@ class GroupDetailViewController: NSViewController {
 
     override func viewDidLoad() {
         groupNameLabel.reactive.stringValue <~ group.name.map { return "\($0) Settings" }
-        group.devices.producer.startWithSignal { $0.0.observeResult({ _ in self.tableView.reloadData() }) }
+        //group.devices.producer.startWithSignal { $0.0.observeResult({ _ in self.tableView.reloadData() }) }
+        model.devices.producer.startWithSignal { $0.0.observeResult({ _ in self.tableView.reloadData() }) }
     }
 
     @IBAction func toggleIsInGroup(_ sender: NSButton) {

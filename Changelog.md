@@ -1,5 +1,7 @@
-### 1.2.1 (__ ___. ____) - 
+### 1.2.1 (03 Feb. 2017) - Customization Update
 * Choose which lightbulbs and groups to show
+* Display lightbulb IP address
+* Acknowledge third-party libraries
 
 ### 1.2.0 (28 Jan. 2017) - Customization Update
 * Make and control 'Groups' of your LIFX bulbs

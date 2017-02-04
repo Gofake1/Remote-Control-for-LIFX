@@ -244,7 +244,7 @@ class LIFXNetworkController {
                         assert(n >= 0, String(validatingUTF8: strerror(errno)) ?? "Couldn't display error")
 
                         let recvIp = String(validatingUTF8: inet_ntoa(recvAddr.sin_addr)) ?? "couldn't parse IP"
-                        var log = "response: \(recvIp):\n"
+                        var log = "response \(recvIp):\n"
                         guard let packet = Packet(bytes: res) else {
                             log += "\tunknown packet type\n"
                             print(log)
