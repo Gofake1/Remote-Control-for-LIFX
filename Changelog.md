@@ -1,4 +1,5 @@
-### 1.2.1 (03 Feb. 2017) - Customization Update
+### 1.3.0 (05 Feb. 2017) - Customization Update
+* HUD allows changing the Kelvin temperature of your LIFX bulbs
 * Choose which lightbulbs and groups to show
 * Display lightbulb IP address
 * Acknowledge third-party libraries

@@ -17,13 +17,16 @@ class HudGroupViewController: NSViewController {
         return "HudGroupViewController"
     }
 
-    @IBOutlet var colorWheel: ColorWheel!
+    @IBOutlet var colorWheel:       ColorWheel!
+    @IBOutlet var kelvinSlider:     NSSlider!
     @IBOutlet var brightnessSlider: NSSlider!
-    @IBOutlet var tableView: NSTableView!
+    @IBOutlet var tableView:        NSTableView!
     var group: LIFXGroup!
 
     override func viewDidLoad() {
         group.name.producer.startWithSignal { $0.0.observeResult({ self.view.window?.title = $0 ?? "" }) }
+        kelvinSlider.reactive.isEnabled <~ group.power.map { return $0 == .enabled }
+        kelvinSlider.reactive.integerValue <~ group.color.map { return $0?.kelvinAsPercentage ?? 50 }
         brightnessSlider.reactive.isEnabled <~ group.power.map { return $0 == .enabled }
         brightnessSlider.reactive.integerValue <~ group.color.map { return $0?.brightnessAsPercentage ?? 0 }
         group.devices.producer.startWithSignal { $0.0.observeResult({ _ in self.tableView.reloadData() }) }
@@ -38,6 +41,12 @@ class HudGroupViewController: NSViewController {
 
     @IBAction func togglePower(_ sender: NSButton) {
         group.setPower((group.power.value == .enabled) ? .standby : .enabled)
+    }
+
+    @IBAction func setKelvin(_ sender: NSSlider) {
+        guard var color = group.color.value else { return }
+        color.kelvin = UInt16(sender.doubleValue*65 + 2500)
+        group.setColor(color)
     }
 
     @IBAction func setBrightness(_ sender: NSSlider) {

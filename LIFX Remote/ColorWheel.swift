@@ -182,7 +182,7 @@ class ColorWheel: NSControl {
     
     override func mouseDown(with event: NSEvent) {
         let x = event.locationInWindow.x - 5
-        let y = event.locationInWindow.y - 87
+        let y = event.locationInWindow.y - 106
         selectedColor = RGBA(at:     (x: Int(x), y: Int(y)),
                              origin: (x: Int(frame.width/2), y: Int(frame.height/2))).cgColor
         NSApp.sendAction(action!, to: target, from: self)

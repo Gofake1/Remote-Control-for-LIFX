@@ -333,10 +333,14 @@ class LIFXLight: LIFXDevice {
         var hue:        UInt16
         var saturation: UInt16
         var brightness: UInt16
-        var kelvin:     UInt16
+        var kelvin:     UInt16 // 2500° (warm) to 9000° (cool)
 
         var brightnessAsPercentage: Int {
             return Int(Double(brightness)/Double(UInt16.max) * 100)
+        }
+
+        var kelvinAsPercentage: Int {
+            return Int((kelvin-2500)/65)
         }
 
         var bytes: [UInt8] {
@@ -413,7 +417,7 @@ class LIFXLight: LIFXDevice {
                 saturation = UInt16((maxRgb - minRgb) / maxRgb * CGFloat(UInt16.max))
                 brightness = UInt16(maxRgb * CGFloat(UInt16.max))
             }
-            self.init(hue: hue, saturation: saturation, brightness: brightness, kelvin: 0)
+            self.init(hue: hue, saturation: saturation, brightness: brightness, kelvin: 5750)
         }
     }
 

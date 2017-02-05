@@ -69,7 +69,7 @@ class LIFXModel {
         for line in savedStateCSV.lines {
             switch line.values[0] {
             case "device":
-                self.add(device: LIFXLight(network: self.network, csvLine: line), connected: true)
+                self.add(device: LIFXLight(network: self.network, csvLine: line), connected: false)
             case "group":
                 self.add(group: LIFXGroup(csvLine: line))
             case "visibility":
@@ -145,7 +145,7 @@ class LIFXModel {
     }
     
     func discover() {
-        devices.value        = []
+        devices.value = []
         groups.value.forEach { $0.reset() }
         //deviceConnectedState = [:]
         itemVisibility.forEach {

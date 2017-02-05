@@ -17,6 +17,7 @@ class HudDeviceViewController: NSViewController {
     }
     
     @IBOutlet var colorWheel:       ColorWheel!
+    @IBOutlet var kelvinSlider:     NSSlider!
     @IBOutlet var brightnessSlider: NSSlider!
     @IBOutlet var wifiTextField:    NSTextField!
     @IBOutlet var modelTextField:   NSTextField!
@@ -26,10 +27,11 @@ class HudDeviceViewController: NSViewController {
         device.label.producer.startWithSignal {
             $0.0.observeResult({ self.view.window?.title = ($0.value ?? "Unknown") ?? "" })
         }
+        kelvinSlider.reactive.isEnabled <~ device.power.map { return $0 == .enabled }
         brightnessSlider.reactive.isEnabled <~ device.power.map { return $0 == .enabled }
         if let light = device as? LIFXLight {
-            brightnessSlider.reactive.integerValue <~
-                light.color.map { return $0?.brightnessAsPercentage ?? 0 }
+            kelvinSlider.reactive.integerValue <~ light.color.map { return $0?.kelvinAsPercentage ?? 50 }
+            brightnessSlider.reactive.integerValue <~ light.color.map { return $0?.brightnessAsPercentage ?? 0 }
             colorWheel.reactive.colorValue <~
                 light.color.map { return $0?.cgColor ?? CGColor(red: 0, green: 0, blue: 0, alpha: 0) }
         }
@@ -66,6 +68,14 @@ class HudDeviceViewController: NSViewController {
 
     @IBAction func togglePower(_ sender: NSButton) {
         device.setPower((device.power.value == .enabled) ? .standby : .enabled)
+    }
+
+    @IBAction func setKelvin(_ sender: NSSlider) {
+        if let light = device as? LIFXLight {
+            guard var color = light.color.value else { return }
+            color.kelvin = UInt16(sender.doubleValue*65 + 2500)
+            light.setColor(color)
+        }
     }
     
     @IBAction func setBrightness(_ sender: NSSlider) {

@@ -16,10 +16,10 @@
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" frameAutosaveName="" animationBehavior="default" id="s28-II-e6W" customClass="NSPanel">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" utility="YES" HUD="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" topStrut="YES"/>
-            <rect key="contentRect" x="10" y="908" width="160" height="244"/>
+            <rect key="contentRect" x="10" y="884" width="160" height="266"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1200"/>
             <view key="contentView" id="pm0-0N-cBF">
-                <rect key="frame" x="0.0" y="0.0" width="160" height="244"/>
+                <rect key="frame" x="0.0" y="0.0" width="160" height="266"/>
                 <autoresizingMask key="autoresizingMask"/>
             </view>
             <connections>
