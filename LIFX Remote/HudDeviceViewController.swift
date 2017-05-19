@@ -32,8 +32,8 @@ class HudDeviceViewController: NSViewController {
         if let light = device as? LIFXLight {
             kelvinSlider.reactive.integerValue <~ light.color.map { return $0?.kelvinAsPercentage ?? 50 }
             brightnessSlider.reactive.integerValue <~ light.color.map { return $0?.brightnessAsPercentage ?? 0 }
-            colorWheel.reactive.colorValue <~
-                light.color.map { return $0?.cgColor ?? CGColor(red: 0, green: 0, blue: 0, alpha: 0) }
+            colorWheel.reactive.selectedColorValue <~
+                light.color.map { return $0?.nsColor ?? NSColor.black }
         }
         wifiTextField.reactive.stringValue <~ device.wifi.map {
             guard let signal = $0.signal else { return "Unknown" }
@@ -61,7 +61,7 @@ class HudDeviceViewController: NSViewController {
 
     func setColor(_ sender: ColorWheel) {
         if let light = device as? LIFXLight {
-            guard let color = LIFXLight.Color(cgColor: sender.selectedColor) else { return }
+            guard let color = LIFXLight.Color(nsColor: sender.selectedColor) else { return }
             light.setColor(color)
         }
     }

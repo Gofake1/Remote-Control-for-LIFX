@@ -35,7 +35,7 @@ class HudGroupViewController: NSViewController {
     }
 
     func setColor(_ sender: ColorWheel) {
-        guard let color = LIFXLight.Color(cgColor: sender.selectedColor) else { return }
+        guard let color = LIFXLight.Color(nsColor: sender.selectedColor) else { return }
         group.setColor(color)
     }
 

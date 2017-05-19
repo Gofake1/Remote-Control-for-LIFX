@@ -6,6 +6,7 @@
 //  Copyright © 2016 Gofake1. All rights reserved.
 //
 
+import Cocoa
 import ReactiveSwift
 
 typealias Address  = UInt64
@@ -304,7 +305,7 @@ class LIFXDevice {
 
 extension LIFXDevice: CustomStringConvertible {
     var description: String {
-        return "device:\n\tlabel: \(label.value)\n\taddress: \(address)"
+        return "device:\n\tlabel: \(label.value ?? "nil")\n\taddress: \(address)"
     }
 }
 
@@ -351,44 +352,11 @@ class LIFXLight: LIFXDevice {
             return hue + saturation + brightness + kelvin
         }
 
-        var cgColor: CGColor {
-            let h = CGFloat(hue)/CGFloat(UInt16.max) * 6
-            let s = CGFloat(saturation)/CGFloat(UInt16.max)
-            let v = CGFloat(brightness)/CGFloat(UInt16.max)
-            let i = floor(h)
-            let f = h - i
-            let p = v * (1.0 - s)
-            let q = v * (1.0 - s * f)
-            let t = v * (1.0 - s * (1.0 - f))
-            var r, g, b: CGFloat
-
-            switch i {
-            case 0:
-                r = v
-                g = t
-                b = p
-            case 1:
-                r = q
-                g = v
-                b = p
-            case 2:
-                r = p
-                g = v
-                b = t
-            case 3:
-                r = p
-                g = q
-                b = v
-            case 4:
-                r = t
-                g = p
-                b = v
-            default:
-                r = v
-                g = p
-                b = q
-            }
-            return CGColor(red: r, green: g, blue: b, alpha: 1)
+        var nsColor: NSColor {
+            return NSColor(calibratedHue: CGFloat(hue)/CGFloat(UInt16.max),
+                           saturation: CGFloat(saturation)/CGFloat(UInt16.max),
+                           brightness: CGFloat(brightness)/CGFloat(UInt16.max),
+                           alpha: 1.0)
         }
 
         init(hue: UInt16, saturation: UInt16, brightness: UInt16, kelvin: UInt16) {
@@ -398,11 +366,10 @@ class LIFXLight: LIFXDevice {
             self.kelvin     = kelvin
         }
 
-        init?(cgColor: CGColor) {
-            guard let rgb = cgColor.components else { return nil }
-            let r = rgb[0]
-            let g = rgb[1]
-            let b = rgb[2]
+        init?(nsColor: NSColor) {
+            let r = nsColor.redComponent
+            let g = nsColor.greenComponent
+            let b = nsColor.blueComponent
             let minRgb = min(r, min(g, b))
             let maxRgb = max(r, max(g, b))
             var hue, saturation, brightness: UInt16
