@@ -13,7 +13,7 @@ class AppDelegate: NSObject {
 
     private lazy var preferences: NSWindowController? = {
         return NSStoryboard(name: "Preferences", bundle: nil)
-                   .instantiateInitialController() as? NSWindowController
+            .instantiateInitialController() as? NSWindowController
     }()
 
     @IBAction func showPreferences(_ sender: NSMenuItem) {

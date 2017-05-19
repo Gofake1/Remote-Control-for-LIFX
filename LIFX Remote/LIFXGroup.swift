@@ -6,7 +6,6 @@
 //  Copyright © 2017 Gofake1. All rights reserved.
 //
 
-import Foundation
 import ReactiveSwift
 
 class LIFXGroup {

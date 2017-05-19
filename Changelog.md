@@ -1,3 +1,6 @@
+### 1.3.1 (18 May 2017)
+* HUD color wheel supports dragging
+
 ### 1.3.0 (05 Feb. 2017) - Customization Update
 * HUD allows changing the Kelvin temperature of your LIFX bulbs
 * Choose which lightbulbs and groups to show

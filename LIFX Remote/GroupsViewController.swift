@@ -26,27 +26,28 @@ class GroupsViewController: NSViewController {
         removeGroupButton.reactive.isEnabled <~ model.groups.map { return $0.count > 0 }
         tabView.reactive.isHidden <~ model.groups.map { return $0.count == 0 }
         noGroupsView.reactive.isHidden <~ model.groups.map { return $0.count != 0 }
-        for group in model.groups.value {
-            guard let viewController = storyboard?.instantiateController(withIdentifier: "GroupDetail")
-                as? GroupDetailViewController else { return }
-            viewController.group = group
-            tabView.addTabViewItem(NSTabViewItem(viewController: viewController))
-        }
+        model.groups.value.forEach { addViewController(for: $0) }
     }
 
-    @IBAction func addGroup(_ sender: NSButton) {
-        let group = LIFXGroup()
-        model.add(group: group)
-        outlineView.reloadData()
+    func addViewController(for group: LIFXGroup) {
         guard let viewController = storyboard?.instantiateController(withIdentifier: "GroupDetail")
             as? GroupDetailViewController else { return }
         viewController.group = group
         tabView.addTabViewItem(NSTabViewItem(viewController: viewController))
     }
 
+    @IBAction func addGroup(_ sender: NSButton) {
+        let group = LIFXGroup()
+        model.add(group: group)
+        outlineView.reloadData()
+        addViewController(for: group)
+    }
+
     @IBAction func removeGroup(_ sender: NSButton) {
         let index = (outlineView.selectedRow != -1) ? outlineView.selectedRow : model.groups.value.count-1
-        model.removeGroup(at: index)
+        let group = model.group(at: index)
+        HudController.removeGroup(group)
+        model.remove(group: group)
         outlineView.reloadData()
         tabView.removeTabViewItem(tabView.tabViewItem(at: index))
     }
@@ -59,7 +60,8 @@ extension GroupsViewController: NSControlTextEditingDelegate {
             guard let newName = obj as? String else { return false }
             if model.groups.value
                 .filter({ return newName == $0.name.value })
-                .reduce(0, { return $0.0 + 1 }) > 0
+                .reduce(0, { return $0.0 + 1 })
+                > 0
             { return false }
         }
         return true

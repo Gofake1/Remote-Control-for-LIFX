@@ -6,8 +6,6 @@
 //  Copyright © 2017 Gofake1. All rights reserved.
 //
 
-import Foundation
-
 protocol CSVEncodable {
     var csvString: String { get }
 }

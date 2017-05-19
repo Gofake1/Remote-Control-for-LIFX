@@ -64,4 +64,8 @@ class HudController: NSWindowController {
     class func reset() {
         HudController.openedWindows = [:]
     }
+
+    class func removeGroup(_ group: LIFXGroup) {
+        HudController.openedWindows[group] = nil
+    }
 }

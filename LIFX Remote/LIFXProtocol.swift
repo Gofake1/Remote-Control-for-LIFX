@@ -6,14 +6,12 @@
 //  Copyright © 2016 Gofake1. All rights reserved.
 //
 
-import Foundation
-
 /// A type that describes a LIFX message
-protocol Messagable {
+protocol LIFXMessageType {
     var message: UInt16 { get }
 }
 
-enum DeviceMessage: UInt16, Messagable {
+enum DeviceMessage: UInt16, LIFXMessageType {
     case getService        = 2
     case stateService      = 3
     case getHostInfo       = 12
@@ -47,7 +45,7 @@ enum DeviceMessage: UInt16, Messagable {
     }
 }
 
-enum LightMessage: UInt16, Messagable {
+enum LightMessage: UInt16, LIFXMessageType {
     case getState      = 101
     case setColor      = 102
     case state         = 107
@@ -68,7 +66,7 @@ struct Packet {
     var payload: Payload?
     
     /// - parameter target: MAC address or nil (all devices)
-    init(type: Messagable, with payload: [UInt8]? = nil, to target: Address? = nil) {
+    init(type: LIFXMessageType, with payload: [UInt8]? = nil, to target: Address? = nil) {
         self.header  = Header(type: type, target: target)
         self.payload = Payload(bytes: payload)
     }
@@ -128,7 +126,7 @@ struct Header {
     }
     
     // Protocol
-    var type: Messagable
+    var type: LIFXMessageType
     
     /// Little-endian
     var bytes: [UInt8] {
@@ -166,7 +164,7 @@ struct Header {
         ]
     }
     
-    init(type: Messagable, target: Address?) {
+    init(type: LIFXMessageType, target: Address?) {
         self.type = type
         self.target = target ?? 0
         
@@ -197,7 +195,7 @@ struct Header {
     init?(bytes: [UInt8]) {
         let rawValue = UnsafePointer(Array(bytes[32...33]))
                            .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee })
-        if let type: Messagable = rawValue > 100 ? LightMessage(rawValue: rawValue) :
+        if let type: LIFXMessageType = rawValue > 100 ? LightMessage(rawValue: rawValue) :
                                                    DeviceMessage(rawValue: rawValue) {
             self.type = type
         } else {

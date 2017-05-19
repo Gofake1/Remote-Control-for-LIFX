@@ -2,7 +2,7 @@
 
 LIFX smart lightbulb status bar app for macOS
 
-![Remote Control for LIFX screenshot](http://gofake1.net/images/lifx_remote.png)
+![Remote Control for LIFX screenshot](http://gofake1.net/images/lifx_remote.jpg)
 
 LIFX Remote features:
 
