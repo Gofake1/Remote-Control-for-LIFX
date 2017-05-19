@@ -138,7 +138,7 @@ extension StatusMenuController: NSMenuDelegate {
 extension Reactive where Base: NSMenuItem {
 
     var isEnabled: BindingTarget<Bool> {
-        return BindingTarget(on: UIScheduler(), lifetime: lifetime, setter: { [weak base = self.base] value in
+        return BindingTarget(on: UIScheduler(), lifetime: lifetime, action: { [weak base = self.base] value in
             if let base = base {
                 base.isEnabled = value
             }
@@ -146,7 +146,7 @@ extension Reactive where Base: NSMenuItem {
     }
 
     var isHidden: BindingTarget<Bool> {
-        return BindingTarget(on: UIScheduler(), lifetime: lifetime, setter: { [weak base = self.base] value in
+        return BindingTarget(on: UIScheduler(), lifetime: lifetime, action: { [weak base = self.base] value in
             if let base = base {
                 base.isHidden = value
             }
@@ -154,7 +154,7 @@ extension Reactive where Base: NSMenuItem {
     }
 
     var titleValue: BindingTarget<String> {
-        return BindingTarget(on: UIScheduler(), lifetime: lifetime, setter: { [weak base = self.base] value in
+        return BindingTarget(on: UIScheduler(), lifetime: lifetime, action: { [weak base = self.base] value in
             if let base = base {
                 base.title = value
             }

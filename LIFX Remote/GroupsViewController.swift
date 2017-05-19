@@ -119,7 +119,7 @@ extension GroupsViewController: NSOutlineViewDelegate {
 
 extension Reactive where Base: NSView {
     var isHidden: BindingTarget<Bool> {
-        return BindingTarget(on: UIScheduler(), lifetime: lifetime, setter: { [weak base = self.base] value in
+        return BindingTarget(on: UIScheduler(), lifetime: lifetime, action: { [weak base = self.base] value in
             if let base = base {
                 base.isHidden = value
             }

@@ -40,7 +40,7 @@ class StatusMenuItemColorView: NSView {
 
 extension Reactive where Base: StatusMenuItemColorView {
     var colorValue: BindingTarget<NSColor?> {
-        return BindingTarget(on: UIScheduler(), lifetime: lifetime, setter: { [weak base = self.base] value in
+        return BindingTarget(on: UIScheduler(), lifetime: lifetime, action: { [weak base = self.base] value in
             if let base = base {
                 base.color = value
             }
