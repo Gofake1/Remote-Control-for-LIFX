@@ -61,7 +61,6 @@
 
 /* Begin PBXFileReference section */
 		4A00EA971DF12CD80076EACD /* Remote Control for LIFX.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Remote Control for LIFX.entitlements"; sourceTree = "<group>"; };
-		4A00EA981DF2C8D30076EACD /* Cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile; sourceTree = "<group>"; };
 		4A00EA9A1DF2CF010076EACD /* ReactiveCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReactiveCocoa.framework; path = Carthage/Build/Mac/ReactiveCocoa.framework; sourceTree = "<group>"; };
 		4A00EA9B1DF2CF010076EACD /* ReactiveSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReactiveSwift.framework; path = Carthage/Build/Mac/ReactiveSwift.framework; sourceTree = "<group>"; };
 		4A00EA9C1DF2CF010076EACD /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Result.framework; path = Carthage/Build/Mac/Result.framework; sourceTree = "<group>"; };
@@ -91,7 +90,6 @@
 		4A62C9981DD995C3000F77FE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/StatusMenuItemViewController.xib; sourceTree = "<group>"; };
 		4A62C99A1DD99F55000F77FE /* StatusMenuItemColorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusMenuItemColorView.swift; sourceTree = "<group>"; };
 		4A62C99C1DDA4EA3000F77FE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		4A62C99D1DDAAB93000F77FE /* HighlightingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HighlightingView.swift; sourceTree = "<group>"; };
 		4A70F4D31E10CFDA0026ED27 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Preferences.storyboard; sourceTree = "<group>"; };
 		4A8147A21E1CCF0900118BB7 /* LIFXGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LIFXGroup.swift; sourceTree = "<group>"; };
 		4A90B7D91E380557004E24CE /* CSV.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CSV.swift; sourceTree = "<group>"; };
@@ -129,7 +127,6 @@
 			children = (
 				4A56A9E01E26C76B00A37C90 /* CheckboxTableCellView.swift */,
 				4A5B85151DEA6DAE006A9C54 /* ColorWheel.swift */,
-				4A62C99D1DDAAB93000F77FE /* HighlightingView.swift */,
 				4A62C99A1DD99F55000F77FE /* StatusMenuItemColorView.swift */,
 			);
 			name = "Custom Views";
@@ -140,7 +137,6 @@
 			children = (
 				4A62C99C1DDA4EA3000F77FE /* README.md */,
 				4A5CB2BF1DFD213E00F8530E /* Changelog.md */,
-				4A00EA981DF2C8D30076EACD /* Cartfile */,
 				4A583ABA1D134B31005A4691 /* Remote Control for LIFX */,
 				4A00EA991DF2CF000076EACD /* Frameworks */,
 				4A583AB91D134B31005A4691 /* Products */,

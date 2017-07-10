@@ -107,16 +107,11 @@ class StatusMenuController: NSObject {
                 let menuItem = NSMenuItem()
                 menuItem.representedObject = menuItemController
                 menuItem.view = menuItemController.view
-                //menuItem.target = self
-                //menuItem.action = #selector(doNothing(_:))
                 statusMenu.insertItem(menuItem, at: index)
                 menuItems[item] = menuItem
             }
         }
     }
-
-    // Needed so that validateMenuItem() returns true and allows HighlightingView to draw
-    //func doNothing(_ sender: NSMenuItem) {}
     
     @IBAction func toggleAllLights(_ sender: NSMenuItem) {
         model.changeAllDevices(power: (toggleAllMessage.value == .on) ? .enabled : .standby)
