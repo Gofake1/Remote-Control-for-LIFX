@@ -30,7 +30,7 @@ class StatusMenuController: NSObject {
     @IBOutlet var toggleAllMenuItem:     NSMenuItem!
     @IBOutlet var placeholderMenuItem:   NSMenuItem!
     fileprivate let model        = LIFXModel.shared
-    private let statusItem       = NSStatusBar.system().statusItem(withLength: NSSquareStatusItemLength)
+    private let statusItem       = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private var menuItems        = [AnyHashable:NSMenuItem]()
     private let statusMessage    = MutableProperty<StatusMessage>(.normal)
     private let toggleAllMessage = MutableProperty<ToggleAllMessage>(.on)

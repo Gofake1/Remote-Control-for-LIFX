@@ -12,7 +12,7 @@ import Cocoa
 class AppDelegate: NSObject {
 
     private lazy var preferences: NSWindowController? = {
-        return NSStoryboard(name: "Preferences", bundle: nil)
+        return NSStoryboard(name: NSStoryboard.Name(rawValue: "Preferences"), bundle: nil)
             .instantiateInitialController() as? NSWindowController
     }()
 

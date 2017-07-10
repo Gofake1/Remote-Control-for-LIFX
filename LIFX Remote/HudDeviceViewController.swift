@@ -12,8 +12,8 @@ import ReactiveCocoa
 
 class HudDeviceViewController: NSViewController {
     
-    override var nibName: String? {
-        return "HudDeviceViewController"
+    override var nibName: NSNib.Name? {
+        return NSNib.Name(rawValue: "HudDeviceViewController")
     }
     
     @IBOutlet var colorWheel:       ColorWheel!
@@ -59,7 +59,7 @@ class HudDeviceViewController: NSViewController {
         device.getWifiInfo()
     }
 
-    func setColor(_ sender: ColorWheel) {
+    @objc func setColor(_ sender: ColorWheel) {
         if let light = device as? LIFXLight {
             guard let color = LIFXLight.Color(nsColor: sender.selectedColor) else { return }
             light.setColor(color)

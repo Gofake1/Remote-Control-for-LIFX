@@ -10,15 +10,19 @@ import Cocoa
 import ReactiveSwift
 import ReactiveCocoa
 
+private let identifierGroupCell = NSUserInterfaceItemIdentifier(rawValue: "groupCell")
+private let identifierGroupName = NSUserInterfaceItemIdentifier(rawValue: "groupName")
+
 class GroupsViewController: NSViewController {
 
-    @IBOutlet var outlineView: NSOutlineView!
-    @IBOutlet var removeGroupButton: NSButton!
-    @IBOutlet var detailView: NSView! // Holds tabView, noGroupsView, noGroupsSelectedView
-    @IBOutlet var tabView: NSTabView!
-    @IBOutlet var noGroupsView: NSView!
-    fileprivate let model = LIFXModel.shared
-    fileprivate let outlineCellViewImage = NSImage(named: "NSActionTemplate")
+    @IBOutlet weak var outlineView: NSOutlineView!
+    @IBOutlet weak var removeGroupButton: NSButton!
+    @IBOutlet weak var detailView: NSView! // Holds tabView, noGroupsView, noGroupsSelectedView
+    @IBOutlet weak var tabView: NSTabView!
+    @IBOutlet weak var noGroupsView: NSView!
+    
+    private let model = LIFXModel.shared
+    private let outlineCellViewImage = NSImage(named: NSImage.Name(rawValue: "NSActionTemplate"))
 
     override func viewDidLoad() {
         preferredContentSize = NSSize(width: 450, height: 300)
@@ -56,7 +60,7 @@ class GroupsViewController: NSViewController {
 extension GroupsViewController: NSControlTextEditingDelegate {
 
     func control(_ control: NSControl, isValidObject obj: Any?) -> Bool {
-        if control.identifier == "GroupName" {
+        if control.identifier == identifierGroupName {
             guard let newName = obj as? String else { return false }
             if model.groups.value
                 .filter({ return newName == $0.name.value })
@@ -68,8 +72,8 @@ extension GroupsViewController: NSControlTextEditingDelegate {
     }
 
     func control(_ control: NSControl, textShouldEndEditing fieldEditor: NSText) -> Bool {
-        if control.identifier == "GroupName" {
             model.group(at: outlineView.row(for: control)).name.value = fieldEditor.string ?? ""
+        if control.identifier == identifierGroupName {
             return true
         }
         return false
@@ -99,7 +103,8 @@ extension GroupsViewController: NSOutlineViewDelegate {
     func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
         if let group = item as? LIFXGroup {
             guard
-                let view = outlineView.make(withIdentifier: "GroupCell", owner: nil) as? NSTableCellView,
+                let view = outlineView.makeView(withIdentifier: identifierGroupCell,
+                                                owner: nil) as? NSTableCellView,
                 let textField = view.textField,
                 let imageView = view.imageView
             else { return nil }

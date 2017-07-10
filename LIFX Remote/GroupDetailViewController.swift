@@ -12,10 +12,11 @@ import ReactiveCocoa
 
 class GroupDetailViewController: NSViewController {
 
-    @IBOutlet var groupNameLabel: NSTextField!
-    @IBOutlet var tableView: NSTableView!
+    @IBOutlet weak var groupNameLabel: NSTextField!
+    @IBOutlet weak var tableView: NSTableView!
+    
     var group: LIFXGroup!
-    fileprivate let model = LIFXModel.shared
+    private let model = LIFXModel.shared
 
     override func viewDidLoad() {
         groupNameLabel.reactive.stringValue <~ group.name.map { return "\($0) Settings" }

@@ -10,7 +10,7 @@ import Cocoa
 
 class AboutViewController: NSViewController {
 
-    @IBOutlet var acknowledgementsText: NSTextView!
+    @IBOutlet weak var acknowledgementsText: NSTextView!
 
     override func viewDidLoad() {
         preferredContentSize = NSSize(width: 450, height: 300)
@@ -20,6 +20,6 @@ class AboutViewController: NSViewController {
     }
 
     @IBAction func openWebsite(_ sender: NSButton) {
-        NSWorkspace.shared().open(URL(string: "https://gofake1.net/projects/lifx_remote.html")!)
+        NSWorkspace.shared.open(URL(string: "https://gofake1.net/projects/lifx_remote.html")!)
     }
 }

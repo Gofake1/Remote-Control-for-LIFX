@@ -10,8 +10,8 @@ import Cocoa
 
 class HudController: NSWindowController {
     
-    override var windowNibName: String? {
-        return "HudController"
+    override var windowNibName: NSNib.Name? {
+        return NSNib.Name(rawValue: "HudController")
     }
     
     private var item: Either<LIFXGroup, LIFXDevice>?

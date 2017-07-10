@@ -13,8 +13,8 @@ import ReactiveCocoa
 
 class HudGroupViewController: NSViewController {
 
-    override var nibName: String? {
-        return "HudGroupViewController"
+    override var nibName: NSNib.Name? {
+        return NSNib.Name(rawValue: "HudGroupViewController")
     }
 
     @IBOutlet var colorWheel:       ColorWheel!
@@ -34,7 +34,7 @@ class HudGroupViewController: NSViewController {
         colorWheel.action = #selector(setColor(_:))
     }
 
-    func setColor(_ sender: ColorWheel) {
+    @objc func setColor(_ sender: ColorWheel) {
         guard let color = LIFXLight.Color(nsColor: sender.selectedColor) else { return }
         group.setColor(color)
     }

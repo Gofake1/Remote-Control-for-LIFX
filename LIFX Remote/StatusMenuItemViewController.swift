@@ -12,13 +12,14 @@ import ReactiveCocoa
 
 class StatusMenuItemViewController: NSViewController {
     
-    override var nibName: String? {
-        return "StatusMenuItemViewController"
+    override var nibName: NSNib.Name? {
+        return NSNib.Name(rawValue: "StatusMenuItemViewController")
     }
     
-    @IBOutlet var labelTextField:   NSTextField!
-    @IBOutlet var brightnessSlider: NSSlider!
-    @IBOutlet var lightColorView:   StatusMenuItemColorView!
+    @IBOutlet weak var labelTextField:   NSTextField!
+    @IBOutlet weak var brightnessSlider: NSSlider!
+    @IBOutlet weak var lightColorView:   StatusMenuItemColorView!
+
     var item: Either<LIFXGroup, LIFXDevice>?
 
     override func viewDidLoad() {
