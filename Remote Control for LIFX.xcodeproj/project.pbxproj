@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		4A1543FB1D91B9DB0052706C /* Bitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1543FA1D91B9DB0052706C /* Bitter.swift */; };
-		4A50ABD71E2C2549007EB692 /* HudGroupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A50ABD51E2C2549007EB692 /* HudGroupViewController.swift */; };
-		4A50ABD91E2C2741007EB692 /* HudGroupViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A50ABDB1E2C2741007EB692 /* HudGroupViewController.xib */; };
 		4A50ABDD1E2EED53007EB692 /* Basic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A50ABDC1E2EED53007EB692 /* Basic.swift */; };
 		4A56A9E11E26C76B00A37C90 /* CheckboxTableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A56A9E01E26C76B00A37C90 /* CheckboxTableCellView.swift */; };
 		4A56A9E31E27148C00A37C90 /* GroupDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A56A9E21E27148C00A37C90 /* GroupDetailViewController.swift */; };
@@ -18,8 +16,6 @@
 		4A583AC11D134B31005A4691 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A583ABF1D134B31005A4691 /* MainMenu.xib */; };
 		4A583AD51D139800005A4691 /* LIFXProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A583AD41D139800005A4691 /* LIFXProtocol.swift */; };
 		4A5B5B541D37569F009CD119 /* StatusMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B5B531D37569F009CD119 /* StatusMenuController.swift */; };
-		4A5B85101DE26039006A9C54 /* HudDeviceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B850E1DE26039006A9C54 /* HudDeviceViewController.swift */; };
-		4A5B85121DE26047006A9C54 /* HudDeviceViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A5B85141DE26047006A9C54 /* HudDeviceViewController.xib */; };
 		4A5B85161DEA6DAE006A9C54 /* ColorWheel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B85151DEA6DAE006A9C54 /* ColorWheel.swift */; };
 		4A61D0DB1E2200C10026221A /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A61D0DA1E2200C10026221A /* AboutViewController.swift */; };
 		4A61D0E11E220B4E0026221A /* GeneralViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A61D0E01E220B4E0026221A /* GeneralViewController.swift */; };
@@ -41,6 +37,10 @@
 		4AAE71691DF651E500BC795A /* ReactiveSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9B1DF2CF010076EACD /* ReactiveSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4AAE716A1DF651E500BC795A /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9C1DF2CF010076EACD /* Result.framework */; };
 		4AAE716B1DF651E500BC795A /* Result.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9C1DF2CF010076EACD /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4AEC75D41F136CA200AD8CD7 /* GroupHudViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4AEC75D31F136C9E00AD8CD7 /* GroupHudViewController.xib */; };
+		4AEC75D91F136CE100AD8CD7 /* DeviceHudViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4AEC75C81F136BEA00AD8CD7 /* DeviceHudViewController.xib */; };
+		4AEC75DA1F136E4C00AD8CD7 /* DeviceHudViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AEC75C31F136B8000AD8CD7 /* DeviceHudViewController.swift */; };
+		4AEC75DB1F136E5000AD8CD7 /* GroupHudViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AEC75C41F136BB100AD8CD7 /* GroupHudViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -65,8 +65,6 @@
 		4A00EA9B1DF2CF010076EACD /* ReactiveSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReactiveSwift.framework; path = Carthage/Build/Mac/ReactiveSwift.framework; sourceTree = "<group>"; };
 		4A00EA9C1DF2CF010076EACD /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Result.framework; path = Carthage/Build/Mac/Result.framework; sourceTree = "<group>"; };
 		4A1543FA1D91B9DB0052706C /* Bitter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bitter.swift; sourceTree = "<group>"; };
-		4A50ABD51E2C2549007EB692 /* HudGroupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HudGroupViewController.swift; sourceTree = "<group>"; };
-		4A50ABDA1E2C2741007EB692 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/HudGroupViewController.xib; sourceTree = "<group>"; };
 		4A50ABDC1E2EED53007EB692 /* Basic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Basic.swift; sourceTree = "<group>"; };
 		4A56A9E01E26C76B00A37C90 /* CheckboxTableCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckboxTableCellView.swift; sourceTree = "<group>"; };
 		4A56A9E21E27148C00A37C90 /* GroupDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupDetailViewController.swift; sourceTree = "<group>"; };
@@ -77,8 +75,6 @@
 		4A583AC21D134B31005A4691 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4A583AD41D139800005A4691 /* LIFXProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LIFXProtocol.swift; sourceTree = "<group>"; };
 		4A5B5B531D37569F009CD119 /* StatusMenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusMenuController.swift; sourceTree = "<group>"; };
-		4A5B850E1DE26039006A9C54 /* HudDeviceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HudDeviceViewController.swift; sourceTree = "<group>"; };
-		4A5B85131DE26047006A9C54 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/HudDeviceViewController.xib; sourceTree = "<group>"; };
 		4A5B85151DEA6DAE006A9C54 /* ColorWheel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorWheel.swift; sourceTree = "<group>"; };
 		4A5CB2BF1DFD213E00F8530E /* Changelog.md */ = {isa = PBXFileReference; explicitFileType = net.daringfireball.markdown; path = Changelog.md; sourceTree = "<group>"; };
 		4A61D0DA1E2200C10026221A /* AboutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
@@ -96,6 +92,10 @@
 		4AA2DBAD1E3EC4F2002406BC /* Acknowledgements.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Acknowledgements.rtf; sourceTree = "<group>"; };
 		4AA517A01DFA3C1600C148C4 /* LIFXDevice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LIFXDevice.swift; sourceTree = "<group>"; };
 		4AA6BDC31D14C52300F0D0CF /* LIFXModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LIFXModel.swift; sourceTree = "<group>"; };
+		4AEC75C31F136B8000AD8CD7 /* DeviceHudViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceHudViewController.swift; sourceTree = "<group>"; };
+		4AEC75C41F136BB100AD8CD7 /* GroupHudViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupHudViewController.swift; sourceTree = "<group>"; };
+		4AEC75C71F136BEA00AD8CD7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/DeviceHudViewController.xib; sourceTree = "<group>"; };
+		4AEC75D21F136C9E00AD8CD7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/GroupHudViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,10 +161,10 @@
 				4A62C9991DD995C3000F77FE /* StatusMenuItemViewController.xib */,
 				4A62C9861DD98C74000F77FE /* HudController.swift */,
 				4A62C98C1DD98C87000F77FE /* HudController.xib */,
-				4A50ABD51E2C2549007EB692 /* HudGroupViewController.swift */,
-				4A50ABDB1E2C2741007EB692 /* HudGroupViewController.xib */,
-				4A5B850E1DE26039006A9C54 /* HudDeviceViewController.swift */,
-				4A5B85141DE26047006A9C54 /* HudDeviceViewController.xib */,
+				4AEC75C31F136B8000AD8CD7 /* DeviceHudViewController.swift */,
+				4AEC75C81F136BEA00AD8CD7 /* DeviceHudViewController.xib */,
+				4AEC75C41F136BB100AD8CD7 /* GroupHudViewController.swift */,
+				4AEC75D31F136C9E00AD8CD7 /* GroupHudViewController.xib */,
 				4A61D0E01E220B4E0026221A /* GeneralViewController.swift */,
 				4A61D0E21E220DB50026221A /* GroupsViewController.swift */,
 				4A56A9E21E27148C00A37C90 /* GroupDetailViewController.swift */,
@@ -254,13 +254,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A50ABD91E2C2741007EB692 /* HudGroupViewController.xib in Resources */,
+				4AEC75D91F136CE100AD8CD7 /* DeviceHudViewController.xib in Resources */,
 				4AA2DBAE1E3EC4F2002406BC /* Acknowledgements.rtf in Resources */,
 				4A62C9971DD995C3000F77FE /* StatusMenuItemViewController.xib in Resources */,
 				4A70F4D21E10CFDA0026ED27 /* Preferences.storyboard in Resources */,
+				4AEC75D41F136CA200AD8CD7 /* GroupHudViewController.xib in Resources */,
 				4A583ABE1D134B31005A4691 /* Assets.xcassets in Resources */,
 				4A62C98A1DD98C87000F77FE /* HudController.xib in Resources */,
-				4A5B85121DE26047006A9C54 /* HudDeviceViewController.xib in Resources */,
 				4A583AC11D134B31005A4691 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -272,8 +272,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AEC75DB1F136E5000AD8CD7 /* GroupHudViewController.swift in Sources */,
+				4AEC75DA1F136E4C00AD8CD7 /* DeviceHudViewController.swift in Sources */,
 				4AA6BDC41D14C52300F0D0CF /* LIFXModel.swift in Sources */,
-				4A50ABD71E2C2549007EB692 /* HudGroupViewController.swift in Sources */,
 				4A1543FB1D91B9DB0052706C /* Bitter.swift in Sources */,
 				4A8147A31E1CCF0900118BB7 /* LIFXGroup.swift in Sources */,
 				4A61D0E11E220B4E0026221A /* GeneralViewController.swift in Sources */,
@@ -285,7 +286,6 @@
 				4A62C99B1DD99F55000F77FE /* StatusMenuItemColorView.swift in Sources */,
 				4A62C9881DD98C74000F77FE /* HudController.swift in Sources */,
 				4A5B5B541D37569F009CD119 /* StatusMenuController.swift in Sources */,
-				4A5B85101DE26039006A9C54 /* HudDeviceViewController.swift in Sources */,
 				4A583ABC1D134B31005A4691 /* AppDelegate.swift in Sources */,
 				4A56A9E11E26C76B00A37C90 /* CheckboxTableCellView.swift in Sources */,
 				4A62C9951DD995B2000F77FE /* StatusMenuItemViewController.swift in Sources */,
@@ -298,28 +298,12 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		4A50ABDB1E2C2741007EB692 /* HudGroupViewController.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				4A50ABDA1E2C2741007EB692 /* Base */,
-			);
-			name = HudGroupViewController.xib;
-			sourceTree = "<group>";
-		};
 		4A583ABF1D134B31005A4691 /* MainMenu.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
 				4A583AC01D134B31005A4691 /* Base */,
 			);
 			name = MainMenu.xib;
-			sourceTree = "<group>";
-		};
-		4A5B85141DE26047006A9C54 /* HudDeviceViewController.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				4A5B85131DE26047006A9C54 /* Base */,
-			);
-			name = HudDeviceViewController.xib;
 			sourceTree = "<group>";
 		};
 		4A62C98C1DD98C87000F77FE /* HudController.xib */ = {
@@ -344,6 +328,22 @@
 				4A70F4D31E10CFDA0026ED27 /* Base */,
 			);
 			name = Preferences.storyboard;
+			sourceTree = "<group>";
+		};
+		4AEC75C81F136BEA00AD8CD7 /* DeviceHudViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4AEC75C71F136BEA00AD8CD7 /* Base */,
+			);
+			name = DeviceHudViewController.xib;
+			sourceTree = "<group>";
+		};
+		4AEC75D31F136C9E00AD8CD7 /* GroupHudViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				4AEC75D21F136C9E00AD8CD7 /* Base */,
+			);
+			name = GroupHudViewController.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

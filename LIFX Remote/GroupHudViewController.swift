@@ -11,17 +11,18 @@ import Result
 import ReactiveSwift
 import ReactiveCocoa
 
-class HudGroupViewController: NSViewController {
+class GroupHudViewController: NSViewController {
 
     override var nibName: NSNib.Name? {
         return NSNib.Name(rawValue: "HudGroupViewController")
     }
 
-    @IBOutlet var colorWheel:       ColorWheel!
-    @IBOutlet var kelvinSlider:     NSSlider!
-    @IBOutlet var brightnessSlider: NSSlider!
-    @IBOutlet var tableView:        NSTableView!
-    var group: LIFXGroup!
+    @IBOutlet weak var colorWheel:       ColorWheel!
+    @IBOutlet weak var kelvinSlider:     NSSlider!
+    @IBOutlet weak var brightnessSlider: NSSlider!
+    @IBOutlet weak var tableView:        NSTableView!
+
+    unowned var group: LIFXGroup!
 
     override func viewDidLoad() {
         group.name.producer.startWithSignal { $0.0.observeResult({ self.view.window?.title = $0 ?? "" }) }
@@ -56,13 +57,13 @@ class HudGroupViewController: NSViewController {
     }
 }
 
-extension HudGroupViewController: NSTableViewDataSource {
+extension GroupHudViewController: NSTableViewDataSource {
     func numberOfRows(in tableView: NSTableView) -> Int {
         return group.devices.value.count
     }
 }
 
-extension HudGroupViewController: NSTableViewDelegate {
+extension GroupHudViewController: NSTableViewDelegate {
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
         guard tableColumn != nil else { return nil }
 

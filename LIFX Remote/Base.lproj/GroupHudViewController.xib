@@ -6,7 +6,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="HudGroupViewController" customModule="Remote_Control_for_LIFX" customModuleProvider="target">
+        <customObject id="-2" userLabel="File's Owner" customClass="GroupHudViewController" customModule="Remote_Control_for_LIFX" customModuleProvider="target">
             <connections>
                 <outlet property="brightnessSlider" destination="fXp-4I-74Y" id="IJn-P0-rN7"/>
                 <outlet property="colorWheel" destination="szR-qN-aae" id="M3b-nc-4sK"/>

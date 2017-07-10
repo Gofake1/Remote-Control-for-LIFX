@@ -10,18 +10,19 @@ import Cocoa
 import ReactiveSwift
 import ReactiveCocoa
 
-class HudDeviceViewController: NSViewController {
+class DeviceHudViewController: NSViewController {
     
     override var nibName: NSNib.Name? {
-        return NSNib.Name(rawValue: "HudDeviceViewController")
+        return NSNib.Name(rawValue: "DeviceHudViewController")
     }
     
-    @IBOutlet var colorWheel:       ColorWheel!
-    @IBOutlet var kelvinSlider:     NSSlider!
-    @IBOutlet var brightnessSlider: NSSlider!
-    @IBOutlet var wifiTextField:    NSTextField!
-    @IBOutlet var modelTextField:   NSTextField!
-    var device: LIFXDevice!
+    @IBOutlet weak var colorWheel:       ColorWheel!
+    @IBOutlet weak var kelvinSlider:     NSSlider!
+    @IBOutlet weak var brightnessSlider: NSSlider!
+    @IBOutlet weak var wifiTextField:    NSTextField!
+    @IBOutlet weak var modelTextField:   NSTextField!
+
+    unowned var device: LIFXDevice!
 
     override func viewDidLoad() {
         device.label.producer.startWithSignal {
