@@ -14,58 +14,43 @@ class HudController: NSWindowController {
         return NSNib.Name(rawValue: "HudController")
     }
     
-    private var item: Either<LIFXGroup, LIFXDevice>?
-    private static var openedWindows = [AnyHashable:HudController]()
-    
-    override func windowDidLoad() {
-        guard let item = item else { return }
-        switch item {
-        case .left(let group):
-            let hudViewController = HudGroupViewController()
-            hudViewController.group = group
-            window?.contentViewController = hudViewController
-            
-        case .right(let device):
-            let hudViewController = HudDeviceViewController()
-            hudViewController.device = device
-            window?.contentViewController = hudViewController
+    private static var deviceWindows = [LIFXDevice: HudController]()
+    private static var groupWindows = [LIFXGroup: HudController]()
+
+    class func show(_ device: LIFXDevice) {
+        if let existingHudController = deviceWindows[device] {
+            existingHudController.showWindow(nil)
+        } else {
+            let hudController = HudController()
+            let viewController = DeviceHudViewController()
+            viewController.device = device
+            hudController.contentViewController = viewController
+            hudController.window?.title = device.label ?? "Unknown"
+            HudController.deviceWindows[device] = hudController
+            hudController.showWindow(nil)
         }
     }
 
-    class func show(_ item: Either<LIFXGroup, LIFXDevice>) {
-        var hashable: AnyHashable
-        var title: String
-
-        switch item {
-        case .left(let group):
-            if let HudController = HudController.openedWindows[group] {
-                HudController.showWindow(nil)
-                return
-            }
-            hashable = group
-            title = group.name.value
-
-        case .right(let device):
-            if let hudController = HudController.openedWindows[device] {
-                hudController.showWindow(nil)
-                return
-            }
-            hashable = device
-            title = device.label.value ?? "Unknown"
+    class func show(_ group: LIFXGroup) {
+        if let existingHudController = groupWindows[group] {
+            existingHudController.showWindow(nil)
+        } else {
+            let hudController = HudController()
+            let viewController = GroupHudViewController()
+            viewController.group = group
+            hudController.contentViewController = viewController
+            hudController.window?.title = group.name
+            HudController.groupWindows[group] = hudController
+            hudController.showWindow(nil)
         }
-
-        let hudController = HudController()
-        hudController.item = item
-        hudController.window?.title = title
-        HudController.openedWindows[hashable] = hudController
-        hudController.showWindow(nil)
     }
 
     class func reset() {
-        HudController.openedWindows = [:]
+        HudController.deviceWindows = [:]
+        HudController.groupWindows = [:]
     }
 
     class func removeGroup(_ group: LIFXGroup) {
-        HudController.openedWindows[group] = nil
+        HudController.groupWindows[group] = nil
     }
 }

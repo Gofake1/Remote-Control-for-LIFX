@@ -25,15 +25,16 @@ class StatusMenuController: NSObject {
         }
     }
     
-    @IBOutlet var statusMenu:            NSMenu!
-    @IBOutlet var statusMessageMenuItem: NSMenuItem!
-    @IBOutlet var toggleAllMenuItem:     NSMenuItem!
-    @IBOutlet var placeholderMenuItem:   NSMenuItem!
-    fileprivate let model        = LIFXModel.shared
+    @IBOutlet weak var statusMenu:            NSMenu!
+    @IBOutlet weak var statusMessageMenuItem: NSMenuItem!
+    @IBOutlet weak var toggleAllMenuItem:     NSMenuItem!
+    @IBOutlet weak var placeholderMenuItem:   NSMenuItem!
+
+    private unowned let model    = LIFXModel.shared
     private let statusItem       = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-    private var menuItems        = [AnyHashable:NSMenuItem]()
     private let statusMessage    = MutableProperty<StatusMessage>(.normal)
     private let toggleAllMessage = MutableProperty<ToggleAllMessage>(.on)
+    private var menuItems        = [AnyHashable: NSMenuItem]()
     
     override func awakeFromNib() {
         statusItem.image = #imageLiteral(resourceName: "StatusBarButtonImage")
@@ -93,20 +94,22 @@ class StatusMenuController: NSObject {
                     continue
                 }
                 // Add new menu items for new groups and devices after model update
-                let menuItemController = StatusMenuItemViewController()
+                let menuItem = NSMenuItem()
+                let menuItemViewController: NSViewController
                 var index: Int
                 switch item {
                 case let group as LIFXGroup:
-                    menuItemController.item = Either.left(group)
+                    menuItemViewController = GroupMenuItemViewController()
+                    (menuItemViewController as! GroupMenuItemViewController).group = group
                     index = statusMenu.index(of: placeholderMenuItem)
                 case let device as LIFXDevice:
-                    menuItemController.item = Either.right(device)
+                    menuItemViewController = DeviceMenuItemViewController()
+                    (menuItemViewController as! DeviceMenuItemViewController).device = device
                     index = statusMenu.index(of: placeholderMenuItem) + 1
                 default: continue
                 }
-                let menuItem = NSMenuItem()
-                menuItem.representedObject = menuItemController
-                menuItem.view = menuItemController.view
+                menuItem.representedObject = menuItemViewController
+                menuItem.view = menuItemViewController.view
                 statusMenu.insertItem(menuItem, at: index)
                 menuItems[item] = menuItem
             }
