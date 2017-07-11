@@ -17,7 +17,7 @@
 		4A5B5B541D37569F009CD119 /* StatusMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B5B531D37569F009CD119 /* StatusMenuController.swift */; };
 		4A5B85161DEA6DAE006A9C54 /* ColorWheel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B85151DEA6DAE006A9C54 /* ColorWheel.swift */; };
 		4A61D0DB1E2200C10026221A /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A61D0DA1E2200C10026221A /* AboutViewController.swift */; };
-		4A61D0E11E220B4E0026221A /* GeneralViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A61D0E01E220B4E0026221A /* GeneralViewController.swift */; };
+		4A61D0E11E220B4E0026221A /* DevicesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A61D0E01E220B4E0026221A /* DevicesViewController.swift */; };
 		4A61D0E41E220DB50026221A /* GroupsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A61D0E21E220DB50026221A /* GroupsViewController.swift */; };
 		4A62C9881DD98C74000F77FE /* HudController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A62C9861DD98C74000F77FE /* HudController.swift */; };
 		4A62C98A1DD98C87000F77FE /* HudController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A62C98C1DD98C87000F77FE /* HudController.xib */; };
@@ -79,7 +79,7 @@
 		4A5B85151DEA6DAE006A9C54 /* ColorWheel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorWheel.swift; sourceTree = "<group>"; };
 		4A5CB2BF1DFD213E00F8530E /* Changelog.md */ = {isa = PBXFileReference; explicitFileType = net.daringfireball.markdown; path = Changelog.md; sourceTree = "<group>"; };
 		4A61D0DA1E2200C10026221A /* AboutViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
-		4A61D0E01E220B4E0026221A /* GeneralViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeneralViewController.swift; sourceTree = "<group>"; };
+		4A61D0E01E220B4E0026221A /* DevicesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DevicesViewController.swift; sourceTree = "<group>"; };
 		4A61D0E21E220DB50026221A /* GroupsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupsViewController.swift; sourceTree = "<group>"; };
 		4A62C9861DD98C74000F77FE /* HudController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HudController.swift; sourceTree = "<group>"; };
 		4A62C98B1DD98C87000F77FE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/HudController.xib; sourceTree = "<group>"; };
@@ -171,7 +171,7 @@
 				4AEC75C81F136BEA00AD8CD7 /* DeviceHudViewController.xib */,
 				4AEC75C41F136BB100AD8CD7 /* GroupHudViewController.swift */,
 				4AEC75D31F136C9E00AD8CD7 /* GroupHudViewController.xib */,
-				4A61D0E01E220B4E0026221A /* GeneralViewController.swift */,
+				4A61D0E01E220B4E0026221A /* DevicesViewController.swift */,
 				4A61D0E21E220DB50026221A /* GroupsViewController.swift */,
 				4A56A9E21E27148C00A37C90 /* GroupDetailViewController.swift */,
 				4A61D0DA1E2200C10026221A /* AboutViewController.swift */,
@@ -284,7 +284,7 @@
 				4AA6BDC41D14C52300F0D0CF /* LIFXModel.swift in Sources */,
 				4A1543FB1D91B9DB0052706C /* Bitter.swift in Sources */,
 				4A8147A31E1CCF0900118BB7 /* LIFXGroup.swift in Sources */,
-				4A61D0E11E220B4E0026221A /* GeneralViewController.swift in Sources */,
+				4A61D0E11E220B4E0026221A /* DevicesViewController.swift in Sources */,
 				4AEC75D71F136CBB00AD8CD7 /* GroupMenuItemViewController.swift in Sources */,
 				4A61D0DB1E2200C10026221A /* AboutViewController.swift in Sources */,
 				4A9B7FCA1F1426480041AE92 /* NSColor+.swift in Sources */,

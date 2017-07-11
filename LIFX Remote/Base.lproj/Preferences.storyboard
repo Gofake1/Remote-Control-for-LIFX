@@ -8,10 +8,10 @@
         <capability name="system font weights other than Regular or Bold" minToolsVersion="7.0"/>
     </dependencies>
     <scenes>
-        <!--General-->
+        <!--Devices-->
         <scene sceneID="COV-9L-HGw">
             <objects>
-                <viewController title="General" id="qdU-Vz-ngL" customClass="GeneralViewController" customModule="Remote_Control_for_LIFX" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Devices" id="qdU-Vz-ngL" customClass="DevicesViewController" customModule="Remote_Control_for_LIFX" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" autoresizesSubviews="NO" id="JER-pf-Oko">
                         <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -30,7 +30,7 @@
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                             <tableColumns>
-                                                <tableColumn identifier="shouldDisplay" editable="NO" width="18" maxWidth="20" id="2Fb-B5-w4x">
+                                                <tableColumn identifier="" editable="NO" width="18" maxWidth="20" id="2Fb-B5-w4x">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -41,7 +41,7 @@
                                                         <font key="font" metaFont="system"/>
                                                     </buttonCell>
                                                     <prototypeCellViews>
-                                                        <tableCellView identifier="shouldDisplayCell" id="ysA-ZP-NdQ" customClass="CheckboxTableCellView" customModule="Remote_Control_for_LIFX" customModuleProvider="target">
+                                                        <tableCellView id="ysA-ZP-NdQ" customClass="CheckboxTableCellView" customModule="Remote_Control_for_LIFX" customModuleProvider="target">
                                                             <rect key="frame" x="1" y="1" width="18" height="18"/>
                                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                             <subviews>
@@ -53,7 +53,7 @@
                                                                         <font key="font" metaFont="system"/>
                                                                     </buttonCell>
                                                                     <connections>
-                                                                        <action selector="toggleShouldDisplay:" target="qdU-Vz-ngL" id="dHI-4W-61Q"/>
+                                                                        <binding destination="T0Y-4b-fiA" name="value" keyPath="selection.isHidden" id="oAq-Mt-kUA"/>
                                                                     </connections>
                                                                 </button>
                                                             </subviews>
@@ -63,8 +63,8 @@
                                                         </tableCellView>
                                                     </prototypeCellViews>
                                                 </tableColumn>
-                                                <tableColumn identifier="deviceOrGroup" editable="NO" width="282" minWidth="200" maxWidth="400" id="1R0-zo-i7P">
-                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Devices &amp; Groups">
+                                                <tableColumn identifier="" editable="NO" width="282" minWidth="200" maxWidth="400" id="1R0-zo-i7P">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="Devices">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
@@ -75,7 +75,7 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <prototypeCellViews>
-                                                        <tableCellView identifier="deviceCell" id="5Ej-UN-m17">
+                                                        <tableCellView id="5Ej-UN-m17">
                                                             <rect key="frame" x="22" y="1" width="282" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
@@ -87,33 +87,18 @@
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                     </textFieldCell>
+                                                                    <connections>
+                                                                        <binding destination="T0Y-4b-fiA" name="value" keyPath="selection.label" id="V59-iJ-Ifo"/>
+                                                                    </connections>
                                                                 </textField>
                                                             </subviews>
                                                             <connections>
                                                                 <outlet property="textField" destination="x2a-sQ-zby" id="twr-Xw-QLQ"/>
                                                             </connections>
                                                         </tableCellView>
-                                                        <tableCellView identifier="groupCell" id="5hW-Wn-zKc">
-                                                            <rect key="frame" x="22" y="20" width="282" height="17"/>
-                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                            <subviews>
-                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hys-MY-weT">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="282" height="17"/>
-                                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Group" id="rX1-ND-sXH">
-                                                                        <font key="font" metaFont="system"/>
-                                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                                                    </textFieldCell>
-                                                                </textField>
-                                                            </subviews>
-                                                            <connections>
-                                                                <outlet property="textField" destination="hys-MY-weT" id="FAz-Mg-hsx"/>
-                                                            </connections>
-                                                        </tableCellView>
                                                     </prototypeCellViews>
                                                 </tableColumn>
-                                                <tableColumn identifier="ipAddress" editable="NO" width="99" maxWidth="200" id="6uq-ra-onV">
+                                                <tableColumn identifier="" editable="NO" width="99" maxWidth="200" id="6uq-ra-onV">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left" title="IP Address">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -125,7 +110,7 @@
                                                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                     <prototypeCellViews>
-                                                        <tableCellView identifier="ipAddressCell" id="CUz-kp-LHl">
+                                                        <tableCellView id="CUz-kp-LHl">
                                                             <rect key="frame" x="307" y="1" width="99" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
@@ -137,6 +122,9 @@
                                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                     </textFieldCell>
+                                                                    <connections>
+                                                                        <binding destination="T0Y-4b-fiA" name="value" keyPath="selection.ipAddress" id="nr3-E8-wrt"/>
+                                                                    </connections>
                                                                 </textField>
                                                             </subviews>
                                                             <connections>
@@ -147,8 +135,7 @@
                                                 </tableColumn>
                                             </tableColumns>
                                             <connections>
-                                                <outlet property="dataSource" destination="qdU-Vz-ngL" id="BF8-Xq-034"/>
-                                                <outlet property="delegate" destination="qdU-Vz-ngL" id="0E8-5k-uMh"/>
+                                                <binding destination="T0Y-4b-fiA" name="content" keyPath="arrangedObjects" id="BpR-pd-2nR"/>
                                             </connections>
                                         </tableView>
                                     </subviews>
@@ -179,11 +166,13 @@
                             </button>
                         </subviews>
                     </view>
-                    <connections>
-                        <outlet property="tableView" destination="4ZZ-zl-SUc" id="PGu-Sh-SZX"/>
-                    </connections>
                 </viewController>
                 <customObject id="znb-Wt-E63" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <arrayController id="T0Y-4b-fiA">
+                    <connections>
+                        <binding destination="qdU-Vz-ngL" name="contentArray" keyPath="self.model.devices" id="xas-Kj-Kks"/>
+                    </connections>
+                </arrayController>
             </objects>
             <point key="canvasLocation" x="395" y="14"/>
         </scene>

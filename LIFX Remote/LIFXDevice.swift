@@ -13,7 +13,7 @@ typealias Address  = UInt64
 typealias Label    = String
 typealias Duration = UInt32
 
-class LIFXDevice {
+class LIFXDevice: NSObject {
 
     enum Service: UInt8 {
         case udp = 1
@@ -93,10 +93,6 @@ class LIFXDevice {
         var updatedAt: UInt64?
     }
 
-    fileprivate var network: LIFXNetworkController
-    var service    = Service.udp
-    var port       = UInt32(56700)
-    var address:   Address
     var ipAddress: String? = nil
     var label      = MutableProperty<Label?>(nil)
     let power      = MutableProperty(PowerState.standby)
@@ -105,7 +101,20 @@ class LIFXDevice {
     var runtime    = MutableProperty(RuntimeInfo())
     var location   = MutableProperty(Location())
     var group      = MutableProperty(Group())
+    override var description: String {
+        return "device:\n\tlabel: \(label ?? "nil")\n\taddress: \(address)"
+    }
 
+    override var hashValue: Int {
+        return address.hashValue
+    }
+
+    var network: LIFXNetworkController
+    var service  = Service.udp
+    var port     = UInt32(56700)
+    var address: Address
+    /// Visibility in status menu
+    @objc dynamic var isHidden = false
     init(network: LIFXNetworkController, address: Address, label: Label?) {
         self.network = network
         self.address = address
@@ -300,24 +309,6 @@ class LIFXDevice {
 
     func echoResponse(_ response: [UInt8]) {
         print("echo:\n\t\(response)\n")
-    }
-}
-
-extension LIFXDevice: CustomStringConvertible {
-    var description: String {
-        return "device:\n\tlabel: \(label.value ?? "nil")\n\taddress: \(address)"
-    }
-}
-
-extension LIFXDevice: Equatable {
-    static func ==(lhs: LIFXDevice, rhs: LIFXDevice) -> Bool {
-        return lhs.address == rhs.address
-    }
-}
-
-extension LIFXDevice: Hashable {
-    var hashValue: Int {
-        return address.hashValue
     }
 }
 
