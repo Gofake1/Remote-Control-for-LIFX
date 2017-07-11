@@ -11,7 +11,6 @@
                 <outlet property="brightnessSlider" destination="fXp-4I-74Y" id="IJn-P0-rN7"/>
                 <outlet property="colorWheel" destination="szR-qN-aae" id="M3b-nc-4sK"/>
                 <outlet property="kelvinSlider" destination="Oxc-rj-2zX" id="QQq-5x-4sV"/>
-                <outlet property="tableView" destination="C0z-WP-dqh" id="Lkq-Lv-reI"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
         </customObject>
@@ -86,7 +85,7 @@
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                 <tableColumns>
-                                    <tableColumn identifier="" width="140" minWidth="100" maxWidth="200" id="7vI-qe-whf">
+                                    <tableColumn identifier="" width="140" minWidth="140" maxWidth="140" id="7vI-qe-whf">
                                         <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -99,7 +98,7 @@
                                         </textFieldCell>
                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                         <prototypeCellViews>
-                                            <tableCellView identifier="deviceCell" id="LTx-kO-M4u">
+                                            <tableCellView id="LTx-kO-M4u">
                                                 <rect key="frame" x="0.0" y="1" width="140" height="13"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
@@ -111,6 +110,9 @@
                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
+                                                        <connections>
+                                                            <binding destination="7Ue-k1-dxZ" name="value" keyPath="selection.label" id="eyq-p6-hx2"/>
+                                                        </connections>
                                                     </textField>
                                                 </subviews>
                                                 <connections>
@@ -121,8 +123,7 @@
                                     </tableColumn>
                                 </tableColumns>
                                 <connections>
-                                    <outlet property="dataSource" destination="-2" id="Y65-x2-5dv"/>
-                                    <outlet property="delegate" destination="-2" id="KzD-CS-zf3"/>
+                                    <binding destination="7Ue-k1-dxZ" name="content" keyPath="arrangedObjects" id="RK1-Kt-GOi"/>
                                 </connections>
                             </tableView>
                         </subviews>
@@ -139,6 +140,11 @@
             </subviews>
             <point key="canvasLocation" x="140" y="192"/>
         </customView>
+        <arrayController id="7Ue-k1-dxZ">
+            <connections>
+                <binding destination="-2" name="contentArray" keyPath="self.group.devices" id="CH1-vG-HjX"/>
+            </connections>
+        </arrayController>
     </objects>
     <resources>
         <image name="BrightnessHigh" width="44" height="44"/>

@@ -7,9 +7,6 @@
 //
 
 import Cocoa
-import Result
-import ReactiveSwift
-import ReactiveCocoa
 
 class GroupHudViewController: NSViewController {
 
@@ -20,60 +17,48 @@ class GroupHudViewController: NSViewController {
     @IBOutlet weak var colorWheel:       ColorWheel!
     @IBOutlet weak var kelvinSlider:     NSSlider!
     @IBOutlet weak var brightnessSlider: NSSlider!
-    @IBOutlet weak var tableView:        NSTableView!
 
-    unowned var group: LIFXGroup!
+    @objc weak var group: LIFXGroup!
 
     override func viewDidLoad() {
-        group.name.producer.startWithSignal { $0.0.observeResult({ self.view.window?.title = $0 ?? "" }) }
-        kelvinSlider.reactive.isEnabled <~ group.power.map { return $0 == .enabled }
-        kelvinSlider.reactive.integerValue <~ group.color.map { return $0?.kelvinAsPercentage ?? 50 }
-        brightnessSlider.reactive.isEnabled <~ group.power.map { return $0 == .enabled }
-        brightnessSlider.reactive.integerValue <~ group.color.map { return $0?.brightnessAsPercentage ?? 0 }
-        group.devices.producer.startWithSignal { $0.0.observeResult({ _ in self.tableView.reloadData() }) }
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(GroupHudViewController.groupNameChanged),
+                                               name: notificationGroupNameChanged,
+                                               object: group)
+        kelvinSlider.isEnabled = group.power == .enabled
+        brightnessSlider.isEnabled = group.power == .enabled
         colorWheel.target = self
         colorWheel.action = #selector(setColor(_:))
     }
 
+    @objc func groupNameChanged() {
+        guard let window = view.window else { return }
+        window.title = group.name
+    }
+
     @objc func setColor(_ sender: ColorWheel) {
-        guard let color = LIFXLight.Color(nsColor: sender.selectedColor) else { return }
-        group.setColor(color)
+        group.setColor(LIFXLight.Color(nsColor: sender.selectedColor))
     }
 
     @IBAction func togglePower(_ sender: NSButton) {
-        group.setPower((group.power.value == .enabled) ? .standby : .enabled)
+        group.setPower((group.power == .enabled) ? .standby : .enabled)
+        kelvinSlider.isEnabled = group.power == .enabled
+        brightnessSlider.isEnabled = group.power == .enabled
     }
 
     @IBAction func setKelvin(_ sender: NSSlider) {
-        guard var color = group.color.value else { return }
+        guard var color = group.color else { return }
         color.kelvin = UInt16(sender.doubleValue*65 + 2500)
         group.setColor(color)
     }
 
     @IBAction func setBrightness(_ sender: NSSlider) {
-        guard var color = group.color.value else { return }
+        guard var color = group.color else { return }
         color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
         group.setColor(color)
     }
-}
 
-extension GroupHudViewController: NSTableViewDataSource {
-    func numberOfRows(in tableView: NSTableView) -> Int {
-        return group.devices.value.count
-    }
-}
-
-extension GroupHudViewController: NSTableViewDelegate {
-    func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-        guard tableColumn != nil else { return nil }
-
-        let device = group.devices.value[row]
-        guard
-            let view = tableView.make(withIdentifier: "deviceCell", owner: nil) as? NSTableCellView,
-            let textField = view.textField
-        else { return nil }
-        textField.reactive.stringValue <~ device.label.map { return $0 ?? "Unknown" }
-
-        return view
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }

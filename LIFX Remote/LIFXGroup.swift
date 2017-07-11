@@ -6,7 +6,6 @@
 //  Copyright © 2017 Gofake1. All rights reserved.
 //
 
-import ReactiveSwift
 import Foundation
 
 let notificationGroupNameChanged = NSNotification.Name(rawValue: "net.gofake1.groupNameChangedKey")
@@ -27,14 +26,14 @@ class LIFXGroup: NSObject {
     }
 
     private(set) var id: String
-    private(set) var power = MutableProperty(LIFXDevice.PowerState.enabled)
-    private(set) var color = MutableProperty<LIFXLight.Color?>(nil)
     @objc dynamic var name: String {
         didSet {
             NotificationCenter.default.post(name: notificationGroupNameChanged, object: self)
         }
     }
     @objc dynamic var devices = [LIFXDevice]()
+    var color: LIFXLight.Color?
+    var power = LIFXDevice.PowerState.enabled
     @objc dynamic var isHidden = false
     private var addresses = [Address]()
     private static var names = NumberedNameSequence()
@@ -84,13 +83,13 @@ class LIFXGroup: NSObject {
     }
 
     func setPower(_ power: LIFXDevice.PowerState) {
-        self.power.value = power
-        devices.value.forEach { $0.setPower(power) }
+        self.power = power
+        devices.forEach { $0.setPower(power) }
     }
 
     func setColor(_ color: LIFXLight.Color) {
-        self.color.value = color
-        devices.value.forEach { ($0 as? LIFXLight)?.setColor(color) }
+        self.color = color
+        devices.forEach { ($0 as? LIFXLight)?.setColor(color) }
     }
 
     func reset() {
