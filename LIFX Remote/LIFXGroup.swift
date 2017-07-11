@@ -7,8 +7,9 @@
 //
 
 import ReactiveSwift
+import Foundation
 
-class LIFXGroup {
+class LIFXGroup: NSObject {
 
     struct NumberedNameSequence {
         var count: Int = 1
@@ -19,20 +20,27 @@ class LIFXGroup {
         }
     }
 
+    override var hashValue: Int {
+        return id.hashValue
+    }
+
     private(set) var id: String
     private(set) var name: MutableProperty<String>
     private(set) var devices = MutableProperty<[LIFXDevice]>([])
     private(set) var power = MutableProperty(LIFXDevice.PowerState.enabled)
     private(set) var color = MutableProperty<LIFXLight.Color?>(nil)
+    @objc dynamic var isHidden = false
     private var addresses = [Address]()
     private static var names = NumberedNameSequence()
 
-    init() {
+    override init() {
+        super.init()
         self.id = String(Date().timeIntervalSince1970)
         self.name = MutableProperty(LIFXGroup.names.next())
     }
 
     init(csvLine: CSV.Line) {
+        super.init()
         self.id = csvLine.values[1]
         self.name = MutableProperty(csvLine.values[2])
         guard csvLine.values.count >= 3 else { return }
@@ -41,6 +49,10 @@ class LIFXGroup {
                 self.addresses.append(address)
             }
         }
+    }
+
+    static func ==(lhs: LIFXGroup, rhs: LIFXGroup) -> Bool {
+        return lhs.id == rhs.id
     }
 
 //    func restore() {
@@ -77,18 +89,6 @@ class LIFXGroup {
 
     func reset() {
         devices.value = []
-    }
-}
-
-extension LIFXGroup: Equatable {
-    static func ==(lhs: LIFXGroup, rhs: LIFXGroup) -> Bool {
-        return lhs.id == rhs.id
-    }
-}
-
-extension LIFXGroup: Hashable {
-    var hashValue: Int {
-        return id.hashValue
     }
 }
 

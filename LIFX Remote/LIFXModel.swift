@@ -8,10 +8,16 @@
 
 import ReactiveSwift
 
-class LIFXModel {
+class LIFXModel: NSObject {
 
     let devices = MutableProperty<[LIFXDevice]>([])
-    let groups  = MutableProperty<[LIFXGroup]>([])
+    @objc dynamic var groups = [LIFXGroup]() {
+        didSet {
+            if groups.count != oldValue.count {
+
+            }
+        }
+    }
     let network = LIFXNetworkController()
 //    /// Device connection state determined by `stateService` or `acknowledgement` messages
 //    private(set) var deviceConnectedState: [LIFXDevice:Bool] = [:]
@@ -19,25 +25,26 @@ class LIFXModel {
     private(set) var itemVisibility: [AnyHashable:Bool] = [:]
     /// Handlers that should be called when a device is discovered, e.g. view controller updates
     private var discoveryHandlers: [() -> Void] = []
+    private var groupsCountChangeHandlers: [(Int) -> Void] = []
     private static let savedStateCSVPath =
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("SavedState")
             .appendingPathExtension("csv")
             .path
     static let shared: LIFXModel = {
-        guard
-            FileManager.default.fileExists(atPath: savedStateCSVPath),
+        guard FileManager.default.fileExists(atPath: savedStateCSVPath),
             let savedState = FileManager.default.contents(atPath: savedStateCSVPath)
-        else {
-            return LIFXModel()
-        }
+            else { return LIFXModel() }
         return LIFXModel(savedState: savedState)
     }()
 
-    init() {}
+    override init() {
+        super.init()
+    }
 
     /// Initialize with saved devices and groups
     init(savedState: Data) {
+        super.init()
         let savedStateCSV = CSV(String(data: savedState, encoding: .utf8))
         for line in savedStateCSV.lines {
             switch line.values[0] {
@@ -60,9 +67,11 @@ class LIFXModel {
 //                        let device = self.device(for: address)
 //                    else { fatalError() }
 //                    self.setVisibility(for: device, visibility)
-                default: break
+                default:
+                    break
                 }
-            default: break
+            default:
+                break
             }
         }
     }
@@ -100,11 +109,11 @@ class LIFXModel {
     }
 
     func group(at index: Int) -> LIFXGroup {
-        return groups.value[index]
+        return groups[index]
     }
 
     func group(for id: String) -> LIFXGroup? {
-        return groups.value.first { return $0.id == id }
+        return groups.first { return $0.id == id }
     }
 
     func item(at index: Int) -> Either<LIFXGroup, LIFXDevice> {
@@ -120,7 +129,7 @@ class LIFXModel {
     }
 
     func add(group: LIFXGroup) {
-        groups.modify { $0.append(group) }
+        groups.append(group)
     }
 
 //    func remove(device: LIFXDevice) {
@@ -130,8 +139,8 @@ class LIFXModel {
 //    }
 
     func remove(group: LIFXGroup) {
-        guard let index = groups.value.index(of: group) else { return }
-        groups.modify { $0.remove(at: index) }
+        guard let index = groups.index(of: group) else { return }
+        groups.remove(at: index)
         itemVisibility[group] = nil
     }
 

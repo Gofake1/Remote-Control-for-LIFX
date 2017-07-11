@@ -7,35 +7,34 @@
 //
 
 import Cocoa
-import ReactiveSwift
-import ReactiveCocoa
 
-private let identifierGroupCell = NSUserInterfaceItemIdentifier(rawValue: "groupCell")
 private let identifierGroupName = NSUserInterfaceItemIdentifier(rawValue: "groupName")
+private let identifierGroupDetailViewController = NSStoryboard.SceneIdentifier(rawValue: "groupDetail")
 
 class GroupsViewController: NSViewController {
 
-    @IBOutlet weak var outlineView: NSOutlineView!
+    @IBOutlet weak var tableView: NSTableView!
     @IBOutlet weak var removeGroupButton: NSButton!
     @IBOutlet weak var detailView: NSView! // Holds tabView, noGroupsView, noGroupsSelectedView
     @IBOutlet weak var tabView: NSTabView!
     @IBOutlet weak var noGroupsView: NSView!
     
-    private let model = LIFXModel.shared
-    private let outlineCellViewImage = NSImage(named: NSImage.Name(rawValue: "NSActionTemplate"))
+    @objc private unowned let model = LIFXModel.shared
 
     override func viewDidLoad() {
         preferredContentSize = NSSize(width: 450, height: 300)
         detailView.addSubview(noGroupsView)
-        removeGroupButton.reactive.isEnabled <~ model.groups.map { return $0.count > 0 }
-        tabView.reactive.isHidden <~ model.groups.map { return $0.count == 0 }
-        noGroupsView.reactive.isHidden <~ model.groups.map { return $0.count != 0 }
-        model.groups.value.forEach { addViewController(for: $0) }
+        model.onGroupsCountChange { count in
+            self.removeGroupButton.isEnabled = count > 0
+            self.tabView.isHidden = count == 0
+            self.noGroupsView.isHidden = count > 0
+        }
+        model.groups.forEach { addViewController(for: $0) }
     }
 
     func addViewController(for group: LIFXGroup) {
-        guard let viewController = storyboard?.instantiateController(withIdentifier: "GroupDetail")
-            as? GroupDetailViewController else { return }
+        guard let viewController = storyboard?.instantiateController(withIdentifier:
+            identifierGroupDetailViewController) as? GroupDetailViewController else { return }
         viewController.group = group
         tabView.addTabViewItem(NSTabViewItem(viewController: viewController))
     }
@@ -43,93 +42,33 @@ class GroupsViewController: NSViewController {
     @IBAction func addGroup(_ sender: NSButton) {
         let group = LIFXGroup()
         model.add(group: group)
-        outlineView.reloadData()
         addViewController(for: group)
     }
 
     @IBAction func removeGroup(_ sender: NSButton) {
-        let index = (outlineView.selectedRow != -1) ? outlineView.selectedRow : model.groups.value.count-1
+        let index = (tableView.selectedRow != -1) ? tableView.selectedRow : model.groups.count-1
         let group = model.group(at: index)
         HudController.removeGroup(group)
         model.remove(group: group)
-        outlineView.reloadData()
         tabView.removeTabViewItem(tabView.tabViewItem(at: index))
     }
 }
 
 extension GroupsViewController: NSControlTextEditingDelegate {
-
     func control(_ control: NSControl, isValidObject obj: Any?) -> Bool {
         if control.identifier == identifierGroupName {
             guard let newName = obj as? String else { return false }
-            if model.groups.value
-                .filter({ return newName == $0.name.value })
-                .reduce(0, { return $0.0 + 1 })
-                > 0
+            if model.groups
+                .filter({ return newName == $0.name })
+                .reduce(0, { (result, _) -> Int in return result + 1 }) > 0
             { return false }
         }
         return true
     }
-
-    func control(_ control: NSControl, textShouldEndEditing fieldEditor: NSText) -> Bool {
-            model.group(at: outlineView.row(for: control)).name.value = fieldEditor.string ?? ""
-        if control.identifier == identifierGroupName {
-            return true
-        }
-        return false
-    }
 }
 
-extension GroupsViewController: NSOutlineViewDataSource {
-
-    func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
-        if item != nil {
-            return 0
-        }
-        return model.groups.value.count
-    }
-
-    func outlineView(_ outlineView: NSOutlineView, child index: Int, ofItem item: Any?) -> Any {
-        return model.group(at: index)
-    }
-
-    func outlineView(_ outlineView: NSOutlineView, isItemExpandable item: Any) -> Bool {
-        return false
-    }
-}
-
-extension GroupsViewController: NSOutlineViewDelegate {
-
-    func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
-        if let group = item as? LIFXGroup {
-            guard
-                let view = outlineView.makeView(withIdentifier: identifierGroupCell,
-                                                owner: nil) as? NSTableCellView,
-                let textField = view.textField,
-                let imageView = view.imageView
-            else { return nil }
-            textField.reactive.stringValue <~ group.name
-            imageView.image = outlineCellViewImage
-            return view
-        }
-        return nil
-    }
-
-    func outlineView(_ outlineView: NSOutlineView, shouldSelectItem item: Any) -> Bool {
-        return true
-    }
-
-    func outlineViewSelectionDidChange(_ notification: Notification) {
-        tabView.selectTabViewItem(at: outlineView.selectedRow)
-    }
-}
-
-extension Reactive where Base: NSView {
-    var isHidden: BindingTarget<Bool> {
-        return BindingTarget(on: UIScheduler(), lifetime: lifetime, action: { [weak base = self.base] value in
-            if let base = base {
-                base.isHidden = value
-            }
-        })
+extension GroupsViewController: NSTableViewDelegate {
+    func tableViewSelectionDidChange(_ notification: Notification) {
+        tabView.selectTabViewItem(at: tableView.selectedRow)
     }
 }
