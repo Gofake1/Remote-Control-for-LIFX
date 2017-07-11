@@ -12,7 +12,7 @@
 		4A56A9E31E27148C00A37C90 /* GroupDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A56A9E21E27148C00A37C90 /* GroupDetailViewController.swift */; };
 		4A583ABC1D134B31005A4691 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A583ABB1D134B31005A4691 /* AppDelegate.swift */; };
 		4A583ABE1D134B31005A4691 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4A583ABD1D134B31005A4691 /* Assets.xcassets */; };
-		4A583AC11D134B31005A4691 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A583ABF1D134B31005A4691 /* MainMenu.xib */; };
+		4A583AC11D134B31005A4691 /* StatusMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4A583ABF1D134B31005A4691 /* StatusMenu.xib */; };
 		4A583AD51D139800005A4691 /* LIFXProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A583AD41D139800005A4691 /* LIFXProtocol.swift */; };
 		4A5B5B541D37569F009CD119 /* StatusMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B5B531D37569F009CD119 /* StatusMenuController.swift */; };
 		4A5B85161DEA6DAE006A9C54 /* ColorWheel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B85151DEA6DAE006A9C54 /* ColorWheel.swift */; };
@@ -72,7 +72,7 @@
 		4A583AB81D134B31005A4691 /* Remote Control for LIFX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Remote Control for LIFX.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A583ABB1D134B31005A4691 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4A583ABD1D134B31005A4691 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		4A583AC01D134B31005A4691 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		4A583AC01D134B31005A4691 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/StatusMenu.xib; sourceTree = "<group>"; };
 		4A583AC21D134B31005A4691 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4A583AD41D139800005A4691 /* LIFXProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LIFXProtocol.swift; sourceTree = "<group>"; };
 		4A5B5B531D37569F009CD119 /* StatusMenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusMenuController.swift; sourceTree = "<group>"; };
@@ -160,7 +160,7 @@
 			children = (
 				4A583ABB1D134B31005A4691 /* AppDelegate.swift */,
 				4A5B5B531D37569F009CD119 /* StatusMenuController.swift */,
-				4A583ABF1D134B31005A4691 /* MainMenu.xib */,
+				4A583ABF1D134B31005A4691 /* StatusMenu.xib */,
 				4AEC75C21F136B6D00AD8CD7 /* DeviceMenuItemViewController.swift */,
 				4AEC75CF1F136C8A00AD8CD7 /* DeviceMenuItemViewController.xib */,
 				4AEC75C51F136BC000AD8CD7 /* GroupMenuItemViewController.swift */,
@@ -267,7 +267,7 @@
 				4AEC75D41F136CA200AD8CD7 /* GroupHudViewController.xib in Resources */,
 				4A583ABE1D134B31005A4691 /* Assets.xcassets in Resources */,
 				4A62C98A1DD98C87000F77FE /* HudController.xib in Resources */,
-				4A583AC11D134B31005A4691 /* MainMenu.xib in Resources */,
+				4A583AC11D134B31005A4691 /* StatusMenu.xib in Resources */,
 				4AEC75D81F136CC000AD8CD7 /* GroupMenuItemViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -306,12 +306,12 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		4A583ABF1D134B31005A4691 /* MainMenu.xib */ = {
+		4A583ABF1D134B31005A4691 /* StatusMenu.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
 				4A583AC01D134B31005A4691 /* Base */,
 			);
-			name = MainMenu.xib;
+			name = StatusMenu.xib;
 			sourceTree = "<group>";
 		};
 		4A62C98C1DD98C87000F77FE /* HudController.xib */ = {
