@@ -7,10 +7,18 @@
 //
 
 import ReactiveSwift
+import Foundation
+
+let notificationDevicesChanged = NSNotification.Name(rawValue: "net.gofake1.devicesChangedKey")
 
 class LIFXModel: NSObject {
 
     let devices = MutableProperty<[LIFXDevice]>([])
+    @objc dynamic var devices = [LIFXDevice]() {
+        didSet {
+            NotificationCenter.default.post(name: notificationDevicesChanged, object: self)
+        }
+    }
     @objc dynamic var groups = [LIFXGroup]() {
         didSet {
             if groups.count != oldValue.count {

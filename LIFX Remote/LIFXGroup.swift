@@ -9,6 +9,8 @@
 import ReactiveSwift
 import Foundation
 
+let notificationGroupNameChanged = NSNotification.Name(rawValue: "net.gofake1.groupNameChangedKey")
+
 class LIFXGroup: NSObject {
 
     struct NumberedNameSequence {
@@ -25,10 +27,14 @@ class LIFXGroup: NSObject {
     }
 
     private(set) var id: String
-    private(set) var name: MutableProperty<String>
-    private(set) var devices = MutableProperty<[LIFXDevice]>([])
     private(set) var power = MutableProperty(LIFXDevice.PowerState.enabled)
     private(set) var color = MutableProperty<LIFXLight.Color?>(nil)
+    @objc dynamic var name: String {
+        didSet {
+            NotificationCenter.default.post(name: notificationGroupNameChanged, object: self)
+        }
+    }
+    @objc dynamic var devices = [LIFXDevice]()
     @objc dynamic var isHidden = false
     private var addresses = [Address]()
     private static var names = NumberedNameSequence()
@@ -36,13 +42,13 @@ class LIFXGroup: NSObject {
     override init() {
         super.init()
         self.id = String(Date().timeIntervalSince1970)
-        self.name = MutableProperty(LIFXGroup.names.next())
+        self.name = LIFXGroup.names.next()
     }
 
     init(csvLine: CSV.Line) {
         super.init()
         self.id = csvLine.values[1]
-        self.name = MutableProperty(csvLine.values[2])
+        self.name = csvLine.values[2]
         guard csvLine.values.count >= 3 else { return }
         csvLine.values[3..<csvLine.values.count].forEach {
             if let address = Address($0) {
@@ -64,16 +70,16 @@ class LIFXGroup: NSObject {
 //    }
 
     func device(at index: Int) -> LIFXDevice {
-        return devices.value[index]
+        return devices[index]
     }
 
     func add(device: LIFXDevice) {
-        devices.value.append(device)
+        devices.append(device)
     }
 
     func remove(device: LIFXDevice) {
-        if let index = devices.value.index(of: device) {
-            devices.value.remove(at: index)
+        if let index = devices.index(of: device) {
+            devices.remove(at: index)
         }
     }
 
@@ -88,14 +94,14 @@ class LIFXGroup: NSObject {
     }
 
     func reset() {
-        devices.value = []
+        devices = []
     }
 }
 
 extension LIFXGroup: CSVEncodable {
     var csvString: String {
-        var csvLine = CSV.Line("group", id, name.value)
-        for device in devices.value {
+        var csvLine = CSV.Line("group", id, name)
+        for device in devices {
             csvLine.append(String(device.address))
         }
         return csvLine.csvString
