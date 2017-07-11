@@ -7,11 +7,15 @@
 //
 
 import Cocoa
-import ReactiveSwift
 
 typealias Address  = UInt64
 typealias Label    = String
 typealias Duration = UInt32
+
+let notificationDeviceLabelChanged = NSNotification.Name(rawValue: "net.gofake1.deviceLabelChangedKey")
+let notificationDevicePowerChanged = NSNotification.Name(rawValue: "net.gofake1.devicePowerChangedKey")
+let notificationDeviceWifiChanged  = NSNotification.Name(rawValue: "net.gofake1.deviceWifiChangedKey")
+let notificationDeviceModelChanged = NSNotification.Name(rawValue: "net.gofake1.deviceModelChangedKey")
 
 class LIFXDevice: NSObject {
 
@@ -81,28 +85,20 @@ class LIFXDevice: NSObject {
         var downtime: UInt64?
     }
 
-    struct Location {
+    struct LocationInfo {
         var location:  [UInt8]?
         var label:     String?
         var updatedAt: UInt64?
     }
 
-    struct Group {
+    struct GroupInfo {
         var group:     [UInt8]?
         var label:     String?
         var updatedAt: UInt64?
     }
 
-    var ipAddress: String? = nil
-    var label      = MutableProperty<Label?>(nil)
-    let power      = MutableProperty(PowerState.standby)
-    var wifi       = MutableProperty(WifiInfo())
-    var deviceInfo = MutableProperty(DeviceInfo())
-    var runtime    = MutableProperty(RuntimeInfo())
-    var location   = MutableProperty(Location())
-    var group      = MutableProperty(Group())
     override var description: String {
-        return "device:\n\tlabel: \(label ?? "nil")\n\taddress: \(address)"
+        return "device:\n\tlabel: \(label)\n\taddress: \(address)"
     }
 
     override var hashValue: Int {
@@ -110,15 +106,40 @@ class LIFXDevice: NSObject {
     }
 
     var network: LIFXNetworkController
-    var service  = Service.udp
-    var port     = UInt32(56700)
+    var service = Service.udp
+    var port    = UInt32(56700)
     var address: Address
+    @objc dynamic var ipAddress = "Unknown"
+    @objc dynamic var label = "Unknown" {
+        didSet {
+            NotificationCenter.default.post(name: notificationDeviceLabelChanged, object: self)
+        }
+    }
+    var power = PowerState.standby {
+        didSet {
+            NotificationCenter.default.post(name: notificationDevicePowerChanged, object: self)
+        }
+    }
     /// Visibility in status menu
     @objc dynamic var isHidden = false
+    var wifiInfo = WifiInfo() {
+        didSet {
+            NotificationCenter.default.post(name: notificationDeviceWifiChanged, object: self)
+        }
+    }
+    var deviceInfo = DeviceInfo() {
+        didSet {
+            NotificationCenter.default.post(name: notificationDeviceModelChanged, object: self)
+        }
+    }
+    var runtimeInfo  = RuntimeInfo()
+    var locationInfo = LocationInfo()
+    var groupInfo    = GroupInfo()
+
     init(network: LIFXNetworkController, address: Address, label: Label?) {
         self.network = network
         self.address = address
-        self.label.value = label
+        self.label   = label ?? "Unknown"
         self.network.receiver.register(address: address, type: DeviceMessage.stateService) {
             self.stateService($0)
         }
@@ -157,6 +178,10 @@ class LIFXDevice: NSObject {
         self.init(network: network, address: address, label: label)
     }
 
+    static func ==(lhs: LIFXDevice, rhs: LIFXDevice) -> Bool {
+        return lhs.address == rhs.address
+    }
+
     func getService() {
         network.send(Packet(type: DeviceMessage.getService, to: address))
     }
@@ -174,7 +199,7 @@ class LIFXDevice: NSObject {
     }
 
     func setPower(_ power: PowerState, duration: Duration = 1024) {
-        self.power.value = power
+        self.power = power
         network.send(Packet(type: DeviceMessage.setPower,
                             with: power.bytes + duration.bytes,
                             to:   address))
@@ -183,7 +208,7 @@ class LIFXDevice: NSObject {
     func statePower(_ response: [UInt8]) {
         let value = UnsafePointer(response).withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee })
         if let power = PowerState(rawValue: value) {
-            self.power.value = power
+            self.power = power
         }
     }
 
@@ -192,13 +217,13 @@ class LIFXDevice: NSObject {
     }
 
     func setLabel(_ label: Label) {
-        self.label.value = label
+        self.label = label
         network.send(Packet(type: DeviceMessage.setLabel, with: label.bytes, to: address))
     }
 
     func stateLabel(_ response: [UInt8]) {
         if let label = String(bytes: response[0...31], encoding: .utf8) {
-            self.label.value = label
+            self.label = label
         }
     }
 
@@ -226,12 +251,12 @@ class LIFXDevice: NSObject {
     }
 
     func stateWifiInfo(_ response: [UInt8]) {
-        self.wifi.value.signal = UnsafePointer(Array(response[0...3]))
-                                     .withMemoryRebound(to: Float32.self, capacity: 1, { $0.pointee })
-        self.wifi.value.tx     = UnsafePointer(Array(response[4...7]))
-                                     .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
-        self.wifi.value.rx     = UnsafePointer(Array(response[8...11]))
-                                     .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
+        wifiInfo.signal = UnsafePointer(Array(response[0...3]))
+            .withMemoryRebound(to: Float32.self, capacity: 1, { $0.pointee })
+        wifiInfo.tx     = UnsafePointer(Array(response[4...7]))
+            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
+        wifiInfo.rx     = UnsafePointer(Array(response[8...11]))
+            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
     }
 
     /// Get Wifi subsystem build, version
@@ -240,10 +265,10 @@ class LIFXDevice: NSObject {
     }
 
     func stateWifiFirmware(_ response: [UInt8]) {
-        self.wifi.value.build   = UnsafePointer(Array(response[0...7]))
-                                      .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
-        self.wifi.value.version = UnsafePointer(Array(response[16...19]))
-                                      .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
+        wifiInfo.build   = UnsafePointer(Array(response[0...7]))
+            .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
+        wifiInfo.version = UnsafePointer(Array(response[16...19]))
+            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
     }
 
     /// Get device hardware vendor, product, version
@@ -252,13 +277,12 @@ class LIFXDevice: NSObject {
     }
 
     func stateVersion(_ response: [UInt8]) {
-        self.deviceInfo.value.vendor  = UnsafePointer(Array(response[0...3]))
-                                            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
-        self.deviceInfo.value.product =
-            DeviceInfo.Product(rawValue: UnsafePointer(Array(response[4...7]))
-                                             .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee }))
-        self.deviceInfo.value.version = UnsafePointer(Array(response[8...11]))
-                                            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
+        deviceInfo.vendor  = UnsafePointer(Array(response[0...3]))
+            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
+        deviceInfo.product = DeviceInfo.Product(rawValue: UnsafePointer(Array(response[4...7]))
+            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee }))
+        deviceInfo.version = UnsafePointer(Array(response[8...11]))
+            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
     }
 
     /// Print device time, uptime, downtime
@@ -267,12 +291,12 @@ class LIFXDevice: NSObject {
     }
 
     func stateInfo(_ response: [UInt8]) {
-        runtime.value.time     = UnsafePointer(Array(response[0...8]))
-                                     .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
-        runtime.value.uptime   = UnsafePointer(Array(response[8...16]))
-                                     .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
-        runtime.value.downtime = UnsafePointer(Array(response[16...24]))
-                                     .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
+        runtimeInfo.time     = UnsafePointer(Array(response[0...8]))
+            .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
+        runtimeInfo.uptime   = UnsafePointer(Array(response[8...16]))
+            .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
+        runtimeInfo.downtime = UnsafePointer(Array(response[16...24]))
+            .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
     }
 
     /// Get device location, label, updated_at
@@ -281,12 +305,12 @@ class LIFXDevice: NSObject {
     }
 
     func stateLocation(_ response: [UInt8]) {
-        self.location.value.location = Array(response[0...15])
+        locationInfo.location = Array(response[0...15])
         if let label = String(bytes: response[16...47], encoding: .utf8) {
-            self.location.value.label = label
+            locationInfo.label = label
         }
-        self.location.value.updatedAt = UnsafePointer(Array(response[48...55]))
-                                            .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
+        locationInfo.updatedAt = UnsafePointer(Array(response[48...55]))
+            .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
     }
 
     /// Get group, label, updated_at
@@ -295,12 +319,12 @@ class LIFXDevice: NSObject {
     }
 
     func stateGroup(_ response: [UInt8]) {
-        self.group.value.group = Array(response[0...15])
+        groupInfo.group = Array(response[0...15])
         if let label = String(bytes: response[16...47], encoding: .utf8) {
-            self.group.value.label = label
+            groupInfo.label = label
         }
-        self.group.value.updatedAt = UnsafePointer(Array(response[48...55]))
-                                         .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
+        groupInfo.updatedAt = UnsafePointer(Array(response[48...55]))
+            .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
     }
 
     func echoRequest(payload: [UInt8]) {
@@ -310,13 +334,19 @@ class LIFXDevice: NSObject {
     func echoResponse(_ response: [UInt8]) {
         print("echo:\n\t\(response)\n")
     }
+
+    deinit {
+        network.receiver.unregister(address: address)
+    }
 }
 
 extension LIFXDevice: CSVEncodable {
     var csvString: String {
-        return CSV.Line("device", String(address), label.value ?? "").csvString
+        return CSV.Line("device", String(address), label).csvString
     }
 }
+
+let notificationLightColorChanged = NSNotification.Name(rawValue: "net.gofake1.lightColorChangedKey")
 
 class LIFXLight: LIFXDevice {
 
@@ -357,7 +387,7 @@ class LIFXLight: LIFXDevice {
             self.kelvin     = kelvin
         }
 
-        init?(nsColor: NSColor) {
+        init(nsColor: NSColor) {
             let r = nsColor.redComponent
             let g = nsColor.greenComponent
             let b = nsColor.blueComponent
@@ -379,7 +409,11 @@ class LIFXLight: LIFXDevice {
         }
     }
 
-    let color = MutableProperty<Color?>(nil)
+    var color: Color? = nil {
+        didSet {
+            NotificationCenter.default.post(name: notificationLightColorChanged, object: self)
+        }
+    }
     var infrared: UInt16?
 
     override init(network: LIFXNetworkController, address: Address, label: Label?) {
@@ -400,7 +434,7 @@ class LIFXLight: LIFXDevice {
     }
 
     override func setPower(_ power: PowerState, duration: Duration = 1024) {
-        self.power.value = power
+        self.power = power
         network.send(Packet(type: LightMessage.setPower,
                             with: power.bytes + duration.bytes,
                             to:   address))
@@ -411,27 +445,26 @@ class LIFXLight: LIFXDevice {
     }
 
     func state(_ response: [UInt8]) {
-        self.color.value =
-            Color(hue:        UnsafePointer(Array(response[0...1]))
-                                  .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee }),
-                  saturation: UnsafePointer(Array(response[2...3]))
-                                  .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee }),
-                  brightness: UnsafePointer(Array(response[4...5]))
-                                  .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee }),
-                  kelvin:     UnsafePointer(Array(response[6...7]))
-                                  .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee }))
+        color = Color(hue:        UnsafePointer(Array(response[0...1]))
+                          .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee }),
+                      saturation: UnsafePointer(Array(response[2...3]))
+                          .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee }),
+                      brightness: UnsafePointer(Array(response[4...5]))
+                          .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee }),
+                      kelvin:     UnsafePointer(Array(response[6...7]))
+                          .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee }))
         let powerValue = UnsafePointer(Array(response[10...11]))
-                             .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee })
+            .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee })
         if let power = PowerState(rawValue: powerValue) {
-            self.power.value = power
+            self.power = power
         }
         if let label = String(bytes: response[12...43], encoding: .utf8) {
-            self.label.value = label
+            self.label = label
         }
     }
 
     func setColor(_ color: Color, duration: Duration = 1024) {
-        self.color.value = color
+        self.color = color
         network.send(Packet(type: LightMessage.setColor,
                             with: [0] + color.bytes + duration.bytes,
                             to:   address))
@@ -447,8 +480,8 @@ class LIFXLight: LIFXDevice {
     }
 
     func stateInfrared(_ response: [UInt8]) {
-        self.infrared = UnsafePointer(Array(response[0...1]))
-                            .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee })
+        infrared = UnsafePointer(Array(response[0...1]))
+            .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee })
     }
 }
 

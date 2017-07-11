@@ -7,8 +7,6 @@
 //
 
 import Cocoa
-import ReactiveSwift
-import ReactiveCocoa
 
 class DeviceHudViewController: NSViewController {
     
@@ -22,35 +20,30 @@ class DeviceHudViewController: NSViewController {
     @IBOutlet weak var wifiTextField:    NSTextField!
     @IBOutlet weak var modelTextField:   NSTextField!
 
-    unowned var device: LIFXDevice!
+    @objc weak var device: LIFXDevice!
 
     override func viewDidLoad() {
-        device.label.producer.startWithSignal {
-            $0.0.observeResult({ self.view.window?.title = ($0.value ?? "Unknown") ?? "" })
-        }
-        kelvinSlider.reactive.isEnabled <~ device.power.map { return $0 == .enabled }
-        brightnessSlider.reactive.isEnabled <~ device.power.map { return $0 == .enabled }
-        if let light = device as? LIFXLight {
-            kelvinSlider.reactive.integerValue <~ light.color.map { return $0?.kelvinAsPercentage ?? 50 }
-            brightnessSlider.reactive.integerValue <~ light.color.map { return $0?.brightnessAsPercentage ?? 0 }
-            colorWheel.reactive.selectedColorValue <~
-                light.color.map { return $0?.nsColor ?? NSColor.black }
-        }
-        wifiTextField.reactive.stringValue <~ device.wifi.map {
-            guard let signal = $0.signal else { return "Unknown" }
-            let dBm = log(signal)
-            switch dBm {
-            case _ where dBm > -35: return "••••"
-            case _ where dBm > -50: return "•••◦"
-            case _ where dBm > -65: return "••◦◦"
-            case _ where dBm > -80: return "•◦◦◦"
-            case _ where dBm > -95: return "◦◦◦◦"
-            default:                return "Error"
-            }
-        }
-        modelTextField.reactive.stringValue <~ device.deviceInfo.map {
-            guard let model = $0.product else { return "Unknown" }
-            return String(describing: model)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(DeviceHudViewController.deviceNameChanged),
+                                               name: notificationDeviceLabelChanged,
+                                               object: device)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(DeviceHudViewController.devicePowerChanged),
+                                               name: notificationDevicePowerChanged,
+                                               object: device)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(DeviceHudViewController.deviceWifiChanged),
+                                               name: notificationDeviceWifiChanged,
+                                               object: device)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(DeviceHudViewController.deviceModelChanged),
+                                               name: notificationDeviceModelChanged,
+                                               object: device)
+        if device is LIFXLight {
+            NotificationCenter.default.addObserver(self,
+                                                   selector: #selector(DeviceHudViewController.lightColorChanged),
+                                                   name: notificationLightColorChanged,
+                                                   object: device)
         }
         colorWheel.target = self
         colorWheel.action = #selector(setColor(_:))
@@ -60,20 +53,55 @@ class DeviceHudViewController: NSViewController {
         device.getWifiInfo()
     }
 
+    @objc func deviceNameChanged() {
+        guard let window = view.window else { return }
+        window.title = device.label
+    }
+
+    @objc func devicePowerChanged() {
+        kelvinSlider.isEnabled = device.power == .enabled
+        brightnessSlider.isEnabled = device.power == .enabled
+    }
+
+    @objc func deviceWifiChanged() {
+        guard let signal = device.wifiInfo.signal else { wifiTextField.stringValue = "Unknown"; return }
+        let dBm = log(signal)
+        switch dBm {
+        case _ where dBm > -35: wifiTextField.stringValue = "••••"
+        case _ where dBm > -50: wifiTextField.stringValue = "•••◦"
+        case _ where dBm > -65: wifiTextField.stringValue = "••◦◦"
+        case _ where dBm > -80: wifiTextField.stringValue = "•◦◦◦"
+        case _ where dBm > -95: wifiTextField.stringValue = "◦◦◦◦"
+        default:                wifiTextField.stringValue = "Error"
+        }
+    }
+
+    @objc func deviceModelChanged() {
+        guard let model = device.deviceInfo.product else { modelTextField.stringValue = "Unknown"; return }
+        modelTextField.stringValue = String(describing: model)
+    }
+
+    @objc func lightColorChanged() {
+        if let light = device as? LIFXLight {
+            kelvinSlider.integerValue = light.color?.kelvinAsPercentage ?? 0
+            brightnessSlider.integerValue = light.color?.brightnessAsPercentage ?? 0
+            colorWheel.setColor(light.color?.nsColor)
+        }
+    }
+
     @objc func setColor(_ sender: ColorWheel) {
         if let light = device as? LIFXLight {
-            guard let color = LIFXLight.Color(nsColor: sender.selectedColor) else { return }
-            light.setColor(color)
+            light.setColor(LIFXLight.Color(nsColor: sender.selectedColor))
         }
     }
 
     @IBAction func togglePower(_ sender: NSButton) {
-        device.setPower((device.power.value == .enabled) ? .standby : .enabled)
+        device.setPower((device.power == .enabled) ? .standby : .enabled)
     }
 
     @IBAction func setKelvin(_ sender: NSSlider) {
         if let light = device as? LIFXLight {
-            guard var color = light.color.value else { return }
+            guard var color = light.color else { return }
             color.kelvin = UInt16(sender.doubleValue*65 + 2500)
             light.setColor(color)
         }
@@ -81,9 +109,10 @@ class DeviceHudViewController: NSViewController {
     
     @IBAction func setBrightness(_ sender: NSSlider) {
         if let light = device as? LIFXLight {
-            guard var color = light.color.value else { return }
+            guard var color = light.color else { return }
             color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
             light.setColor(color)
+            colorWheel.setColor(color.nsColor)
         }
     }
 
@@ -93,5 +122,9 @@ class DeviceHudViewController: NSViewController {
 
     @IBAction func updateProduct(_ sender: NSClickGestureRecognizer) {
         device.getVersion()
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }

@@ -327,6 +327,10 @@ class LIFXNetworkController {
             tasks[address]![type.message] = task
         }
 
+        func unregister(address: Address) {
+            tasks[address] = nil
+        }
+
         /// Remove device handlers
         func reset() {
             for (address, _) in tasks {
