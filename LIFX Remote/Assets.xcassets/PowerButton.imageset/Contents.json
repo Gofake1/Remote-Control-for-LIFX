@@ -2,12 +2,12 @@
   "images" : [
     {
       "idiom" : "mac",
-      "filename" : "HudPowerButtonImage.png",
+      "filename" : "PowerButton.png",
       "scale" : "1x"
     },
     {
       "idiom" : "mac",
-      "filename" : "HudPowerButtonImage@2x.png",
+      "filename" : "PowerButton@2x.png",
       "scale" : "2x"
     }
   ],

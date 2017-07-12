@@ -25,9 +25,9 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                 </customView>
                 <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Cnp-pf-EfG">
-                    <rect key="frame" x="139" y="242" width="13" height="17"/>
+                    <rect key="frame" x="138" y="242" width="17" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="HudPowerButtonImage" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="JzP-mk-gvt">
+                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="PowerButton" imagePosition="only" alignment="center" inset="2" id="JzP-mk-gvt">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
@@ -71,14 +71,14 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="BrightnessHigh" id="hzp-xR-5Ur"/>
                 </imageView>
-                <scrollView fixedFrame="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="15" horizontalPageScroll="10" verticalLineScroll="15" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="idk-Pc-6B0">
+                <scrollView fixedFrame="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="16" horizontalPageScroll="10" verticalLineScroll="16" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="idk-Pc-6B0">
                     <rect key="frame" x="10" y="10" width="140" height="45"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <clipView key="contentView" ambiguous="YES" drawsBackground="NO" copiesOnScroll="NO" id="Zra-GJ-krO">
                         <rect key="frame" x="0.0" y="0.0" width="140" height="45"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" rowHeight="13" rowSizeStyle="automatic" viewBased="YES" id="C0z-WP-dqh">
+                            <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" rowHeight="14" rowSizeStyle="automatic" viewBased="YES" id="C0z-WP-dqh">
                                 <rect key="frame" x="0.0" y="0.0" width="140" height="45"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <size key="intercellSpacing" width="0.0" height="2"/>
@@ -99,13 +99,13 @@
                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                         <prototypeCellViews>
                                             <tableCellView id="LTx-kO-M4u">
-                                                <rect key="frame" x="0.0" y="1" width="140" height="13"/>
+                                                <rect key="frame" x="0.0" y="1" width="140" height="14"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5AT-sp-icw">
-                                                        <rect key="frame" x="0.0" y="0.0" width="140" height="13"/>
-                                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                                        <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Unknown Device" id="LVY-79-5FX">
+                                                        <rect key="frame" x="0.0" y="0.0" width="140" height="14"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                                        <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Unknown Device" id="LVY-79-5FX">
                                                             <font key="font" metaFont="smallSystem"/>
                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -149,8 +149,8 @@
     <resources>
         <image name="BrightnessHigh" width="44" height="44"/>
         <image name="BrightnessLow" width="44" height="44"/>
-        <image name="HudPowerButtonImage" width="89" height="101"/>
         <image name="KelvinCool" width="44" height="44"/>
         <image name="KelvinWarm" width="44" height="44"/>
+        <image name="PowerButton" width="17" height="17"/>
     </resources>
 </document>
