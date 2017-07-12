@@ -34,7 +34,8 @@ class LIFXGroup: NSObject {
     @objc dynamic var devices = [LIFXDevice]()
     var color: LIFXLight.Color?
     var power = LIFXDevice.PowerState.enabled
-    @objc dynamic var isHidden = false
+    /// Visibility in status menu
+    @objc dynamic var isVisible = true
     private var addresses = [Address]()
     private static var names = NumberedNameSequence()
 

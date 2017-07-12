@@ -30,6 +30,9 @@ class GroupsViewController: NSViewController {
             self.noGroupsView.isHidden = count > 0
         }
         model.groups.forEach { addViewController(for: $0) }
+        self.removeGroupButton.isEnabled = model.groups.count > 0
+        self.tabView.isHidden = model.groups.count == 0
+        self.noGroupsView.isHidden = model.groups.count > 0
     }
 
     func addViewController(for group: LIFXGroup) {

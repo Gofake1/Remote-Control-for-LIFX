@@ -15,8 +15,8 @@ class GroupDetailViewController: NSViewController {
     @IBOutlet weak var groupNameLabel: NSTextField!
     @IBOutlet weak var tableView: NSTableView!
     
-    @objc weak var group: LIFXGroup!
-    @objc private unowned let model = LIFXModel.shared
+    weak var group: LIFXGroup!
+    private unowned let model = LIFXModel.shared
 
     override func viewDidLoad() {
         NotificationCenter.default.addObserver(self,
@@ -27,14 +27,19 @@ class GroupDetailViewController: NSViewController {
                                                selector: #selector(GroupDetailViewController.groupNameChanged),
                                                name: notificationGroupNameChanged,
                                                object: group)
+        groupNameLabel.stringValue = "\(group.name) Settings"
     }
 
     @objc func devicesChanged() {
-        tableView.reloadData()
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
     }
 
     @objc func groupNameChanged() {
-        groupNameLabel.stringValue = "\(group.name) Settings"
+        DispatchQueue.main.async {
+            self.groupNameLabel.stringValue = "\(self.group.name) Settings"
+        }
     }
 
     @IBAction func toggleIsInGroup(_ sender: NSButton) {

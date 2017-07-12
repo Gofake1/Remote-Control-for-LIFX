@@ -121,7 +121,7 @@ class LIFXDevice: NSObject {
         }
     }
     /// Visibility in status menu
-    @objc dynamic var isHidden = false
+    @objc dynamic var isVisible = true
     var wifiInfo = WifiInfo() {
         didSet {
             NotificationCenter.default.post(name: notificationDeviceWifiChanged, object: self)
