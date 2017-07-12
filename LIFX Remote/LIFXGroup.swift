@@ -39,15 +39,15 @@ class LIFXGroup: NSObject {
     private static var names = NumberedNameSequence()
 
     override init() {
-        super.init()
         self.id = String(Date().timeIntervalSince1970)
         self.name = LIFXGroup.names.next()
+        super.init()
     }
 
     init(csvLine: CSV.Line) {
-        super.init()
         self.id = csvLine.values[1]
         self.name = csvLine.values[2]
+        super.init()
         guard csvLine.values.count >= 3 else { return }
         csvLine.values[3..<csvLine.values.count].forEach {
             if let address = Address($0) {

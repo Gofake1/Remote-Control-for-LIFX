@@ -29,12 +29,6 @@
 		4AA2DBAE1E3EC4F2002406BC /* Acknowledgements.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 4AA2DBAD1E3EC4F2002406BC /* Acknowledgements.rtf */; };
 		4AA517A11DFA3C1600C148C4 /* LIFXDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AA517A01DFA3C1600C148C4 /* LIFXDevice.swift */; };
 		4AA6BDC41D14C52300F0D0CF /* LIFXModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AA6BDC31D14C52300F0D0CF /* LIFXModel.swift */; };
-		4AAE71631DF64FEC00BC795A /* ReactiveCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9A1DF2CF010076EACD /* ReactiveCocoa.framework */; };
-		4AAE71641DF64FEC00BC795A /* ReactiveSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9B1DF2CF010076EACD /* ReactiveSwift.framework */; };
-		4AAE71671DF651E500BC795A /* ReactiveCocoa.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9A1DF2CF010076EACD /* ReactiveCocoa.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		4AAE71691DF651E500BC795A /* ReactiveSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9B1DF2CF010076EACD /* ReactiveSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		4AAE716A1DF651E500BC795A /* Result.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9C1DF2CF010076EACD /* Result.framework */; };
-		4AAE716B1DF651E500BC795A /* Result.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A00EA9C1DF2CF010076EACD /* Result.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4AEC75D41F136CA200AD8CD7 /* GroupHudViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4AEC75D31F136C9E00AD8CD7 /* GroupHudViewController.xib */; };
 		4AEC75D51F136CAE00AD8CD7 /* DeviceMenuItemViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4AEC75CF1F136C8A00AD8CD7 /* DeviceMenuItemViewController.xib */; };
 		4AEC75D61F136CB400AD8CD7 /* DeviceMenuItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AEC75C21F136B6D00AD8CD7 /* DeviceMenuItemViewController.swift */; };
@@ -52,9 +46,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				4AAE716B1DF651E500BC795A /* Result.framework in Embed Frameworks */,
-				4AAE71671DF651E500BC795A /* ReactiveCocoa.framework in Embed Frameworks */,
-				4AAE71691DF651E500BC795A /* ReactiveSwift.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -63,9 +54,6 @@
 
 /* Begin PBXFileReference section */
 		4A00EA971DF12CD80076EACD /* Remote Control for LIFX.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Remote Control for LIFX.entitlements"; sourceTree = "<group>"; };
-		4A00EA9A1DF2CF010076EACD /* ReactiveCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReactiveCocoa.framework; path = Carthage/Build/Mac/ReactiveCocoa.framework; sourceTree = "<group>"; };
-		4A00EA9B1DF2CF010076EACD /* ReactiveSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReactiveSwift.framework; path = Carthage/Build/Mac/ReactiveSwift.framework; sourceTree = "<group>"; };
-		4A00EA9C1DF2CF010076EACD /* Result.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Result.framework; path = Carthage/Build/Mac/Result.framework; sourceTree = "<group>"; };
 		4A1543FA1D91B9DB0052706C /* Bitter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bitter.swift; sourceTree = "<group>"; };
 		4A56A9E01E26C76B00A37C90 /* CheckboxTableCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckboxTableCellView.swift; sourceTree = "<group>"; };
 		4A56A9E21E27148C00A37C90 /* GroupDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupDetailViewController.swift; sourceTree = "<group>"; };
@@ -107,25 +95,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4AAE71631DF64FEC00BC795A /* ReactiveCocoa.framework in Frameworks */,
-				4AAE71641DF64FEC00BC795A /* ReactiveSwift.framework in Frameworks */,
-				4AAE716A1DF651E500BC795A /* Result.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4A00EA991DF2CF000076EACD /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				4A00EA9A1DF2CF010076EACD /* ReactiveCocoa.framework */,
-				4A00EA9B1DF2CF010076EACD /* ReactiveSwift.framework */,
-				4A00EA9C1DF2CF010076EACD /* Result.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		4A56A9E41E28497100A37C90 /* Custom Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -142,7 +117,6 @@
 				4A62C99C1DDA4EA3000F77FE /* README.md */,
 				4A5CB2BF1DFD213E00F8530E /* Changelog.md */,
 				4A583ABA1D134B31005A4691 /* Remote Control for LIFX */,
-				4A00EA991DF2CF000076EACD /* Frameworks */,
 				4A583AB91D134B31005A4691 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -477,7 +451,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				INFOPLIST_FILE = "LIFX Remote/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -500,7 +473,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
 				INFOPLIST_FILE = "LIFX Remote/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";

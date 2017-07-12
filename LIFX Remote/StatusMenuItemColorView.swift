@@ -7,7 +7,6 @@
 //
 
 import Cocoa
-import ReactiveSwift
 
 @IBDesignable
 class StatusMenuItemColorView: NSView {
@@ -35,15 +34,5 @@ class StatusMenuItemColorView: NSView {
             NSColor.clear.setFill()
             path.stroke()
         }
-    }
-}
-
-extension Reactive where Base: StatusMenuItemColorView {
-    var colorValue: BindingTarget<NSColor?> {
-        return BindingTarget(on: UIScheduler(), lifetime: lifetime, action: { [weak base = self.base] value in
-            if let base = base {
-                base.color = value
-            }
-        })
     }
 }

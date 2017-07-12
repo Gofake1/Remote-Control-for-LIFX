@@ -14,24 +14,20 @@ class GroupMenuItemViewController: NSViewController {
         return NSNib.Name(rawValue: "GroupMenuItemViewController")
     }
 
-    @IBOutlet weak var labelTextField:   NSTextField!
-    @IBOutlet weak var brightnessSlider: NSSlider!
-    @IBOutlet weak var groupColorsView:  StatusMenuItemColorView!
+    @IBOutlet weak var groupColorsView: StatusMenuItemColorView!
 
-    @objc dynamic weak var group: LIFXGroup?
+    @objc dynamic weak var group: LIFXGroup!
 
     @IBAction func showHud(_ sender: NSClickGestureRecognizer) {
-        guard let group = group else { return }
         HudController.show(group)
     }
 
     @IBAction func togglePower(_ sender: NSClickGestureRecognizer) {
-        guard let group = group else { return }
         group.setPower(group.power == .enabled ? .standby : .enabled)
     }
 
     @IBAction func setBrightness(_ sender: NSSlider) {
-        guard let group = group, let color = group.color else { return }
+        guard var color = group.color else { return }
         color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
         group.setColor(color)
     }

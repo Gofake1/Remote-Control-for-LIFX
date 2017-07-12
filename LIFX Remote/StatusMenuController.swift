@@ -7,14 +7,13 @@
 //
 
 import Cocoa
-import ReactiveSwift
+
+private let statusMessages: [LIFXNetworkController.Status: String] = [
+    .normal:  "LIFX: Normal",
+    .offline: "LIFX: Offline"
+]
 
 class StatusMenuController: NSObject {
-    
-    enum StatusMessage: String {
-        case normal  = "LIFX: Normal"
-        case offline = "LIFX: Offline"
-    }
 
     enum ToggleAllMessage: String {
         case on  = "Turn On All Lights"
@@ -32,35 +31,26 @@ class StatusMenuController: NSObject {
 
     private unowned let model    = LIFXModel.shared
     private let statusItem       = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-    private let statusMessage    = MutableProperty<StatusMessage>(.normal)
-    private let toggleAllMessage = MutableProperty<ToggleAllMessage>(.on)
     private var menuItems        = [AnyHashable: NSMenuItem]()
+    private var toggleAllMessage = ToggleAllMessage.on {
+        didSet {
+            toggleAllMenuItem.title = toggleAllMessage.rawValue
+        }
+    }
     
     override func awakeFromNib() {
         statusItem.image = #imageLiteral(resourceName: "StatusBarButtonImage")
-        model.network.error.producer.startWithSignal {
-            $0.0.observeResult {
-                switch $0 {
-                case .success(let networkError):
-                    switch networkError {
-                    case .none:
-                        self.statusMessage.value = .normal
-                    case .offline:
-                        self.statusMessage.value = .offline
-                    }
-                case .failure:
-                    break
-                }
-            }
-        }
-        statusMessageMenuItem.reactive.titleValue <~ statusMessage.map { return $0.rawValue }
-        toggleAllMenuItem.reactive.isEnabled <~ model.devices.map { return $0.count > 0 }
-        toggleAllMenuItem.reactive.titleValue <~ toggleAllMessage.map { return $0.rawValue }
-        placeholderMenuItem.reactive.isHidden <~ model.devices.map { return $0.count > 0 }
         statusItem.menu = statusMenu
 
         //model.restoreGroups()
-        model.onDiscovery { self.updateMenu() }
+        model.onStatusChange { status in
+            self.statusMessageMenuItem.title = statusMessages[status]!
+        }
+        model.onDevicesCountChange { count in
+            self.updateMenu()
+            self.toggleAllMenuItem.isEnabled = count > 0
+            self.placeholderMenuItem.isHidden = count == 0
+        }
         model.discover()
     }
     
@@ -69,16 +59,16 @@ class StatusMenuController: NSObject {
         for (object, menuItem) in menuItems {
             switch object {
             case let object as LIFXGroup:
-                if model.groups.value.contains(object) { continue }
+                if model.groups.contains(object) { continue }
             case let object as LIFXDevice:
-                if model.devices.value.contains(object) { continue }
+                if model.devices.contains(object) { continue }
             default: continue
             }
             statusMenu.removeItem(menuItem)
             menuItems[object] = nil
         }
 
-        for array in [model.groups.value, model.devices.value] as [[AnyHashable]] {
+        for array in [model.groups, model.devices] as [[AnyHashable]] {
             for item in array {
                 // Check if existing menu items should be hidden
                 if menuItems[item] != nil {
@@ -89,10 +79,10 @@ class StatusMenuController: NSObject {
                     }
                     continue
                 }
+
                 // Don't create menu item if it should be hidden
-                if model.itemVisibility[item] != true {
-                    continue
-                }
+                guard model.itemVisibility[item]! else { continue }
+
                 // Add new menu items for new groups and devices after model update
                 let menuItem = NSMenuItem()
                 let menuItemViewController: NSViewController
@@ -117,45 +107,18 @@ class StatusMenuController: NSObject {
     }
     
     @IBAction func toggleAllLights(_ sender: NSMenuItem) {
-        model.changeAllDevices(power: (toggleAllMessage.value == .on) ? .enabled : .standby)
-        toggleAllMessage.value.flip()
+        model.changeAllDevices(power: (toggleAllMessage == .on) ? .enabled : .standby)
+        toggleAllMessage.flip()
     }
 }
 
 extension StatusMenuController: NSMenuDelegate {
     func menuWillOpen(_ menu: NSMenu) {
         updateMenu()
-        for device in model.devices.value {
+        for device in model.devices {
             if let light = device as? LIFXLight {
                 light.getState()
             }
         }
-    }
-}
-
-extension Reactive where Base: NSMenuItem {
-
-    var isEnabled: BindingTarget<Bool> {
-        return BindingTarget(on: UIScheduler(), lifetime: lifetime, action: { [weak base = self.base] value in
-            if let base = base {
-                base.isEnabled = value
-            }
-        })
-    }
-
-    var isHidden: BindingTarget<Bool> {
-        return BindingTarget(on: UIScheduler(), lifetime: lifetime, action: { [weak base = self.base] value in
-            if let base = base {
-                base.isHidden = value
-            }
-        })
-    }
-
-    var titleValue: BindingTarget<String> {
-        return BindingTarget(on: UIScheduler(), lifetime: lifetime, action: { [weak base = self.base] value in
-            if let base = base {
-                base.title = value
-            }
-        })
     }
 }

@@ -105,7 +105,7 @@ class LIFXDevice: NSObject {
         return address.hashValue
     }
 
-    var network: LIFXNetworkController
+    unowned var network: LIFXNetworkController
     var service = Service.udp
     var port    = UInt32(56700)
     var address: Address
@@ -140,34 +140,35 @@ class LIFXDevice: NSObject {
         self.network = network
         self.address = address
         self.label   = label ?? "Unknown"
-        self.network.receiver.register(address: address, type: DeviceMessage.stateService) {
+        super.init()
+        network.receiver.register(address: address, type: DeviceMessage.stateService) {
             self.stateService($0)
         }
-        self.network.receiver.register(address: address, type: DeviceMessage.statePower) {
+        network.receiver.register(address: address, type: DeviceMessage.statePower) {
             self.statePower($0)
         }
-        self.network.receiver.register(address: address, type: DeviceMessage.stateLabel) {
+        network.receiver.register(address: address, type: DeviceMessage.stateLabel) {
             self.stateLabel($0)
         }
-        self.network.receiver.register(address: address, type: DeviceMessage.stateHostInfo) {
+        network.receiver.register(address: address, type: DeviceMessage.stateHostInfo) {
             self.stateHostInfo($0)
         }
-        self.network.receiver.register(address: address, type: DeviceMessage.stateHostFirmware) {
+        network.receiver.register(address: address, type: DeviceMessage.stateHostFirmware) {
             self.stateHostFirmware($0)
         }
-        self.network.receiver.register(address: address, type: DeviceMessage.stateWifiInfo) {
+        network.receiver.register(address: address, type: DeviceMessage.stateWifiInfo) {
             self.stateWifiInfo($0)
         }
-        self.network.receiver.register(address: address, type: DeviceMessage.stateWifiFirmware) {
+        network.receiver.register(address: address, type: DeviceMessage.stateWifiFirmware) {
             self.stateWifiFirmware($0)
         }
-        self.network.receiver.register(address: address, type: DeviceMessage.stateVersion) {
+        network.receiver.register(address: address, type: DeviceMessage.stateVersion) {
             self.stateVersion($0)
         }
-        self.network.receiver.register(address: address, type: DeviceMessage.stateInfo) {
+        network.receiver.register(address: address, type: DeviceMessage.stateInfo) {
             self.stateInfo($0)
         }
-        self.network.receiver.register(address: address, type: DeviceMessage.echoResponse) {
+        network.receiver.register(address: address, type: DeviceMessage.echoResponse) {
             self.echoResponse($0)
         }
     }
@@ -409,7 +410,7 @@ class LIFXLight: LIFXDevice {
         }
     }
 
-    var color: Color? = nil {
+    var color: Color? {
         didSet {
             NotificationCenter.default.post(name: notificationLightColorChanged, object: self)
         }
@@ -418,13 +419,13 @@ class LIFXLight: LIFXDevice {
 
     override init(network: LIFXNetworkController, address: Address, label: Label?) {
         super.init(network: network, address: address, label: label)
-        self.network.receiver.register(address: address, type: LightMessage.statePower) {
+        network.receiver.register(address: address, type: LightMessage.statePower) {
             self.statePower($0)
         }
-        self.network.receiver.register(address: address, type: LightMessage.state) {
+        network.receiver.register(address: address, type: LightMessage.state) {
             self.state($0)
         }
-        self.network.receiver.register(address: address, type: LightMessage.stateInfrared) {
+        network.receiver.register(address: address, type: LightMessage.stateInfrared) {
             self.stateInfrared($0)
         }
     }

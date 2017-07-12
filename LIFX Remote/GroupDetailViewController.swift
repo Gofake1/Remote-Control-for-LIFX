@@ -16,24 +16,24 @@ class GroupDetailViewController: NSViewController {
     @IBOutlet weak var tableView: NSTableView!
     
     @objc weak var group: LIFXGroup!
-    private unowned let model = LIFXModel.shared
+    @objc private unowned let model = LIFXModel.shared
 
     override func viewDidLoad() {
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(GroupDetailViewController.refreshTable),
+                                               selector: #selector(GroupDetailViewController.devicesChanged),
                                                name: notificationDevicesChanged,
                                                object: model)
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(GroupDetailViewController.updateGroupName),
+                                               selector: #selector(GroupDetailViewController.groupNameChanged),
                                                name: notificationGroupNameChanged,
                                                object: group)
     }
 
-    @objc func refreshTable() {
+    @objc func devicesChanged() {
         tableView.reloadData()
     }
 
-    @objc func updateGroupName() {
+    @objc func groupNameChanged() {
         groupNameLabel.stringValue = "\(group.name) Settings"
     }
 
@@ -66,7 +66,7 @@ extension GroupDetailViewController: NSTableViewDelegate {
             let textField = view.textField
             else { return nil }
         view.checkbox.state = (group.devices.contains(device)) ? .on : .off
-        textField.bind(NSBindingName(rawValue: "value"),
+        textField.bind(NSBindingName.value,
                        to: device,
                        withKeyPath: #keyPath(LIFXDevice.label),
                        options: nil)
@@ -79,6 +79,6 @@ extension GroupDetailViewController: NSTableViewDelegate {
             let view = rowView.view(atColumn: 0) as? CheckboxTableCellView,
             let textField = view.textField
             else { return }
-        textField.unbind(NSBindingName(rawValue: "value"))
+        textField.unbind(NSBindingName.value)
     }
 }

@@ -9,7 +9,6 @@
         <customObject id="-2" userLabel="File's Owner" customClass="GroupMenuItemViewController" customModule="Remote_Control_for_LIFX" customModuleProvider="target">
             <connections>
                 <outlet property="groupColorsView" destination="PGf-sD-qNe" id="71P-dh-fF7"/>
-                <outlet property="labelTextField" destination="8LA-Kt-ubY" id="LGs-tR-dmz"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
         </customObject>
@@ -53,6 +52,9 @@
                     <rect key="frame" x="18" y="0.0" width="164" height="19"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <sliderCell key="cell" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="mtR-3h-rB9"/>
+                    <connections>
+                        <action selector="setBrightness:" target="-2" id="Q44-AD-xIz"/>
+                    </connections>
                 </slider>
             </subviews>
         </customView>

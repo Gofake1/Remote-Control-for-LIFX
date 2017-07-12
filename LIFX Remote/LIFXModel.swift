@@ -6,33 +6,40 @@
 //  Copyright © 2016 Gofake1. All rights reserved.
 //
 
-import ReactiveSwift
 import Foundation
 
 let notificationDevicesChanged = NSNotification.Name(rawValue: "net.gofake1.devicesChangedKey")
 
 class LIFXModel: NSObject {
 
-    let devices = MutableProperty<[LIFXDevice]>([])
     @objc dynamic var devices = [LIFXDevice]() {
         didSet {
+            if devices.count != oldValue.count {
+                for handler in devicesCountChangeHandlers {
+                    handler(devices.count)
+                }
+            }
             NotificationCenter.default.post(name: notificationDevicesChanged, object: self)
         }
     }
     @objc dynamic var groups = [LIFXGroup]() {
         didSet {
             if groups.count != oldValue.count {
-
+                for handler in groupsCountChangeHandlers {
+                    handler(group.count)
+                }
             }
         }
     }
     let network = LIFXNetworkController()
 //    /// Device connection state determined by `stateService` or `acknowledgement` messages
-//    private(set) var deviceConnectedState: [LIFXDevice:Bool] = [:]
+//    private(set) var deviceConnectedState: [LIFXDevice: Bool] = [:]
     /// Device and group visibility state in the status menu
-    private(set) var itemVisibility: [AnyHashable:Bool] = [:]
+    private(set) var itemVisibility: [AnyHashable: Bool] = [:]
     /// Handlers that should be called when a device is discovered, e.g. view controller updates
     private var discoveryHandlers: [() -> Void] = []
+    private var statusChangeHandlers: [(LIFXNetworkController.Status) -> Void] = []
+    private var devicesCountChangeHandlers: [(Int) -> Void] = []
     private var groupsCountChangeHandlers: [(Int) -> Void] = []
     private static let savedStateCSVPath =
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -51,8 +58,8 @@ class LIFXModel: NSObject {
     }
 
     /// Initialize with saved devices and groups
-    init(savedState: Data) {
-        super.init()
+    convenience init(savedState: Data) {
+        self.init()
         let savedStateCSV = CSV(String(data: savedState, encoding: .utf8))
         for line in savedStateCSV.lines {
             switch line.values[0] {
@@ -64,16 +71,10 @@ class LIFXModel: NSObject {
                 guard let visibility = Bool(line.values[3]) else { fatalError() }
                 switch line.values[1] {
                 case "group":
-                    guard
-                        let id = String(line.values[2]),
-                        let group = group(for: id)
-                    else { fatalError() }
+                    guard let group = group(for: line.values[2]) else { fatalError() }
                     self.setVisibility(for: group, visibility)
 //                case "device":
-//                    guard
-//                        let address = Address(line.values[2]),
-//                        let device = self.device(for: address)
-//                    else { fatalError() }
+//                    guard let device = self.device(for: line.values[2]) else { fatalError() }
 //                    self.setVisibility(for: device, visibility)
                 default:
                     break
@@ -88,7 +89,7 @@ class LIFXModel: NSObject {
         let address: Address = UnsafePointer(Array(response[8...15]))
             .withMemoryRebound(to: Address.self, capacity: 1, { $0.pointee })
 
-        if devices.value.contains(where: { device -> Bool in
+        if devices.contains(where: { device -> Bool in
             return device.address == address
         }) {
             return
@@ -109,11 +110,11 @@ class LIFXModel: NSObject {
     }
 
     func device(at index: Int) -> LIFXDevice {
-        return devices.value[index]
+        return devices[index]
     }
 
     func device(for address: Address) -> LIFXDevice? {
-        return devices.value.first { return $0.address == address }
+        return devices.first { return $0.address == address }
     }
 
     func group(at index: Int) -> LIFXGroup {
@@ -124,15 +125,8 @@ class LIFXModel: NSObject {
         return groups.first { return $0.id == id }
     }
 
-    func item(at index: Int) -> Either<LIFXGroup, LIFXDevice> {
-        if index < groups.value.count {
-            return Either.left(group(at: index))
-        }
-        return Either.right(device(at: index - groups.value.count))
-    }
-
     func add(device: LIFXDevice, connected: Bool) {
-        devices.modify { $0.append(device) }
+        devices.append(device)
 //        setConnectedState(for: device, connected)
     }
 
@@ -152,6 +146,10 @@ class LIFXModel: NSObject {
         itemVisibility[group] = nil
     }
 
+    func changeAllDevices(power: LIFXDevice.PowerState) {
+        devices.forEach { $0.setPower(power) }
+    }
+
 //    func setConnectedState(for device: LIFXDevice, _ isConnected: Bool) {
 //        deviceConnectedState[device] = isConnected
 //    }
@@ -159,15 +157,10 @@ class LIFXModel: NSObject {
     func setVisibility(for item: AnyHashable, _ isVisible: Bool) {
         itemVisibility[item] = isVisible
     }
-
-    /// Execute given handler on newly discovered device
-    func onDiscovery(_ completionHandler: @escaping () -> Void) {
-        discoveryHandlers.append(completionHandler)
-    }
     
     func discover() {
-        devices.value = []
-        groups.value.forEach { $0.reset() }
+        devices = []
+        groups.forEach { $0.reset() }
 //        deviceConnectedState = [:]
         itemVisibility.forEach {
             switch $0.key {
@@ -181,25 +174,29 @@ class LIFXModel: NSObject {
         network.send(Packet(type: DeviceMessage.getService))
     }
 
-//    func connectedTo(address: Address) -> Bool {
-//        return deviceConnectedState.contains { return $0.key.address == address }
-//    }
+    func onStatusChange(_ handler: @escaping (LIFXNetworkController.Status) -> Void) {
+        statusChangeHandlers.append(handler)
+    }
 
-    func changeAllDevices(power: LIFXDevice.PowerState) {
-        devices.value.forEach { $0.setPower(power) }
+    func onDevicesCountChange(_ handler: @escaping (Int) -> Void) {
+        devicesCountChangeHandlers.append(handler)
+    }
+
+    func onGroupsCountChange(_ handler: @escaping (Int) -> Void) {
+        groupsCountChangeHandlers.append(handler)
     }
 
     /// Reinitialize groups with their devices, after LIFXModel has initialized
 //    func restoreGroups() {
-//        groups.value.forEach { $0.restore() }
+//        groups.forEach { $0.restore() }
 //    }
 
     /// Write devices and groups to CSV files
     func saveState() {
         let savedStateCSV = CSV()
         savedStateCSV.append(line: CSV.Line("version", "1"))
-        devices.value.forEach { savedStateCSV.append(lineString: $0.csvString) }
-        groups.value.forEach { savedStateCSV.append(lineString: $0.csvString) }
+        devices.forEach { savedStateCSV.append(lineString: $0.csvString) }
+        groups.forEach { savedStateCSV.append(lineString: $0.csvString) }
         itemVisibility.forEach {
             switch $0.key {
             case let group as LIFXGroup:
@@ -339,15 +336,15 @@ class LIFXNetworkController {
         }
     }
 
-    enum Error {
-        case none
+    enum Status {
+        case normal
         case offline
     }
     
     let receiver:      Receiver
     var sock:          Int32
     var broadcastAddr: sockaddr_in
-    var error =        MutableProperty<Error>(.none)
+    var status = Status.normal
 
     init() {
         let sock = socket(PF_INET, SOCK_DGRAM, 0)
@@ -365,10 +362,10 @@ class LIFXNetworkController {
         receiver = Receiver(socket: sock)
         receiver.listen()
         broadcastAddr = sockaddr_in(sin_len:    UInt8(MemoryLayout<sockaddr_in>.size),
-                                         sin_family: sa_family_t(AF_INET),
-                                         sin_port:   UInt16(56700).bigEndian,
-                                         sin_addr:   in_addr(s_addr: INADDR_BROADCAST),
-                                         sin_zero:   (0, 0, 0, 0, 0, 0, 0, 0))
+                                    sin_family: sa_family_t(AF_INET),
+                                    sin_port:   UInt16(56700).bigEndian,
+                                    sin_addr:   in_addr(s_addr: INADDR_BROADCAST),
+                                    sin_zero:   (0, 0, 0, 0, 0, 0, 0, 0))
     }
     
     func send(_ packet: Packet) {
@@ -384,12 +381,12 @@ class LIFXNetworkController {
                            unsafeBitCast($0, to: UnsafePointer<sockaddr>.self),
                            socklen_t(MemoryLayout<sockaddr_in>.size))
             if n < 0 {
-                error.value = .offline
+                status = .offline
             #if DEBUG
                 print(String(validatingUTF8: strerror(errno)) ?? "Couldn't display error")
             #endif
             } else {
-                error.value = .none
+                status = .normal
             }
         }
     }
