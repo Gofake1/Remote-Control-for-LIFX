@@ -51,7 +51,6 @@ class GroupsViewController: NSViewController {
     @IBAction func removeGroup(_ sender: NSButton) {
         let index = (tableView.selectedRow != -1) ? tableView.selectedRow : model.groups.count-1
         let group = model.group(at: index)
-        HudController.removeGroup(group)
         model.remove(group: group)
         tabView.removeTabViewItem(tabView.tabViewItem(at: index))
     }

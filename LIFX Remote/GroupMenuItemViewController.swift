@@ -19,7 +19,7 @@ class GroupMenuItemViewController: NSViewController {
     @objc dynamic weak var group: LIFXGroup!
 
     @IBAction func showHud(_ sender: NSClickGestureRecognizer) {
-        HudController.show(group)
+        group.hudController.showWindow(nil)
     }
 
     @IBAction func togglePower(_ sender: NSClickGestureRecognizer) {

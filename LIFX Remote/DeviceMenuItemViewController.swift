@@ -32,7 +32,7 @@ class DeviceMenuItemViewController: NSViewController {
     }
 
     @IBAction func showHud(_ sender: NSClickGestureRecognizer) {
-        HudController.show(device)
+        device.hudController.showWindow(nil)
     }
 
     @IBAction func togglePower(_ sender: NSClickGestureRecognizer) {

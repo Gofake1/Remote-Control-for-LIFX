@@ -17,7 +17,7 @@ let notificationDevicePowerChanged = NSNotification.Name(rawValue: "net.gofake1.
 let notificationDeviceWifiChanged  = NSNotification.Name(rawValue: "net.gofake1.deviceWifiChangedKey")
 let notificationDeviceModelChanged = NSNotification.Name(rawValue: "net.gofake1.deviceModelChangedKey")
 
-class LIFXDevice: NSObject {
+class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
 
     enum Service: UInt8 {
         case udp = 1
@@ -98,18 +98,24 @@ class LIFXDevice: NSObject {
     }
 
     override var description: String {
-        return "device:\n\tlabel: \(label)\n\taddress: \(address)"
+        return "device: { label: \(label), address: \(address) }"
     }
 
     override var hashValue: Int {
         return address.hashValue
     }
 
-    unowned var network: LIFXNetworkController
+    unowned let network: LIFXNetworkController
+    var hudController: HudController
+    var hudTitle: String {
+        return label
+    }
+    var menuItem: NSMenuItem
     var service = Service.udp
     var port    = UInt32(56700)
-    var address: Address
     @objc dynamic var ipAddress = "Unknown"
+    /// Visibility in status menu
+    @objc dynamic var isVisible = true
     @objc dynamic var label = "Unknown" {
         didSet {
             NotificationCenter.default.post(name: notificationDeviceLabelChanged, object: self)
@@ -120,8 +126,6 @@ class LIFXDevice: NSObject {
             NotificationCenter.default.post(name: notificationDevicePowerChanged, object: self)
         }
     }
-    /// Visibility in status menu
-    @objc dynamic var isVisible = true
     var wifiInfo = WifiInfo() {
         didSet {
             NotificationCenter.default.post(name: notificationDeviceWifiChanged, object: self)
@@ -135,11 +139,14 @@ class LIFXDevice: NSObject {
     var runtimeInfo  = RuntimeInfo()
     var locationInfo = LocationInfo()
     var groupInfo    = GroupInfo()
+    let address: Address
 
     init(network: LIFXNetworkController, address: Address, label: Label?) {
         self.network = network
         self.address = address
         self.label   = label ?? "Unknown"
+        hudController = HudController()
+        menuItem = NSMenuItem()
         super.init()
         network.receiver.register(address: address, type: DeviceMessage.stateService) {
             self.stateService($0)
@@ -183,6 +190,19 @@ class LIFXDevice: NSObject {
         return lhs.address == rhs.address
     }
 
+    func makeControllers() {
+        hudController.representable = self
+
+        let hudViewController = DeviceHudViewController()
+        hudViewController.device = self
+        hudController.contentViewController = hudViewController
+
+        let menuItemViewController = DeviceMenuItemViewController()
+        menuItemViewController.device = self
+        menuItem.representedObject = menuItemViewController
+        menuItem.view = menuItemViewController.view
+    }
+
     func getService() {
         network.send(Packet(type: DeviceMessage.getService, to: address))
     }
@@ -192,7 +212,7 @@ class LIFXDevice: NSObject {
             self.service = service
         }
         self.port = UnsafePointer(Array(response[1...4]))
-                        .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
+            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
     }
 
     func getPower() {
@@ -337,7 +357,9 @@ class LIFXDevice: NSObject {
     }
 
     deinit {
-        network.receiver.unregister(address: address)
+        hudController.close()
+        menuItem.menu?.removeItem(menuItem)
+        network.receiver.unregister(address)
     }
 }
 

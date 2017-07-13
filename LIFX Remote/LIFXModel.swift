@@ -15,9 +15,7 @@ class LIFXModel: NSObject {
     @objc dynamic var devices = [LIFXDevice]() {
         didSet {
             if devices.count != oldValue.count {
-                for handler in devicesCountChangeHandlers {
-                    handler(devices.count)
-                }
+                devicesCountChangeHandlers.forEach { $0(devices.count) }
             }
             NotificationCenter.default.post(name: notificationDevicesChanged, object: self)
         }
@@ -25,19 +23,13 @@ class LIFXModel: NSObject {
     @objc dynamic var groups = [LIFXGroup]() {
         didSet {
             if groups.count != oldValue.count {
-                for handler in groupsCountChangeHandlers {
-                    handler(group.count)
-                }
+                groupsCountChangeHandlers.forEach { $0(groups.count) }
             }
         }
     }
     let network = LIFXNetworkController()
-//    /// Device connection state determined by `stateService` or `acknowledgement` messages
-//    private(set) var deviceConnectedState: [LIFXDevice: Bool] = [:]
     /// Device and group visibility state in the status menu
     private(set) var itemVisibility: [AnyHashable: Bool] = [:]
-    /// Handlers that should be called when a device is discovered, e.g. view controller updates
-    private var discoveryHandlers: [() -> Void] = []
     private var statusChangeHandlers: [(LIFXNetworkController.Status) -> Void] = []
     private var devicesCountChangeHandlers: [(Int) -> Void] = []
     private var groupsCountChangeHandlers: [(Int) -> Void] = []
@@ -125,9 +117,8 @@ class LIFXModel: NSObject {
         return groups.first { return $0.id == id }
     }
 
-    func add(device: LIFXDevice, connected: Bool) {
+    func add(device: LIFXDevice) {
         devices.append(device)
-//        setConnectedState(for: device, connected)
     }
 
     func add(group: LIFXGroup) {
@@ -136,41 +127,27 @@ class LIFXModel: NSObject {
 
 //    func remove(device: LIFXDevice) {
 //        guard let index = devices.value.index(of: device) else { return }
-//        devices.modify { $0.remove(at: index) }
-//        itemVisibility[device] = nil
+//        devices.remove(at: index)
 //    }
 
     func remove(group: LIFXGroup) {
         guard let index = groups.index(of: group) else { return }
         groups.remove(at: index)
-        itemVisibility[group] = nil
     }
 
     func changeAllDevices(power: LIFXDevice.PowerState) {
         devices.forEach { $0.setPower(power) }
     }
 
-//    func setConnectedState(for device: LIFXDevice, _ isConnected: Bool) {
-//        deviceConnectedState[device] = isConnected
-//    }
-
     func setVisibility(for item: AnyHashable, _ isVisible: Bool) {
         itemVisibility[item] = isVisible
     }
     
     func discover() {
-        devices = []
-        groups.forEach { $0.reset() }
-//        deviceConnectedState = [:]
-        itemVisibility.forEach {
-            switch $0.key {
-            case let device as LIFXDevice:
-                itemVisibility[device] = nil
-            default: break
-            }
+        // Send heartbeat to known devices
+        for device in devices {
+            
         }
-        HudController.reset()
-        network.receiver.reset()
         network.send(Packet(type: DeviceMessage.getService))
     }
 
@@ -186,10 +163,6 @@ class LIFXModel: NSObject {
         groupsCountChangeHandlers.append(handler)
     }
 
-    /// Reinitialize groups with their devices, after LIFXModel has initialized
-//    func restoreGroups() {
-//        groups.forEach { $0.restore() }
-//    }
 
     /// Write devices and groups to CSV files
     func saveState() {
@@ -324,15 +297,8 @@ class LIFXNetworkController {
             tasks[address]![type.message] = task
         }
 
-        func unregister(address: Address) {
+        func unregister(_ address: Address) {
             tasks[address] = nil
-        }
-
-        /// Remove device handlers
-        func reset() {
-            for (address, _) in tasks {
-                tasks[address] = nil
-            }
         }
     }
 

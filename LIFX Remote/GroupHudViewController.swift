@@ -11,7 +11,7 @@ import Cocoa
 class GroupHudViewController: NSViewController {
 
     override var nibName: NSNib.Name? {
-        return NSNib.Name(rawValue: "HudGroupViewController")
+        return NSNib.Name(rawValue: "GroupHudViewController")
     }
 
     @IBOutlet weak var colorWheel:       ColorWheel!

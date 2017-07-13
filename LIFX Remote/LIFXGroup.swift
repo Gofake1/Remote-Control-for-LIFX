@@ -10,7 +10,7 @@ import Foundation
 
 let notificationGroupNameChanged = NSNotification.Name(rawValue: "net.gofake1.groupNameChangedKey")
 
-class LIFXGroup: NSObject {
+class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
 
     struct NumberedNameSequence {
         var count: Int = 1
@@ -25,49 +25,65 @@ class LIFXGroup: NSObject {
         return id.hashValue
     }
 
-    private(set) var id: String
+    private static var names = NumberedNameSequence()
+    @objc dynamic var devices = [LIFXDevice]() // TODO: NSHashMap for weak references
+    var color: LIFXLight.Color?
+    var hudController: HudController
+    var hudTitle: String {
+        return name
+    }
+    /// Visibility in status menu
+    @objc dynamic var isVisible = true
+    var menuItem: NSMenuItem
     @objc dynamic var name: String {
         didSet {
             NotificationCenter.default.post(name: notificationGroupNameChanged, object: self)
         }
     }
-    @objc dynamic var devices = [LIFXDevice]()
-    var color: LIFXLight.Color?
     var power = LIFXDevice.PowerState.enabled
-    /// Visibility in status menu
-    @objc dynamic var isVisible = true
-    private var addresses = [Address]()
-    private static var names = NumberedNameSequence()
+    let id: String
+    private let model = LIFXModel.shared
 
     override init() {
         self.id = String(Date().timeIntervalSince1970)
         self.name = LIFXGroup.names.next()
+        hudController = HudController()
+        menuItem = NSMenuItem()
         super.init()
+        makeControllers()
     }
 
     init(csvLine: CSV.Line) {
         self.id = csvLine.values[1]
         self.name = csvLine.values[2]
+        hudController = HudController()
+        menuItem = NSMenuItem()
         super.init()
         guard csvLine.values.count >= 3 else { return }
         csvLine.values[3..<csvLine.values.count].forEach {
-            if let address = Address($0) {
-                self.addresses.append(address)
+            if let address = Address($0), let device = model.device(for: address) {
+                devices.append(device)
             }
         }
+        makeControllers()
+    }
+
+    func makeControllers() {
+        hudController.representable = self
+        
+        let hudViewController = GroupHudViewController()
+        hudViewController.group = self
+        hudController.contentViewController = hudViewController
+
+        let menuItemViewController = GroupMenuItemViewController()
+        menuItemViewController.group = self
+        menuItem.representedObject = menuItemViewController
+        menuItem.view = menuItemViewController.view
     }
 
     static func ==(lhs: LIFXGroup, rhs: LIFXGroup) -> Bool {
         return lhs.id == rhs.id
     }
-
-//    func restore() {
-//        addresses.forEach {
-//            if let device = LIFXModel.shared.device(for: $0) {
-//                add(device: device)
-//            }
-//        }
-//    }
 
     func device(at index: Int) -> LIFXDevice {
         return devices[index]
@@ -93,8 +109,9 @@ class LIFXGroup: NSObject {
         devices.forEach { ($0 as? LIFXLight)?.setColor(color) }
     }
 
-    func reset() {
-        devices = []
+    deinit {
+        hudController.close()
+        menuItem.menu?.removeItem(menuItem)
     }
 }
 
