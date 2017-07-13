@@ -10,7 +10,7 @@ import Cocoa
 
 class DevicesViewController: NSViewController {
 
-    @objc private unowned let model = LIFXModel.shared
+    @objc private let model = LIFXModel.shared
 
     override func viewDidLoad() {
         preferredContentSize = NSSize(width: 450, height: 300)

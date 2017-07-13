@@ -16,7 +16,7 @@ class GroupDetailViewController: NSViewController {
     @IBOutlet weak var tableView: NSTableView!
     
     weak var group: LIFXGroup!
-    private unowned let model = LIFXModel.shared
+    private let model = LIFXModel.shared
 
     override func viewDidLoad() {
         NotificationCenter.default.addObserver(self,

@@ -12,6 +12,12 @@ let notificationDevicesChanged = NSNotification.Name(rawValue: "net.gofake1.devi
 
 class LIFXModel: NSObject {
 
+    static let shared = LIFXModel()
+    private static let savedStateCSVPath =
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("SavedState")
+            .appendingPathExtension("csv")
+            .path
     @objc dynamic var devices = [LIFXDevice]() {
         didSet {
             if devices.count != oldValue.count {
@@ -28,51 +34,38 @@ class LIFXModel: NSObject {
         }
     }
     let network = LIFXNetworkController()
-    /// Device and group visibility state in the status menu
-    private(set) var itemVisibility: [AnyHashable: Bool] = [:]
     private var statusChangeHandlers: [(LIFXNetworkController.Status) -> Void] = []
     private var devicesCountChangeHandlers: [(Int) -> Void] = []
     private var groupsCountChangeHandlers: [(Int) -> Void] = []
-    private static let savedStateCSVPath =
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("SavedState")
-            .appendingPathExtension("csv")
-            .path
-    static let shared: LIFXModel = {
-        guard FileManager.default.fileExists(atPath: savedStateCSVPath),
-            let savedState = FileManager.default.contents(atPath: savedStateCSVPath)
-            else { return LIFXModel() }
-        return LIFXModel(savedState: savedState)
-    }()
 
     override init() {
         super.init()
-    }
+        if FileManager.default.fileExists(atPath: LIFXModel.savedStateCSVPath),
+            let savedState = FileManager.default.contents(atPath: LIFXModel.savedStateCSVPath) {
 
-    /// Initialize with saved devices and groups
-    convenience init(savedState: Data) {
-        self.init()
-        let savedStateCSV = CSV(String(data: savedState, encoding: .utf8))
-        for line in savedStateCSV.lines {
-            switch line.values[0] {
-            case "device":
-                add(device: LIFXLight(network: network, csvLine: line), connected: false)
-            case "group":
-                add(group: LIFXGroup(csvLine: line))
-            case "visibility":
-                guard let visibility = Bool(line.values[3]) else { fatalError() }
-                switch line.values[1] {
+            let savedStateCSV = CSV(String(data: savedState, encoding: .utf8))
+            for line in savedStateCSV.lines {
+                switch line.values[0] {
+                case "device":
+                    add(device: LIFXLight(network: network, csvLine: line))
                 case "group":
-                    guard let group = group(for: line.values[2]) else { fatalError() }
-                    self.setVisibility(for: group, visibility)
-//                case "device":
+                    add(group: LIFXGroup(csvLine: line))
+                    //FIXME: save visibility state in LIFXDevice and LIFXGroup
+//                    case "visibility":
+//                        guard let visibility = Bool(line.values[3]) else { fatalError() }
+//                        switch line.values[1] {
+//                        case "group":
+//                            guard let group = group(for: line.values[2]) else { fatalError() }
+//                            self.setVisibility(for: group, visibility)
+//                        case "device":
 //                    guard let device = self.device(for: line.values[2]) else { fatalError() }
-//                    self.setVisibility(for: device, visibility)
+//                        self.setVisibility(for: device, visibility)
+//                    default:
+//                        break
+//                    }
                 default:
                     break
                 }
-            default:
-                break
             }
         }
     }
@@ -138,10 +131,6 @@ class LIFXModel: NSObject {
     func changeAllDevices(power: LIFXDevice.PowerState) {
         devices.forEach { $0.setPower(power) }
     }
-
-    func setVisibility(for item: AnyHashable, _ isVisible: Bool) {
-        itemVisibility[item] = isVisible
-    }
     
     func discover() {
         // Send heartbeat to known devices
@@ -170,16 +159,17 @@ class LIFXModel: NSObject {
         savedStateCSV.append(line: CSV.Line("version", "1"))
         devices.forEach { savedStateCSV.append(lineString: $0.csvString) }
         groups.forEach { savedStateCSV.append(lineString: $0.csvString) }
-        itemVisibility.forEach {
-            switch $0.key {
-            case let group as LIFXGroup:
-                savedStateCSV.append(line: CSV.Line("visibility", "group", group.id, String($0.value)))
+        // FIXME: save visibility state in LIFXDevice and LIFXGroup
+//        itemVisibility.forEach {
+//            switch $0.key {
+//            case let group as LIFXGroup:
+//                savedStateCSV.append(line: CSV.Line("visibility", "group", group.id, String($0.value)))
 //            case let device as LIFXDevice:
 //                savedStateCSV.append(line: CSV.Line("visibility", "device", String(device.address),
 //                                                    String($0.value)))
-            default: break
-            }
-        }
+//            default: break
+//            }
+//        }
         do { try savedStateCSV.write(to: LIFXModel.savedStateCSVPath) }
         catch { fatalError() }
     }
@@ -191,12 +181,10 @@ class LIFXNetworkController {
     /// completion handlers
     class Receiver {
 
-        private var socket: Int32
         private var isReceiving = false
+        private var socket: Int32
         /// Map devices to their corresponding completion handlers
         private var tasks: [Address: [UInt16: ([UInt8]) -> Void]] = [:]
-//        /// Devices are expected to send acknowledgement to prove they're alive
-//        private var acknowledgementsExpected: [Address: Bool] = [:]
         
         init(socket: Int32) {            
             var addr = sockaddr_in()
@@ -230,8 +218,8 @@ class LIFXNetworkController {
                                          &recvAddrLen)
                         assert(n >= 0, String(validatingUTF8: strerror(errno)) ?? "Couldn't display error")
 
-                        let recvIp = String(validatingUTF8: inet_ntoa(recvAddr.sin_addr)) ?? "couldn't parse IP"
                     #if DEBUG
+                        let recvIp = String(validatingUTF8: inet_ntoa(recvAddr.sin_addr)) ?? "Couldn't parse IP"
                         var log = "response \(recvIp):\n"
                     #endif
                         guard let packet = Packet(bytes: res) else {
@@ -250,30 +238,15 @@ class LIFXNetworkController {
                         let address = packet.header.target.bigEndian
                         let type    = packet.header.type.message
                         let payload = packet.payload?.bytes ?? [UInt8]()
-                        var task: (([UInt8]) -> Void)?
-                        
-                        // Handle discovery response
-                        if type == DeviceMessage.stateService.rawValue {
-                            // This packet is from a known address
-                            if let tasks = self.tasks[address] {
-                                task = tasks[type]
-                            // This packet is from a new address
-                            } else {
-                                let ipAddress = String(validatingUTF8: inet_ntoa(recvAddr.sin_addr)) ?? "Error"
-                                // Include packet header to get the MAC address
-                                LIFXModel.shared.onNewDevice(packet.header.bytes + payload, ipAddress)
-                                return
-                            }
+
+                        // Handle discovery response from unknown address
+                        if type == DeviceMessage.stateService.rawValue && self.tasks[address] == nil {
+                            let ipAddress = String(validatingUTF8: inet_ntoa(recvAddr.sin_addr)) ?? "Error"
+                            // Include packet header to get the MAC address
+                            LIFXModel.shared.newDevice(packet.header.bytes, ipAddress) // Yuck
                         // Handle all other responses
-                        } else {
-                            if let tasks = self.tasks[address] {
-                                task = tasks[type]
-                            }
-                        }
-                        
-                        // Execute the task
-                        DispatchQueue.main.async {
-                            if let task = task {
+                        } else if let tasks = self.tasks[address], let task = tasks[type] {
+                            DispatchQueue.main.async {
                                 task(payload)
                             }
                         }
@@ -306,11 +279,11 @@ class LIFXNetworkController {
         case normal
         case offline
     }
-    
-    let receiver:      Receiver
-    var sock:          Int32
+
     var broadcastAddr: sockaddr_in
     var status = Status.normal
+    var sock: Int32
+    let receiver: Receiver
 
     init() {
         let sock = socket(PF_INET, SOCK_DGRAM, 0)
@@ -324,7 +297,7 @@ class LIFXNetworkController {
                                     socklen_t(MemoryLayout<Int>.size))
         assert(setSuccess == 0, String(validatingUTF8: strerror(errno)) ?? "Couldn't display error")
         
-        self.sock     = sock
+        self.sock = sock
         receiver = Receiver(socket: sock)
         receiver.listen()
         broadcastAddr = sockaddr_in(sin_len:    UInt8(MemoryLayout<sockaddr_in>.size),

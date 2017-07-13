@@ -148,35 +148,36 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
         hudController = HudController()
         menuItem = NSMenuItem()
         super.init()
-        network.receiver.register(address: address, type: DeviceMessage.stateService) {
-            self.stateService($0)
+        makeControllers()
+        network.receiver.register(address: address, type: DeviceMessage.stateService) { [weak self] in
+            self?.stateService($0)
         }
-        network.receiver.register(address: address, type: DeviceMessage.statePower) {
-            self.statePower($0)
+        network.receiver.register(address: address, type: DeviceMessage.statePower) { [weak self] in
+            self?.statePower($0)
         }
-        network.receiver.register(address: address, type: DeviceMessage.stateLabel) {
-            self.stateLabel($0)
+        network.receiver.register(address: address, type: DeviceMessage.stateLabel) { [weak self] in
+            self?.stateLabel($0)
         }
-        network.receiver.register(address: address, type: DeviceMessage.stateHostInfo) {
-            self.stateHostInfo($0)
+        network.receiver.register(address: address, type: DeviceMessage.stateHostInfo) { [weak self] in
+            self?.stateHostInfo($0)
         }
-        network.receiver.register(address: address, type: DeviceMessage.stateHostFirmware) {
-            self.stateHostFirmware($0)
+        network.receiver.register(address: address, type: DeviceMessage.stateHostFirmware) { [weak self] in
+            self?.stateHostFirmware($0)
         }
-        network.receiver.register(address: address, type: DeviceMessage.stateWifiInfo) {
-            self.stateWifiInfo($0)
+        network.receiver.register(address: address, type: DeviceMessage.stateWifiInfo) { [weak self] in
+            self?.stateWifiInfo($0)
         }
-        network.receiver.register(address: address, type: DeviceMessage.stateWifiFirmware) {
-            self.stateWifiFirmware($0)
+        network.receiver.register(address: address, type: DeviceMessage.stateWifiFirmware) { [weak self] in
+            self?.stateWifiFirmware($0)
         }
-        network.receiver.register(address: address, type: DeviceMessage.stateVersion) {
-            self.stateVersion($0)
+        network.receiver.register(address: address, type: DeviceMessage.stateVersion) { [weak self] in
+            self?.stateVersion($0)
         }
-        network.receiver.register(address: address, type: DeviceMessage.stateInfo) {
-            self.stateInfo($0)
+        network.receiver.register(address: address, type: DeviceMessage.stateInfo) { [weak self] in
+            self?.stateInfo($0)
         }
-        network.receiver.register(address: address, type: DeviceMessage.echoResponse) {
-            self.echoResponse($0)
+        network.receiver.register(address: address, type: DeviceMessage.echoResponse) { [weak self] in
+            self?.echoResponse($0)
         }
     }
 
@@ -441,14 +442,14 @@ class LIFXLight: LIFXDevice {
 
     override init(network: LIFXNetworkController, address: Address, label: Label?) {
         super.init(network: network, address: address, label: label)
-        network.receiver.register(address: address, type: LightMessage.statePower) {
-            self.statePower($0)
+        network.receiver.register(address: address, type: LightMessage.statePower) { [weak self] in
+            self?.statePower($0)
         }
-        network.receiver.register(address: address, type: LightMessage.state) {
-            self.state($0)
+        network.receiver.register(address: address, type: LightMessage.state) { [weak self] in
+            self?.state($0)
         }
-        network.receiver.register(address: address, type: LightMessage.stateInfrared) {
-            self.stateInfrared($0)
+        network.receiver.register(address: address, type: LightMessage.stateInfrared) { [weak self] in
+            self?.stateInfrared($0)
         }
     }
 
