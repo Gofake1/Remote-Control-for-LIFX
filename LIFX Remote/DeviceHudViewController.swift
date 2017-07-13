@@ -47,6 +47,7 @@ class DeviceHudViewController: NSViewController {
         }
         colorWheel.target = self
         colorWheel.action = #selector(setColor(_:))
+        device.getVersion()
     }
 
     override func viewWillAppear() {

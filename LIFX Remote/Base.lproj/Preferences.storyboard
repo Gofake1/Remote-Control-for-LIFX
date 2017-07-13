@@ -226,14 +226,14 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="22" horizontalPageScroll="10" verticalLineScroll="22" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="n5C-ac-AUQ">
-                                <rect key="frame" x="-1" y="-1" width="150" height="301"/>
+                                <rect key="frame" x="-1" y="-1" width="150" height="302"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <clipView key="contentView" ambiguous="YES" drawsBackground="NO" id="T55-b1-LS4">
-                                    <rect key="frame" x="1" y="1" width="148" height="299"/>
+                                    <rect key="frame" x="1" y="1" width="148" height="300"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="none" selectionHighlightStyle="sourceList" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" rowHeight="22" rowSizeStyle="automatic" viewBased="YES" id="pAA-4S-kvI">
-                                            <rect key="frame" x="0.0" y="0.0" width="149" height="299"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="149" height="300"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <color key="backgroundColor" name="_sourceListBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
@@ -292,7 +292,7 @@
                                     <nil key="backgroundColor"/>
                                 </clipView>
                                 <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="Zg4-AM-hki">
-                                    <rect key="frame" x="1" y="284" width="148" height="16"/>
+                                    <rect key="frame" x="1" y="285" width="148" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="Xnj-ja-gex">

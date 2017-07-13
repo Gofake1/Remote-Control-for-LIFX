@@ -25,6 +25,10 @@ class GroupHudViewController: NSViewController {
                                                selector: #selector(GroupHudViewController.groupNameChanged),
                                                name: notificationGroupNameChanged,
                                                object: group)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(GroupHudViewController.groupPowerChanged),
+                                               name: notificationGroupPowerChanged,
+                                               object: group)
         kelvinSlider.isEnabled = group.power == .enabled
         brightnessSlider.isEnabled = group.power == .enabled
         colorWheel.target = self
@@ -36,14 +40,17 @@ class GroupHudViewController: NSViewController {
         window.title = group.name
     }
 
+    @objc func groupPowerChanged() {
+        kelvinSlider.isEnabled = group.power == .enabled
+        brightnessSlider.isEnabled = group.power == .enabled
+    }
+
     @objc func setColor(_ sender: ColorWheel) {
         group.setColor(LIFXLight.Color(nsColor: sender.selectedColor))
     }
 
     @IBAction func togglePower(_ sender: NSButton) {
         group.setPower((group.power == .enabled) ? .standby : .enabled)
-        kelvinSlider.isEnabled = group.power == .enabled
-        brightnessSlider.isEnabled = group.power == .enabled
     }
 
     @IBAction func setKelvin(_ sender: NSSlider) {
@@ -56,6 +63,7 @@ class GroupHudViewController: NSViewController {
         guard var color = group.color else { return }
         color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
         group.setColor(color)
+        colorWheel.setColor(color.nsColor)
     }
 
     deinit {

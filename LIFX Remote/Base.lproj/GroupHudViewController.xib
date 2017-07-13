@@ -111,7 +111,7 @@
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                         <connections>
-                                                            <binding destination="7Ue-k1-dxZ" name="value" keyPath="selection.label" id="eyq-p6-hx2"/>
+                                                            <binding destination="LTx-kO-M4u" name="value" keyPath="objectValue.label" id="Mfa-KW-gc5"/>
                                                         </connections>
                                                     </textField>
                                                 </subviews>

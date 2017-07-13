@@ -8,7 +8,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="GroupMenuItemViewController" customModule="Remote_Control_for_LIFX" customModuleProvider="target">
             <connections>
-                <outlet property="groupColorsView" destination="PGf-sD-qNe" id="71P-dh-fF7"/>
+                <outlet property="brightnessSlider" destination="KEB-rr-hPV" id="hKv-0d-OAy"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
         </customObject>
@@ -18,8 +18,8 @@
             <rect key="frame" x="0.0" y="0.0" width="200" height="37"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8LA-Kt-ubY">
-                    <rect key="frame" x="19" y="20" width="142" height="17"/>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8LA-Kt-ubY">
+                    <rect key="frame" x="19" y="20" width="156" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <gestureRecognizers>
                         <clickGestureRecognizer delaysPrimaryMouseButtonEvents="YES" numberOfClicksRequired="1" id="mRz-kz-cLU">
@@ -28,7 +28,7 @@
                             </connections>
                         </clickGestureRecognizer>
                     </gestureRecognizers>
-                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Label" id="tir-j8-woq">
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" allowsUndo="NO" sendsActionOnEndEditing="YES" title="Label" usesSingleLineMode="YES" id="tir-j8-woq">
                         <font key="font" metaFont="system"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -37,17 +37,6 @@
                         <binding destination="-2" name="value" keyPath="self.group.name" id="KVO-Uv-FVo"/>
                     </connections>
                 </textField>
-                <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PGf-sD-qNe" customClass="StatusMenuItemColorView" customModule="Remote_Control_for_LIFX" customModuleProvider="target">
-                    <rect key="frame" x="166" y="20" width="16" height="16"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <gestureRecognizers>
-                        <clickGestureRecognizer delaysPrimaryMouseButtonEvents="YES" numberOfClicksRequired="1" id="PcG-5K-7eQ">
-                            <connections>
-                                <action selector="togglePower:" target="-2" id="7FC-Rg-MNM"/>
-                            </connections>
-                        </clickGestureRecognizer>
-                    </gestureRecognizers>
-                </customView>
                 <slider verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KEB-rr-hPV">
                     <rect key="frame" x="18" y="0.0" width="164" height="19"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -56,7 +45,21 @@
                         <action selector="setBrightness:" target="-2" id="Q44-AD-xIz"/>
                     </connections>
                 </slider>
+                <button wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6rE-6o-WAF">
+                    <rect key="frame" x="176" y="21" width="14" height="14"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="PowerButtonThin" imagePosition="only" alignment="center" inset="2" id="8F2-VZ-z56">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="togglePower:" target="-2" id="jKj-LE-Woq"/>
+                    </connections>
+                </button>
             </subviews>
         </customView>
     </objects>
+    <resources>
+        <image name="PowerButtonThin" width="14" height="14"/>
+    </resources>
 </document>

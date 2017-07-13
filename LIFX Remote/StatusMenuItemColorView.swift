@@ -29,10 +29,9 @@ class StatusMenuItemColorView: NSView {
         NSColor.textColor.setStroke()
         if let c = self.color {
             c.setFill()
-            path.fill()
         } else {
-            NSColor.clear.setFill()
-            path.stroke()
+            NSColor.gray.setFill()
         }
+        path.fill()
     }
 }

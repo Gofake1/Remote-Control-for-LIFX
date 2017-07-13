@@ -6,9 +6,10 @@
 //  Copyright © 2017 Gofake1. All rights reserved.
 //
 
-import Foundation
+import Cocoa
 
 let notificationGroupNameChanged = NSNotification.Name(rawValue: "net.gofake1.groupNameChangedKey")
+let notificationGroupPowerChanged = NSNotification.Name(rawValue: "net.gofake1.groupPowerChangedKey")
 
 class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
 
@@ -40,7 +41,11 @@ class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
             NotificationCenter.default.post(name: notificationGroupNameChanged, object: self)
         }
     }
-    var power = LIFXDevice.PowerState.enabled
+    var power = LIFXDevice.PowerState.enabled {
+        didSet {
+            NotificationCenter.default.post(name: notificationGroupPowerChanged, object: self)
+        }
+    }
     let id: String
     private let model = LIFXModel.shared
 

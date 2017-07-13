@@ -14,28 +14,38 @@ class DeviceMenuItemViewController: NSViewController {
         return NSNib.Name(rawValue: "DeviceMenuItemViewController")
     }
 
-    @IBOutlet weak var deviceColorView: StatusMenuItemColorView!
+    @IBOutlet weak var deviceColorView:  StatusMenuItemColorView!
+    @IBOutlet weak var brightnessSlider: NSSlider!
 
-    @objc dynamic weak var device: LIFXDevice!
+    @objc weak var device: LIFXDevice!
 
     override func viewDidLoad() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(DeviceMenuItemViewController.lightColorChanged),
                                                name: notificationLightColorChanged,
                                                object: device)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(DeviceMenuItemViewController.devicePowerChanged),
+                                               name: notificationDevicePowerChanged,
+                                               object: device)
     }
 
     @objc func lightColorChanged() {
         if let light = device as? LIFXLight {
             deviceColorView.color = light.color?.nsColor
+            brightnessSlider.integerValue = light.color?.brightnessAsPercentage ?? 0
         }
+    }
+
+    @objc func devicePowerChanged() {
+        brightnessSlider.isEnabled = device.power == .enabled
     }
 
     @IBAction func showHud(_ sender: NSClickGestureRecognizer) {
         device.hudController.showWindow(nil)
     }
 
-    @IBAction func togglePower(_ sender: NSClickGestureRecognizer) {
+    @IBAction func togglePower(_ sender: NSButton) {
         device.setPower(device.power == .enabled ? .standby : .enabled)
     }
 

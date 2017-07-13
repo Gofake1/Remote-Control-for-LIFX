@@ -14,15 +14,26 @@ class GroupMenuItemViewController: NSViewController {
         return NSNib.Name(rawValue: "GroupMenuItemViewController")
     }
 
-    @IBOutlet weak var groupColorsView: StatusMenuItemColorView!
+    @IBOutlet weak var brightnessSlider: NSSlider!
 
-    @objc dynamic weak var group: LIFXGroup!
+    @objc weak var group: LIFXGroup!
+
+    override func viewDidLoad() {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(GroupMenuItemViewController.groupPowerChanged),
+                                               name: notificationGroupPowerChanged,
+                                               object: group)
+    }
+
+    @objc func groupPowerChanged() {
+        brightnessSlider.isEnabled = group.power == .enabled
+    }
 
     @IBAction func showHud(_ sender: NSClickGestureRecognizer) {
         group.hudController.showWindow(nil)
     }
 
-    @IBAction func togglePower(_ sender: NSClickGestureRecognizer) {
+    @IBAction func togglePower(_ sender: NSButton) {
         group.setPower(group.power == .enabled ? .standby : .enabled)
     }
 
@@ -30,5 +41,9 @@ class GroupMenuItemViewController: NSViewController {
         guard var color = group.color else { return }
         color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
         group.setColor(color)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
