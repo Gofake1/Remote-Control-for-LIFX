@@ -8,7 +8,8 @@
 
 import Cocoa
 
-let notificationGroupNameChanged = NSNotification.Name(rawValue: "net.gofake1.groupNameChangedKey")
+let notificationGroupColorChanged = NSNotification.Name(rawValue: "net.gofake1.groupColorChangedKey")
+let notificationGroupNameChanged  = NSNotification.Name(rawValue: "net.gofake1.groupNameChangedKey")
 let notificationGroupPowerChanged = NSNotification.Name(rawValue: "net.gofake1.groupPowerChangedKey")
 
 class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
@@ -28,7 +29,11 @@ class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
 
     private static var names = NumberedNameSequence()
     @objc dynamic var devices = [LIFXDevice]() // TODO: NSHashMap for weak references
-    var color: LIFXLight.Color?
+    var color = LIFXLight.Color(nsColor: NSColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)) {
+        didSet {
+            NotificationCenter.default.post(name: notificationGroupColorChanged, object: self)
+        }
+    }
     var hudController: HudController
     var hudTitle: String {
         return name

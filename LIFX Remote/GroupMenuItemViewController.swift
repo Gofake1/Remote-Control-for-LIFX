@@ -20,9 +20,17 @@ class GroupMenuItemViewController: NSViewController {
 
     override func viewDidLoad() {
         NotificationCenter.default.addObserver(self,
+                                               selector: #selector(GroupMenuItemViewController.groupColorChanged),
+                                               name: notificationGroupColorChanged,
+                                               object: group)
+        NotificationCenter.default.addObserver(self,
                                                selector: #selector(GroupMenuItemViewController.groupPowerChanged),
                                                name: notificationGroupPowerChanged,
                                                object: group)
+    }
+
+    @objc func groupColorChanged() {
+        brightnessSlider.integerValue = group.color.brightnessAsPercentage
     }
 
     @objc func groupPowerChanged() {
@@ -38,7 +46,7 @@ class GroupMenuItemViewController: NSViewController {
     }
 
     @IBAction func setBrightness(_ sender: NSSlider) {
-        guard var color = group.color else { return }
+        var color = group.color
         color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
         group.setColor(color)
     }

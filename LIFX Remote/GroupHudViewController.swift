@@ -22,6 +22,10 @@ class GroupHudViewController: NSViewController {
 
     override func viewDidLoad() {
         NotificationCenter.default.addObserver(self,
+                                               selector: #selector(GroupHudViewController.groupColorChanged),
+                                               name: notificationGroupColorChanged,
+                                               object: group)
+        NotificationCenter.default.addObserver(self,
                                                selector: #selector(GroupHudViewController.groupNameChanged),
                                                name: notificationGroupNameChanged,
                                                object: group)
@@ -31,7 +35,16 @@ class GroupHudViewController: NSViewController {
                                                object: group)
         colorWheel.target = self
         colorWheel.action = #selector(setColor(_:))
-        updateControls()
+        kelvinSlider.integerValue = group.color.kelvinAsPercentage
+        kelvinSlider.isEnabled = group.power == .enabled
+        brightnessSlider.integerValue = group.color.brightnessAsPercentage
+        brightnessSlider.isEnabled = group.power == .enabled
+    }
+
+    @objc func groupColorChanged() {
+        colorWheel.setColor(group.color.nsColor)
+        kelvinSlider.integerValue = group.color.kelvinAsPercentage
+        brightnessSlider.integerValue = group.color.brightnessAsPercentage
     }
 
     @objc func groupNameChanged() {
@@ -40,7 +53,8 @@ class GroupHudViewController: NSViewController {
     }
 
     @objc func groupPowerChanged() {
-        updateControls()
+        kelvinSlider.isEnabled = group.power == .enabled
+        brightnessSlider.isEnabled = group.power == .enabled
     }
 
     @objc func setColor(_ sender: ColorWheel) {
@@ -52,21 +66,16 @@ class GroupHudViewController: NSViewController {
     }
 
     @IBAction func setKelvin(_ sender: NSSlider) {
-        guard var color = group.color else { return }
+        var color = group.color
         color.kelvin = UInt16(sender.doubleValue*65 + 2500)
         group.setColor(color)
     }
 
     @IBAction func setBrightness(_ sender: NSSlider) {
-        guard var color = group.color else { return }
+        var color = group.color
         color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
         group.setColor(color)
         colorWheel.setColor(color.nsColor)
-    }
-
-    private func updateControls() {
-        kelvinSlider.isEnabled = group.power == .enabled
-        brightnessSlider.isEnabled = group.power == .enabled
     }
 
     deinit {
