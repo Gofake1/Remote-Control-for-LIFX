@@ -29,10 +29,9 @@ class GroupHudViewController: NSViewController {
                                                selector: #selector(GroupHudViewController.groupPowerChanged),
                                                name: notificationGroupPowerChanged,
                                                object: group)
-        kelvinSlider.isEnabled = group.power == .enabled
-        brightnessSlider.isEnabled = group.power == .enabled
         colorWheel.target = self
         colorWheel.action = #selector(setColor(_:))
+        updateControls()
     }
 
     @objc func groupNameChanged() {
@@ -41,8 +40,7 @@ class GroupHudViewController: NSViewController {
     }
 
     @objc func groupPowerChanged() {
-        kelvinSlider.isEnabled = group.power == .enabled
-        brightnessSlider.isEnabled = group.power == .enabled
+        updateControls()
     }
 
     @objc func setColor(_ sender: ColorWheel) {
@@ -64,6 +62,11 @@ class GroupHudViewController: NSViewController {
         color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
         group.setColor(color)
         colorWheel.setColor(color.nsColor)
+    }
+
+    private func updateControls() {
+        kelvinSlider.isEnabled = group.power == .enabled
+        brightnessSlider.isEnabled = group.power == .enabled
     }
 
     deinit {

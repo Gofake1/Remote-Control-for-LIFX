@@ -40,6 +40,7 @@ class LIFXModel: NSObject {
 
     override init() {
         super.init()
+        network.receiver.registerForUnknown(newDevice)
         if FileManager.default.fileExists(atPath: LIFXModel.savedStateCSVPath),
             let savedState = FileManager.default.contents(atPath: LIFXModel.savedStateCSVPath) {
 
@@ -68,30 +69,6 @@ class LIFXModel: NSObject {
                 }
             }
         }
-    }
-
-    func onNewDevice(_ response: [UInt8], _ ipAddress: String) {
-        let address: Address = UnsafePointer(Array(response[8...15]))
-            .withMemoryRebound(to: Address.self, capacity: 1, { $0.pointee })
-
-        if devices.contains(where: { device -> Bool in
-            return device.address == address
-        }) {
-            return
-        }
-
-        // New device
-        let light = LIFXLight(network: self.network, address: address, label: nil)
-        light.service = LIFXDevice.Service(rawValue: response[36]) ?? .udp
-        light.port = UnsafePointer(Array(response[37...40]))
-            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
-        light.ipAddress = ipAddress
-        light.getState()
-        light.getVersion()
-
-        self.add(device: light, connected: true)
-        self.setVisibility(for: light, true)
-        discoveryHandlers.forEach { $0() }
     }
 
     func device(at index: Int) -> LIFXDevice {
@@ -140,8 +117,26 @@ class LIFXModel: NSObject {
         network.send(Packet(type: DeviceMessage.getService))
     }
 
-    func onStatusChange(_ handler: @escaping (LIFXNetworkController.Status) -> Void) {
-        statusChangeHandlers.append(handler)
+    func newDevice(_ type: UInt16, _ address: Address, _ response: [UInt8], _ ipAddress: String) {
+        guard type == DeviceMessage.stateService.rawValue else { return }
+        // Sanity check
+        if devices.contains(where: { return $0.address == address }) {
+        #if DEBUG
+            print("DEVICE ALREADY FOUND: \(address)")
+        #endif
+            return
+        }
+
+        // New device
+        let light = LIFXLight(network: network, address: address, label: nil)
+        light.service = LIFXDevice.Service(rawValue: response[0]) ?? .udp
+        light.port = UnsafePointer(Array(response[1...4]))
+            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
+        light.ipAddress = ipAddress
+        light.getState()
+        light.getVersion()
+
+        add(device: light)
     }
 
     func onDevicesCountChange(_ handler: @escaping (Int) -> Void) {
@@ -152,6 +147,9 @@ class LIFXModel: NSObject {
         groupsCountChangeHandlers.append(handler)
     }
 
+    func onStatusChange(_ handler: @escaping (LIFXNetworkController.Status) -> Void) {
+        statusChangeHandlers.append(handler)
+    }
 
     /// Write devices and groups to CSV files
     func saveState() {
@@ -182,11 +180,16 @@ class LIFXNetworkController {
     class Receiver {
 
         private var isReceiving = false
+        private var ipAddresses: [Address: String] = [:]
         private var socket: Int32
-        /// Map devices to their corresponding completion handlers
-        private var tasks: [Address: [UInt16: ([UInt8]) -> Void]] = [:]
-        
-        init(socket: Int32) {            
+        /// Map devices to IP address handlers
+        private var tasksForIpAddressChange: [Address: (String) -> Void] = [:]
+        /// Map devices to their corresponding handlers
+        private var tasksForKnown: [Address: [UInt16: ([UInt8]) -> Void]] = [:]
+        /// Fallback handler for unknown addresses
+        private var taskForUnknown: ((UInt16, Address, [UInt8], String) -> Void)?
+
+        init(socket: Int32) {
             var addr = sockaddr_in()
             addr.sin_len         = UInt8(MemoryLayout<sockaddr_in>.size)
             addr.sin_family      = sa_family_t(AF_INET)
@@ -238,16 +241,34 @@ class LIFXNetworkController {
                         let address = packet.header.target.bigEndian
                         let type    = packet.header.type.message
                         let payload = packet.payload?.bytes ?? [UInt8]()
+                        let ipAddress = String(validatingUTF8: inet_ntoa(recvAddr.sin_addr)) ?? "Error"
 
-                        // Handle discovery response from unknown address
-                        if type == DeviceMessage.stateService.rawValue && self.tasks[address] == nil {
-                            let ipAddress = String(validatingUTF8: inet_ntoa(recvAddr.sin_addr)) ?? "Error"
-                            // Include packet header to get the MAC address
-                            LIFXModel.shared.newDevice(packet.header.bytes, ipAddress) // Yuck
+                        // Handle response from unknown address
+                        if self.tasksForKnown[address] == nil {
+                            DispatchQueue.main.async {
+                                self.taskForUnknown?(type, address, payload, ipAddress)
+                            }
                         // Handle all other responses
-                        } else if let tasks = self.tasks[address], let task = tasks[type] {
+                        } else if let tasks = self.tasksForKnown[address], let task = tasks[type] {
                             DispatchQueue.main.async {
                                 task(payload)
+                            }
+                            if let ipAddressChangeTask = self.tasksForIpAddressChange[address] {
+                                // Handle IP address change
+                                if let cachedIpAddress = self.ipAddresses[address] {
+                                    if ipAddress != cachedIpAddress {
+                                        self.ipAddresses[address] = ipAddress
+                                        DispatchQueue.main.async {
+                                            ipAddressChangeTask(ipAddress)
+                                        }
+                                    }
+                                // Handle no IP address set
+                                } else {
+                                    self.ipAddresses[address] = ipAddress
+                                    DispatchQueue.main.async {
+                                        ipAddressChangeTask(ipAddress)
+                                    }
+                                }
                             }
                         }
                     }
@@ -264,14 +285,23 @@ class LIFXNetworkController {
         /// - parameter type: message type
         /// - parameter task: function that should operate on incoming packet
         func register(address: Address, type: LIFXMessageType, task: @escaping ([UInt8]) -> Void) {
-            if tasks[address] == nil {
-                tasks[address] = [:]
+            if tasksForKnown[address] == nil {
+                tasksForKnown[address] = [:]
             }
-            tasks[address]![type.message] = task
+            tasksForKnown[address]![type.message] = task
+        }
+
+        func register(address: Address, forIpAddressChange task: @escaping (String) -> Void) {
+            tasksForIpAddressChange[address] = task
+        }
+
+        func registerForUnknown(_ task: @escaping (UInt16, Address, [UInt8], String) -> Void) {
+            taskForUnknown = task
         }
 
         func unregister(_ address: Address) {
-            tasks[address] = nil
+            tasksForKnown[address] = nil
+            tasksForIpAddressChange[address] = nil
         }
     }
 

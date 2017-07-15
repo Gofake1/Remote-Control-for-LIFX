@@ -47,6 +47,7 @@ class DeviceHudViewController: NSViewController {
         }
         colorWheel.target = self
         colorWheel.action = #selector(setColor(_:))
+        updateControls()
         device.getVersion()
     }
 
@@ -83,11 +84,7 @@ class DeviceHudViewController: NSViewController {
     }
 
     @objc func lightColorChanged() {
-        if let light = device as? LIFXLight {
-            kelvinSlider.integerValue = light.color?.kelvinAsPercentage ?? 0
-            brightnessSlider.integerValue = light.color?.brightnessAsPercentage ?? 0
-            colorWheel.setColor(light.color?.nsColor)
-        }
+        updateControls()
     }
 
     @objc func setColor(_ sender: ColorWheel) {
@@ -123,6 +120,14 @@ class DeviceHudViewController: NSViewController {
 
     @IBAction func updateProduct(_ sender: NSClickGestureRecognizer) {
         device.getVersion()
+    }
+
+    private func updateControls() {
+        if let light = device as? LIFXLight {
+            kelvinSlider.integerValue = light.color?.kelvinAsPercentage ?? 0
+            brightnessSlider.integerValue = light.color?.brightnessAsPercentage ?? 0
+            colorWheel.setColor(light.color?.nsColor)
+        }
     }
 
     deinit {

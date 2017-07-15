@@ -105,7 +105,7 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
         return address.hashValue
     }
 
-    unowned let network: LIFXNetworkController
+    var network: LIFXNetworkController!
     var hudController: HudController
     var hudTitle: String {
         return label
@@ -179,6 +179,9 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
         network.receiver.register(address: address, type: DeviceMessage.echoResponse) { [weak self] in
             self?.echoResponse($0)
         }
+        network.receiver.register(address: address, forIpAddressChange: { [weak self] in
+            self?.ipAddress = $0
+        })
     }
 
     convenience init(network: LIFXNetworkController, csvLine: CSV.Line) {
@@ -358,6 +361,7 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
     }
 
     deinit {
+        network = nil
         hudController.close()
         menuItem.menu?.removeItem(menuItem)
         network.receiver.unregister(address)

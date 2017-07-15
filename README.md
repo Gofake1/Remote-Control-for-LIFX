@@ -17,5 +17,3 @@ LIFX Remote doesn't feature:
 ## Credits
 
 [Bitter](https://github.com/uraimo/Bitter) (Umberto Raimondi)
-
-[ReactiveCocoa](https://github.com/ReactiveCocoa/ReactiveCocoa) (Justin Spahr-Summers, et al.)
