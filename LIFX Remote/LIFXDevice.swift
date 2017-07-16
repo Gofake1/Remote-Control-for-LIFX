@@ -115,7 +115,7 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
     var port    = UInt32(56700)
     @objc dynamic var ipAddress = "Unknown"
     /// Visibility in status menu
-    @objc dynamic var isVisible = true
+    @objc dynamic var isVisible: Bool
     @objc dynamic var label = "Unknown" {
         didSet {
             NotificationCenter.default.post(name: notificationDeviceLabelChanged, object: self)
@@ -141,10 +141,11 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
     var groupInfo    = GroupInfo()
     let address: Address
 
-    init(network: LIFXNetworkController, address: Address, label: Label?) {
-        self.network = network
-        self.address = address
-        self.label   = label ?? "Unknown"
+    init(network: LIFXNetworkController, address: Address, label: Label?, isVisible: Bool = true) {
+        self.network   = network
+        self.address   = address
+        self.label     = label ?? "Unknown"
+        self.isVisible = isVisible
         hudController = HudController()
         menuItem = NSMenuItem()
         super.init()
@@ -184,10 +185,18 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
         })
     }
 
-    convenience init(network: LIFXNetworkController, csvLine: CSV.Line) {
+    convenience init(network: LIFXNetworkController, csvLine: CSV.Line, version: Int) {
         guard let address = UInt64(csvLine.values[1]) else { fatalError() }
         let label = csvLine.values[2]
-        self.init(network: network, address: address, label: label)
+        switch version {
+        case 1:
+            self.init(network: network, address: address, label: label)
+        case 2:
+            let isVisible = csvLine.values[2] == "visible"
+            self.init(network: network, address: address, label: label, isVisible: isVisible)
+        default:
+            fatalError()
+        }
     }
 
     static func ==(lhs: LIFXDevice, rhs: LIFXDevice) -> Bool {
@@ -370,7 +379,7 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
 
 extension LIFXDevice: CSVEncodable {
     var csvString: String {
-        return CSV.Line("device", String(address), label).csvString
+        return CSV.Line("device", String(address), label, isVisible ? "visible" : "hidden").csvString
     }
 }
 
@@ -444,8 +453,8 @@ class LIFXLight: LIFXDevice {
     }
     var infrared: UInt16?
 
-    override init(network: LIFXNetworkController, address: Address, label: Label?) {
-        super.init(network: network, address: address, label: label)
+    override init(network: LIFXNetworkController, address: Address, label: Label?, isVisible: Bool = true) {
+        super.init(network: network, address: address, label: label, isVisible: isVisible)
         network.receiver.register(address: address, type: LightMessage.statePower) { [weak self] in
             self?.statePower($0)
         }

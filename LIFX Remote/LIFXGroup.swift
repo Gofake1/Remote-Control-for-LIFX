@@ -23,12 +23,16 @@ class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
         }
     }
 
+    override var description: String {
+        return "group: { name: \(name), device_addresses: \(deviceAddresses) }}"
+    }
+
     override var hashValue: Int {
         return id.hashValue
     }
 
     private static var names = NumberedNameSequence()
-    @objc dynamic var devices = [LIFXDevice]() // TODO: NSHashMap for weak references
+    @objc dynamic var devices = [LIFXDevice]()
     var color = LIFXLight.Color(nsColor: NSColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)) {
         didSet {
             NotificationCenter.default.post(name: notificationGroupColorChanged, object: self)
@@ -52,35 +56,54 @@ class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
         }
     }
     let id: String
-    private let model = LIFXModel.shared
+    private var deviceAddresses = [Address]()
 
     override init() {
-        self.id = String(Date().timeIntervalSince1970)
-        self.name = LIFXGroup.names.next()
+        id = String(Date().timeIntervalSince1970)
+        name = LIFXGroup.names.next()
         hudController = HudController()
         menuItem = NSMenuItem()
         super.init()
         makeControllers()
     }
 
-    init(csvLine: CSV.Line) {
-        self.id = csvLine.values[1]
-        self.name = csvLine.values[2]
+    init(csvLine: CSV.Line, version: Int) {
+        id = csvLine.values[1]
+        name = csvLine.values[2]
+        if version == 2 {
+            isVisible = csvLine.values[3] == "visible"
+        }
         hudController = HudController()
         menuItem = NSMenuItem()
         super.init()
-        guard csvLine.values.count >= 3 else { return }
-        csvLine.values[3..<csvLine.values.count].forEach {
-            if let address = Address($0), let device = model.device(for: address) {
-                devices.append(device)
+        switch version {
+        case 1:
+            guard csvLine.values.count >= 3 else { return }
+            csvLine.values[3...].forEach {
+                if let address = Address($0) {
+                    deviceAddresses.append(address)
+                }
             }
+        case 2:
+            guard csvLine.values.count >= 4 else { return }
+            csvLine.values[4...].forEach {
+                if let address = Address($0) {
+                    deviceAddresses.append(address)
+                }
+            }
+        default:
+            fatalError()
         }
         makeControllers()
     }
 
+    static func ==(lhs: LIFXGroup, rhs: LIFXGroup) -> Bool {
+        return lhs.id == rhs.id
+    }
+
     func makeControllers() {
         hudController.representable = self
-        
+
         let hudViewController = GroupHudViewController()
         hudViewController.group = self
         hudController.contentViewController = hudViewController
@@ -91,8 +114,12 @@ class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
         menuItem.view = menuItemViewController.view
     }
 
-    static func ==(lhs: LIFXGroup, rhs: LIFXGroup) -> Bool {
-        return lhs.id == rhs.id
+    func restoreDevices(from model: LIFXModel) {
+        for address in deviceAddresses {
+            if let device = model.device(for: address) {
+                devices.append(device)
+            }
+        }
     }
 
     func device(at index: Int) -> LIFXDevice {
@@ -122,12 +149,13 @@ class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
     deinit {
         hudController.close()
         menuItem.menu?.removeItem(menuItem)
+        devices.removeAll()
     }
 }
 
 extension LIFXGroup: CSVEncodable {
     var csvString: String {
-        var csvLine = CSV.Line("group", id, name)
+        var csvLine = CSV.Line("group", id, name, isVisible ? "visible" : "hidden")
         for device in devices {
             csvLine.append(String(device.address))
         }

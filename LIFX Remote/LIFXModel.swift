@@ -10,9 +10,29 @@ import Foundation
 
 let notificationDevicesChanged = NSNotification.Name(rawValue: "net.gofake1.devicesChangedKey")
 
+enum SavedStateError: Error {
+    case unknownVersionFormat
+    case illegalValue
+}
+
+private func savedStateVersion(_ line: CSV.Line) throws -> Int {
+    guard line.values.count == 2, line.values[0] == "version"
+        else { throw SavedStateError.unknownVersionFormat }
+    guard let version = Int(line.values[1]),
+        version == 1 || version == 2
+        else { throw SavedStateError.illegalValue }
+    return version
+}
+
 class LIFXModel: NSObject {
 
-    static let shared = LIFXModel()
+    static let shared: LIFXModel = {
+        let model = LIFXModel()
+        for group in model.groups {
+            group.restoreDevices(from: model)
+        }
+        return model
+    }()
     private static let savedStateCSVPath =
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("SavedState")
@@ -45,28 +65,24 @@ class LIFXModel: NSObject {
             let savedState = FileManager.default.contents(atPath: LIFXModel.savedStateCSVPath) {
 
             let savedStateCSV = CSV(String(data: savedState, encoding: .utf8))
-            for line in savedStateCSV.lines {
-                switch line.values[0] {
-                case "device":
-                    add(device: LIFXLight(network: network, csvLine: line))
-                case "group":
-                    add(group: LIFXGroup(csvLine: line))
-                    //FIXME: save visibility state in LIFXDevice and LIFXGroup
-//                    case "visibility":
-//                        guard let visibility = Bool(line.values[3]) else { fatalError() }
-//                        switch line.values[1] {
-//                        case "group":
-//                            guard let group = group(for: line.values[2]) else { fatalError() }
-//                            self.setVisibility(for: group, visibility)
-//                        case "device":
-//                    guard let device = self.device(for: line.values[2]) else { fatalError() }
-//                        self.setVisibility(for: device, visibility)
-//                    default:
-//                        break
-//                    }
-                default:
-                    break
+            guard let line = savedStateCSV.lines.first else { return }
+            do {
+                let version = try savedStateVersion(line)
+                print("Saved state version: \(version)")
+                for line in savedStateCSV.lines[1...] {
+                    switch line.values[0] {
+                    case "device":
+                        add(device: LIFXLight(network: network, csvLine: line, version: version))
+                    case "group":
+                        add(group: LIFXGroup(csvLine: line, version: version))
+                    default:
+                        break
+                    }
                 }
+                print("Saved devices: \(devices)")
+                print("Saved groups: \(groups)")
+            } catch let error {
+                print(error)
             }
         }
     }
@@ -151,25 +167,20 @@ class LIFXModel: NSObject {
         statusChangeHandlers.append(handler)
     }
 
-    /// Write devices and groups to CSV files
+    // Version 1:
+    // - "device" address label
+    // - "group" id name device_address...
+    // Version 2:
+    // - "device" address label isVisible
+    // - "group" id name isVisible device_address...
+    /// Write devices and groups to CSV file
     func saveState() {
         let savedStateCSV = CSV()
-        savedStateCSV.append(line: CSV.Line("version", "1"))
+        savedStateCSV.append(line: CSV.Line("version", "2"))
         devices.forEach { savedStateCSV.append(lineString: $0.csvString) }
         groups.forEach { savedStateCSV.append(lineString: $0.csvString) }
-        // FIXME: save visibility state in LIFXDevice and LIFXGroup
-//        itemVisibility.forEach {
-//            switch $0.key {
-//            case let group as LIFXGroup:
-//                savedStateCSV.append(line: CSV.Line("visibility", "group", group.id, String($0.value)))
-//            case let device as LIFXDevice:
-//                savedStateCSV.append(line: CSV.Line("visibility", "device", String(device.address),
-//                                                    String($0.value)))
-//            default: break
-//            }
-//        }
         do { try savedStateCSV.write(to: LIFXModel.savedStateCSVPath) }
-        catch { fatalError() }
+        catch { fatalError("Failed to write saved state") }
     }
 }
 

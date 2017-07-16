@@ -1,3 +1,10 @@
+* Persistence format v2
+* (Fix) Groups' lightbulbs are preserved between launches
+* (Fix) Visibility of lightbulbs and groups in Menu is preserved between launches
+
+### 1.4 - Quality of Life Update
+* Remove dependency on ReactiveCocoa
+* Improved Menu UI
 ### 1.3.1 (18 May 2017)
 * HUD color wheel supports dragging
 
@@ -12,7 +19,7 @@
 * New Preferences window
 * Refined HUD window
 * HUD windows now open from the top left instead of the top right
-* Persist state between launches
+* Persistence format v1
 * Disable highlighting on mouseover
 
 ### 1.1.0 (11 Dec. 2016) - Minor UI Update
