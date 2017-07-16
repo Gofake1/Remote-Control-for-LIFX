@@ -67,14 +67,14 @@ struct Packet {
     
     /// - parameter target: MAC address or nil (all devices)
     init(type: LIFXMessageType, with payload: [UInt8]? = nil, to target: Address? = nil) {
-        self.header  = Header(type: type, target: target)
+        header = Header(type: type, target: target)
         self.payload = Payload(bytes: payload)
     }
     
     init?(bytes: [UInt8]) {
         guard let header = Header(bytes: Array(bytes[0...35])) else { return nil }
-        self.header  = header
-        self.payload = Payload(bytes: Array(bytes[36..<Int(header.size)]))
+        self.header = header
+        payload = Payload(bytes: Array(bytes[36..<Int(header.size)]))
     }
 }
 
@@ -170,8 +170,8 @@ struct Header {
         
         switch type {
         case DeviceMessage.getService:
-            self.tagged = true
-            self.res    = true
+            tagged = true
+            res    = true
         case DeviceMessage.getHostInfo:     fallthrough
         case DeviceMessage.getHostFirmware: fallthrough
         case DeviceMessage.getWifiInfo:     fallthrough
@@ -186,7 +186,7 @@ struct Header {
         case LightMessage.getState:         fallthrough
         case LightMessage.getPower:         fallthrough
         case LightMessage.getInfrared:
-            self.res = true
+            res = true
         default:
             break
         }
@@ -194,16 +194,16 @@ struct Header {
     
     init?(bytes: [UInt8]) {
         let rawValue = UnsafePointer(Array(bytes[32...33]))
-                           .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee })
+            .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee })
         if let type: LIFXMessageType = rawValue > 100 ? LightMessage(rawValue: rawValue) :
-                                                   DeviceMessage(rawValue: rawValue) {
+                                                        DeviceMessage(rawValue: rawValue) {
             self.type = type
         } else {
             return nil
         }
         
         self.target = UnsafePointer(Array(bytes[8...15]))
-                          .withMemoryRebound(to: Address.self, capacity: 1, { $0.pointee })
+            .withMemoryRebound(to: Address.self, capacity: 1, { $0.pointee })
     }
 }
 

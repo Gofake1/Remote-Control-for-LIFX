@@ -112,6 +112,11 @@
                                                         </textFieldCell>
                                                         <connections>
                                                             <binding destination="LTx-kO-M4u" name="value" keyPath="objectValue.label" id="Mfa-KW-gc5"/>
+                                                            <binding destination="LTx-kO-M4u" name="textColor" keyPath="objectValue.isReachable" id="pHQ-gi-ypv">
+                                                                <dictionary key="options">
+                                                                    <string key="NSValueTransformerName">BooleanToColor</string>
+                                                                </dictionary>
+                                                            </binding>
                                                         </connections>
                                                     </textField>
                                                 </subviews>

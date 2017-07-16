@@ -114,6 +114,8 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
     var service = Service.udp
     var port    = UInt32(56700)
     @objc dynamic var ipAddress = "Unknown"
+    /// Responds to getService
+    @objc dynamic var isReachable = false
     /// Visibility in status menu
     @objc dynamic var isVisible: Bool
     @objc dynamic var label = "Unknown" {
@@ -192,7 +194,7 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
         case 1:
             self.init(network: network, address: address, label: label)
         case 2:
-            let isVisible = csvLine.values[2] == "visible"
+            let isVisible = csvLine.values[3] == "visible"
             self.init(network: network, address: address, label: label, isVisible: isVisible)
         default:
             fatalError()
@@ -224,8 +226,11 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
         if let service = Service(rawValue: response[0]) {
             self.service = service
         }
-        self.port = UnsafePointer(Array(response[1...4]))
+        port = UnsafePointer(Array(response[1...4]))
             .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
+        DispatchQueue.main.async {
+            self.isReachable = true
+        }
     }
 
     func getPower() {

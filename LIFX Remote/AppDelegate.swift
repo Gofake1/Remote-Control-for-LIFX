@@ -20,9 +20,17 @@ class AppDelegate: NSObject {
         NSApp.activate(ignoringOtherApps: true)
         preferences?.showWindow(nil)
     }
+
+    override init() {
+        super.init()
+        let booleanToColor = BooleanToColor()
+        ValueTransformer.setValueTransformer(booleanToColor,
+                                             forName: NSValueTransformerName(rawValue: "BooleanToColor"))
+    }
 }
 
 extension AppDelegate: NSApplicationDelegate {
+
     func applicationWillTerminate(_ notification: Notification) {
         LIFXModel.shared.saveState()
     }

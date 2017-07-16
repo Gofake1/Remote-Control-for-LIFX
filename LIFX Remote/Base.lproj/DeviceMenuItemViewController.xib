@@ -36,6 +36,11 @@
                     </textFieldCell>
                     <connections>
                         <binding destination="-2" name="value" keyPath="self.device.label" id="pej-Dk-WQs"/>
+                        <binding destination="-2" name="textColor" keyPath="self.device.isReachable" id="xgC-4D-V5W">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">BooleanToColor</string>
+                            </dictionary>
+                        </binding>
                     </connections>
                 </textField>
                 <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="COj-gm-bs0" customClass="StatusMenuItemColorView" customModule="Remote_Control_for_LIFX" customModuleProvider="target">

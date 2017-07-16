@@ -126,9 +126,8 @@ class LIFXModel: NSObject {
     }
     
     func discover() {
-        // Send heartbeat to known devices
-        for device in devices {
-            
+        devices.forEach {
+            $0.isReachable = false
         }
         network.send(Packet(type: DeviceMessage.getService))
     }

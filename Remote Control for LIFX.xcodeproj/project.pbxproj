@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4A07F8C71F1B0E0800C44874 /* BooleanToColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A07F8C61F1B0E0800C44874 /* BooleanToColor.swift */; };
 		4A1543FB1D91B9DB0052706C /* Bitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1543FA1D91B9DB0052706C /* Bitter.swift */; };
 		4A56A9E11E26C76B00A37C90 /* CheckboxTableCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A56A9E01E26C76B00A37C90 /* CheckboxTableCellView.swift */; };
 		4A56A9E31E27148C00A37C90 /* GroupDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A56A9E21E27148C00A37C90 /* GroupDetailViewController.swift */; };
@@ -54,6 +55,7 @@
 
 /* Begin PBXFileReference section */
 		4A00EA971DF12CD80076EACD /* Remote Control for LIFX.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Remote Control for LIFX.entitlements"; sourceTree = "<group>"; };
+		4A07F8C61F1B0E0800C44874 /* BooleanToColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BooleanToColor.swift; sourceTree = "<group>"; };
 		4A1543FA1D91B9DB0052706C /* Bitter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Bitter.swift; sourceTree = "<group>"; };
 		4A56A9E01E26C76B00A37C90 /* CheckboxTableCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckboxTableCellView.swift; sourceTree = "<group>"; };
 		4A56A9E21E27148C00A37C90 /* GroupDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupDetailViewController.swift; sourceTree = "<group>"; };
@@ -133,6 +135,7 @@
 			isa = PBXGroup;
 			children = (
 				4A583ABB1D134B31005A4691 /* AppDelegate.swift */,
+				4A07F8C61F1B0E0800C44874 /* BooleanToColor.swift */,
 				4A5B5B531D37569F009CD119 /* StatusMenuController.swift */,
 				4A583ABF1D134B31005A4691 /* StatusMenu.xib */,
 				4AEC75C21F136B6D00AD8CD7 /* DeviceMenuItemViewController.swift */,
@@ -268,6 +271,7 @@
 				4A62C99B1DD99F55000F77FE /* StatusMenuItemColorView.swift in Sources */,
 				4A62C9881DD98C74000F77FE /* HudController.swift in Sources */,
 				4A5B5B541D37569F009CD119 /* StatusMenuController.swift in Sources */,
+				4A07F8C71F1B0E0800C44874 /* BooleanToColor.swift in Sources */,
 				4A583ABC1D134B31005A4691 /* AppDelegate.swift in Sources */,
 				4A56A9E11E26C76B00A37C90 /* CheckboxTableCellView.swift in Sources */,
 				4AEC75D61F136CB400AD8CD7 /* DeviceMenuItemViewController.swift in Sources */,
