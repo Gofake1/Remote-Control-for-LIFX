@@ -1,10 +1,11 @@
+### 1.4 - Quality of Life Update
+* Remove dependency on ReactiveCocoa
+* Improved Menu UI
+* Lightbulb connection status reflected in Menu and Preferences
 * Persistence format v2
 * (Fix) Groups' lightbulbs are preserved between launches
 * (Fix) Visibility of lightbulbs and groups in Menu is preserved between launches
 
-### 1.4 - Quality of Life Update
-* Remove dependency on ReactiveCocoa
-* Improved Menu UI
 ### 1.3.1 (18 May 2017)
 * HUD color wheel supports dragging
 

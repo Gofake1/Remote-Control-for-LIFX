@@ -111,10 +111,13 @@ class LIFXModel: NSObject {
         groups.append(group)
     }
 
-//    func remove(device: LIFXDevice) {
-//        guard let index = devices.value.index(of: device) else { return }
-//        devices.remove(at: index)
-//    }
+    func remove(device: LIFXDevice) {
+        guard let index = devices.index(of: device) else { return }
+        groups.forEach {
+            $0.remove(device: device)
+        }
+        devices.remove(at: index)
+    }
 
     func remove(group: LIFXGroup) {
         guard let index = groups.index(of: group) else { return }
@@ -297,6 +300,9 @@ class LIFXNetworkController {
         func register(address: Address, type: LIFXMessageType, task: @escaping ([UInt8]) -> Void) {
             if tasksForKnown[address] == nil {
                 tasksForKnown[address] = [:]
+            #if DEBUG
+                print("Registered \(address)")
+            #endif
             }
             tasksForKnown[address]![type.message] = task
         }
@@ -312,6 +318,9 @@ class LIFXNetworkController {
         func unregister(_ address: Address) {
             tasksForKnown[address] = nil
             tasksForIpAddressChange[address] = nil
+        #if DEBUG
+            print("Unregistered \(address)")
+        #endif
         }
     }
 

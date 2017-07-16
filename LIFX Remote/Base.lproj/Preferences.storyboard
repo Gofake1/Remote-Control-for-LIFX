@@ -86,6 +86,11 @@
                                                                     </textFieldCell>
                                                                     <connections>
                                                                         <binding destination="5Ej-UN-m17" name="value" keyPath="objectValue.label" id="MI3-zf-AQB"/>
+                                                                        <binding destination="5Ej-UN-m17" name="textColor" keyPath="objectValue.isReachable" id="2b0-iX-JLb">
+                                                                            <dictionary key="options">
+                                                                                <string key="NSValueTransformerName">BooleanToColor</string>
+                                                                            </dictionary>
+                                                                        </binding>
                                                                     </connections>
                                                                 </textField>
                                                             </subviews>
@@ -118,6 +123,11 @@
                                                                     </textFieldCell>
                                                                     <connections>
                                                                         <binding destination="CUz-kp-LHl" name="value" keyPath="objectValue.ipAddress" id="vhZ-S5-FnC"/>
+                                                                        <binding destination="CUz-kp-LHl" name="textColor" keyPath="objectValue.isReachable" id="pXD-Py-lYD">
+                                                                            <dictionary key="options">
+                                                                                <string key="NSValueTransformerName">BooleanToColor</string>
+                                                                            </dictionary>
+                                                                        </binding>
                                                                     </connections>
                                                                 </textField>
                                                             </subviews>
@@ -127,6 +137,7 @@
                                             </tableColumns>
                                             <connections>
                                                 <binding destination="T0Y-4b-fiA" name="content" keyPath="arrangedObjects" id="BpR-pd-2nR"/>
+                                                <binding destination="T0Y-4b-fiA" name="selectionIndexes" keyPath="selectionIndexes" previousBinding="BpR-pd-2nR" id="CQs-qc-pbG"/>
                                             </connections>
                                         </tableView>
                                     </subviews>
@@ -144,8 +155,20 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableHeaderView>
                             </scrollView>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="B7H-s1-WgN">
+                                <rect key="frame" x="14" y="13" width="114" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Forget Device" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Nva-6r-6dF">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="forgetDevice:" target="qdU-Vz-ngL" id="g9H-TJ-kuY"/>
+                                    <binding destination="T0Y-4b-fiA" name="enabled" keyPath="selectedObjects.@count" id="bjJ-XH-V5v"/>
+                                </connections>
+                            </button>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EKK-6r-Rkp">
-                                <rect key="frame" x="251" y="13" width="185" height="32"/>
+                                <rect key="frame" x="262" y="13" width="174" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Search for LIFX Devices" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="37g-ZA-9Rj">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -157,6 +180,9 @@
                             </button>
                         </subviews>
                     </view>
+                    <connections>
+                        <outlet property="arrayController" destination="T0Y-4b-fiA" id="OuV-AV-jfz"/>
+                    </connections>
                 </viewController>
                 <customObject id="znb-Wt-E63" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <arrayController id="T0Y-4b-fiA">

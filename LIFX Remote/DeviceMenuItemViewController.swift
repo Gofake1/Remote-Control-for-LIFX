@@ -21,13 +21,17 @@ class DeviceMenuItemViewController: NSViewController {
 
     override func viewDidLoad() {
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(DeviceMenuItemViewController.lightColorChanged),
-                                               name: notificationLightColorChanged,
-                                               object: device)
-        NotificationCenter.default.addObserver(self,
                                                selector: #selector(DeviceMenuItemViewController.devicePowerChanged),
                                                name: notificationDevicePowerChanged,
                                                object: device)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(DeviceMenuItemViewController.lightColorChanged),
+                                               name: notificationLightColorChanged,
+                                               object: device)
+    }
+
+    @objc func devicePowerChanged() {
+        brightnessSlider.isEnabled = device.power == .enabled
     }
 
     @objc func lightColorChanged() {
@@ -35,10 +39,6 @@ class DeviceMenuItemViewController: NSViewController {
             deviceColorView.color = light.color?.nsColor
             brightnessSlider.integerValue = light.color?.brightnessAsPercentage ?? 0
         }
-    }
-
-    @objc func devicePowerChanged() {
-        brightnessSlider.isEnabled = device.power == .enabled
     }
 
     @IBAction func showHud(_ sender: NSClickGestureRecognizer) {

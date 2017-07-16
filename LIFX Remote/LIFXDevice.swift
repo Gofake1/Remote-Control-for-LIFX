@@ -375,10 +375,10 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
     }
 
     deinit {
+        network.receiver.unregister(address)
         network = nil
         hudController.close()
         menuItem.menu?.removeItem(menuItem)
-        network.receiver.unregister(address)
     }
 }
 
