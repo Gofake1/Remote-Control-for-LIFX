@@ -16,6 +16,8 @@ class DevicesViewController: NSViewController {
 
     override func viewDidLoad() {
         preferredContentSize = NSSize(width: 450, height: 300)
+        // Workaround: initially disable 'Forget Devices' button
+        arrayController.setSelectedObjects([])
     }
 
     @IBAction func forgetDevice(_ sender: NSButton) {

@@ -85,7 +85,33 @@
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                 <tableColumns>
-                                    <tableColumn identifier="" width="140" minWidth="140" maxWidth="140" id="7vI-qe-whf">
+                                    <tableColumn identifier="" width="14" minWidth="14" maxWidth="14" id="fAl-6a-rSe">
+                                        <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
+                                            <font key="font" metaFont="smallSystem"/>
+                                            <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </tableHeaderCell>
+                                        <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="iTr-IR-c0w">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                        <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                        <prototypeCellViews>
+                                            <tableCellView id="t0V-W3-Rrc">
+                                                <rect key="frame" x="0.0" y="1" width="14" height="14"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <subviews>
+                                                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bJe-qe-kKN">
+                                                        <rect key="frame" x="0.0" y="0.0" width="14" height="14"/>
+                                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" image="Lightbulb" id="Jsw-Ck-snO"/>
+                                                    </imageView>
+                                                </subviews>
+                                            </tableCellView>
+                                        </prototypeCellViews>
+                                    </tableColumn>
+                                    <tableColumn identifier="" width="126" minWidth="126" maxWidth="126" id="7vI-qe-whf">
                                         <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -99,11 +125,11 @@
                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                         <prototypeCellViews>
                                             <tableCellView id="LTx-kO-M4u">
-                                                <rect key="frame" x="0.0" y="1" width="140" height="14"/>
+                                                <rect key="frame" x="14" y="1" width="126" height="14"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5AT-sp-icw">
-                                                        <rect key="frame" x="0.0" y="0.0" width="140" height="14"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="126" height="14"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                         <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Unknown Device" id="LVY-79-5FX">
                                                             <font key="font" metaFont="smallSystem"/>
@@ -111,12 +137,12 @@
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                         <connections>
-                                                            <binding destination="LTx-kO-M4u" name="value" keyPath="objectValue.label" id="Mfa-KW-gc5"/>
                                                             <binding destination="LTx-kO-M4u" name="textColor" keyPath="objectValue.isReachable" id="pHQ-gi-ypv">
                                                                 <dictionary key="options">
                                                                     <string key="NSValueTransformerName">BooleanToColor</string>
                                                                 </dictionary>
                                                             </binding>
+                                                            <binding destination="LTx-kO-M4u" name="value" keyPath="objectValue.label" id="Mfa-KW-gc5"/>
                                                         </connections>
                                                     </textField>
                                                 </subviews>
@@ -156,6 +182,7 @@
         <image name="BrightnessLow" width="44" height="44"/>
         <image name="KelvinCool" width="44" height="44"/>
         <image name="KelvinWarm" width="44" height="44"/>
+        <image name="Lightbulb" width="14" height="14"/>
         <image name="PowerButton" width="17" height="17"/>
     </resources>
 </document>

@@ -14,8 +14,8 @@ protocol NSMenuItemRepresentable: class {
 }
 
 private let statusMessages: [LIFXNetworkController.Status: String] = [
-    .normal:  "LIFX: Normal",
-    .offline: "LIFX: Offline"
+    .normal: "LIFX: Normal",
+    .error:  "LIFX: Error"
 ]
 
 class StatusMenuController: NSObject {
@@ -64,7 +64,8 @@ class StatusMenuController: NSObject {
     private func updateVisibility(_ representables: [NSMenuItemRepresentable], insertionIndex: Int) {
         for (index, representable) in representables.enumerated() {
             if !representable.isVisible {
-                // `NSMenuItem.isHidden` doesn't work if `NSMenuItem` has custom view
+                guard statusMenu.index(of: representable.menuItem) != -1 else { continue }
+                // Workaround: `NSMenuItem.isHidden` doesn't work if `NSMenuItem` has custom view
                 statusMenu.removeItem(representable.menuItem)
             } else if representable.isVisible && statusMenu.index(of: representable.menuItem) == -1 {
                 statusMenu.insertItem(representable.menuItem, at: insertionIndex+index)

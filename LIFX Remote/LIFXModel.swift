@@ -135,6 +135,10 @@ class LIFXModel: NSObject {
         network.send(Packet(type: DeviceMessage.getService))
     }
 
+    func networkStatusChanged() {
+        statusChangeHandlers.forEach { $0(network.status) }
+    }
+
     func newDevice(_ type: UInt16, _ address: Address, _ response: [UInt8], _ ipAddress: String) {
         guard type == DeviceMessage.stateService.rawValue else { return }
         // Sanity check
@@ -326,12 +330,18 @@ class LIFXNetworkController {
 
     enum Status {
         case normal
-        case offline
+        case error
     }
 
     var broadcastAddr: sockaddr_in
-    var status = Status.normal
     var sock: Int32
+    var status = Status.normal {
+        didSet {
+            if status != oldValue {
+                LIFXModel.shared.networkStatusChanged() // Yuck
+            }
+        }
+    }
     let receiver: Receiver
 
     init() {
@@ -369,7 +379,7 @@ class LIFXNetworkController {
                            unsafeBitCast($0, to: UnsafePointer<sockaddr>.self),
                            socklen_t(MemoryLayout<sockaddr_in>.size))
             if n < 0 {
-                status = .offline
+                status = .error
             #if DEBUG
                 print(String(validatingUTF8: strerror(errno)) ?? "Couldn't display error")
             #endif
