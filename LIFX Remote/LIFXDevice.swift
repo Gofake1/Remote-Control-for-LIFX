@@ -43,33 +43,45 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
     struct DeviceInfo {
 
         enum Product: UInt32, CustomStringConvertible {
-            case original1000   = 1
-            case color650       = 3
-            case white800LV     = 10
-            case white800HV     = 11
-            case white900BR30LV = 18
-            case color1000BR30  = 20
-            case color1000      = 22
-            case lifxA19        = 27
-            case lifxBR30       = 28
-            case lifxPlusA19    = 29
-            case lifxPlusBR30   = 30
-            case lifxZ          = 31
+            case original1000     = 1
+            case color650         = 3
+            case white800LV       = 10
+            case white800HV       = 11
+            case white900BR30LV   = 18
+            case color1000BR30    = 20
+            case color1000        = 22
+            case lifxA19_27       = 27
+            case lifxBR30_28      = 28
+            case lifxPlusA19_29   = 29
+            case lifxPlusBR30_30  = 30
+            case lifxZ            = 31
+            case lifxDownlight_36 = 36
+            case lifxDownlight_37 = 37
+            case lifxA19_43       = 43
+            case lifxBR30_44      = 44
+            case lifxPlusA19_45   = 45
+            case lifxPlusBR30_46  = 46
 
             var description: String {
                 switch self {
-                case .original1000:   return "Original 1000"
-                case .color650:       return "Color 650"
-                case .white800LV:     return "White 800 LV"
-                case .white800HV:     return "White 800 HV"
-                case .white900BR30LV: return "White 900 BR30 LV"
-                case .color1000BR30:  return "Color 1000 BR30"
-                case .color1000:      return "Color 1000"
-                case .lifxA19:        return "LIFX A19"
-                case .lifxBR30:       return "LIFX BR30"
-                case .lifxPlusA19:    return "LIFX + A19"
-                case .lifxPlusBR30:   return "LIFX + BR30"
-                case .lifxZ:          return "LIFX Z"
+                case .original1000:     return "Original 1000"
+                case .color650:         return "Color 650"
+                case .white800LV:       return "White 800 LV"
+                case .white800HV:       return "White 800 HV"
+                case .white900BR30LV:   return "White 900 BR30 LV"
+                case .color1000BR30:    return "Color 1000 BR30"
+                case .color1000:        return "Color 1000"
+                case .lifxA19_27:       return "LIFX A19"
+                case .lifxBR30_28:      return "LIFX BR30"
+                case .lifxPlusA19_29:   return "LIFX+ A19"
+                case .lifxPlusBR30_30:  return "LIFX+ BR30"
+                case .lifxZ:            return "LIFX Z"
+                case .lifxDownlight_36: return "LIFX Downlight"
+                case .lifxDownlight_37: return "LIFX Downlight"
+                case .lifxA19_43:       return "LIFX A19"
+                case .lifxBR30_44:      return "LIFX BR30"
+                case .lifxPlusA19_45:   return "LIFX+ A19"
+                case .lifxPlusBR30_46:  return "LIFX+ BR30"
                 }
             }
         }
