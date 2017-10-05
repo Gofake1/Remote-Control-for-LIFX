@@ -213,10 +213,10 @@ class LIFXNetworkController {
             addr.sin_addr.s_addr = INADDR_ANY
             addr.sin_port        = UInt16(56700).bigEndian
             withUnsafePointer(to: &addr) {
-                let bindSuccess = bind(socket,
-                                       unsafeBitCast($0, to: UnsafePointer<sockaddr>.self),
-                                       socklen_t(MemoryLayout<sockaddr>.size))
-                assert(bindSuccess == 0, String(validatingUTF8: strerror(errno)) ?? "Couldn't display error")
+                $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                    let bindSuccess = bind(socket, $0, socklen_t(MemoryLayout<sockaddr>.size))
+                    assert(bindSuccess == 0, String(validatingUTF8: strerror(errno)) ?? "")
+                }
             }
 
             self.socket = socket
@@ -229,14 +229,16 @@ class LIFXNetworkController {
                 while self.isReceiving {
                     var recvAddr = sockaddr_in()
                     let res      = [UInt8](repeating: 0, count: 100)
-                    withUnsafePointer(to: &recvAddr) {
-                        let n = recvfrom(self.socket,
-                                         UnsafeMutablePointer(mutating: res),
-                                         res.count,
-                                         0,
-                                         unsafeBitCast($0, to: UnsafeMutablePointer<sockaddr>.self),
-                                         &recvAddrLen)
-                        assert(n >= 0, String(validatingUTF8: strerror(errno)) ?? "Couldn't display error")
+                    withUnsafeMutablePointer(to: &recvAddr) {
+                        $0.withMemoryRebound(to: sockaddr.self, capacity: 1, {
+                            let n = recvfrom(self.socket,
+                                             UnsafeMutablePointer(mutating: res),
+                                             res.count,
+                                             0,
+                                             $0,
+                                             &recvAddrLen)
+                            assert(n >= 0, String(validatingUTF8: strerror(errno)) ?? "")
+                        })
 
                     #if DEBUG
                         let recvIp = String(validatingUTF8: inet_ntoa(recvAddr.sin_addr)) ?? "Couldn't parse IP"
@@ -250,8 +252,7 @@ class LIFXNetworkController {
                             return
                         }
                     #if DEBUG
-                        log += "\tfrom \(packet.header.target.bigEndian)\n"
-                        log += "\t\(packet.header.type)\n"
+                        log += "\tfrom \(packet.header.target.bigEndian)\n\t\(packet.header.type)\n"
                         print(log)
                     #endif
                         
@@ -354,7 +355,7 @@ class LIFXNetworkController {
                                     SO_BROADCAST,
                                     &broadcastFlag,
                                     socklen_t(MemoryLayout<Int>.size))
-        assert(setSuccess == 0, String(validatingUTF8: strerror(errno)) ?? "Couldn't display error")
+        assert(setSuccess == 0, String(validatingUTF8: strerror(errno)) ?? "")
         
         self.sock = sock
         receiver = Receiver(socket: sock)
@@ -372,19 +373,21 @@ class LIFXNetworkController {
     #endif
         let data = Data(packet: packet)
         withUnsafePointer(to: &self.broadcastAddr) {
-            let n = sendto(self.sock,
-                           (data as NSData).bytes,
-                           data.count,
-                           0,
-                           unsafeBitCast($0, to: UnsafePointer<sockaddr>.self),
-                           socklen_t(MemoryLayout<sockaddr_in>.size))
-            if n < 0 {
-                status = .error
-            #if DEBUG
-                print(String(validatingUTF8: strerror(errno)) ?? "Couldn't display error")
-            #endif
-            } else {
-                status = .normal
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                let n = sendto(self.sock,
+                               (data as NSData).bytes,
+                               data.count,
+                               0,
+                               $0,
+                               socklen_t(MemoryLayout<sockaddr_in>.size))
+                if n < 0 {
+                    status = .error
+                #if DEBUG
+                    print(String(validatingUTF8: strerror(errno)) ?? "")
+                #endif
+                } else {
+                    status = .normal
+                }
             }
         }
     }
