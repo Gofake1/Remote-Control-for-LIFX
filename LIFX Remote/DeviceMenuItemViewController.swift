@@ -51,7 +51,7 @@ class DeviceMenuItemViewController: NSViewController {
 
     @IBAction func setBrightness(_ sender: NSSlider) {
         guard let light = device as? LIFXLight, var color = light.color else { return }
-        color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
+        color.brightness = UInt16(percentage: sender.doubleValue)
         light.setColor(color)
     }
 

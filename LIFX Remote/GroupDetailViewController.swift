@@ -15,7 +15,7 @@ class GroupDetailViewController: NSViewController {
     @IBOutlet weak var groupNameLabel: NSTextField!
     @IBOutlet weak var tableView: NSTableView!
     
-    weak var group: LIFXGroup!
+    @objc dynamic weak var group: LIFXGroup!
     private let model = LIFXModel.shared
 
     override func viewDidLoad() {
@@ -23,11 +23,6 @@ class GroupDetailViewController: NSViewController {
                                                selector: #selector(GroupDetailViewController.devicesChanged),
                                                name: notificationDevicesChanged,
                                                object: model)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(GroupDetailViewController.groupNameChanged),
-                                               name: notificationGroupNameChanged,
-                                               object: group)
-        groupNameLabel.stringValue = "\(group.name) Settings"
     }
 
     @objc func devicesChanged() {
@@ -36,14 +31,8 @@ class GroupDetailViewController: NSViewController {
         }
     }
 
-    @objc func groupNameChanged() {
-        DispatchQueue.main.async {
-            self.groupNameLabel.stringValue = "\(self.group.name) Settings"
-        }
-    }
-
     @IBAction func toggleIsInGroup(_ sender: NSButton) {
-        let device = model.device(at: tableView.row(for: sender))
+        let device = model.devices[tableView.row(for: sender)]
         if sender.state == .off {
             group.remove(device: device)
         } else {
@@ -66,7 +55,7 @@ extension GroupDetailViewController: NSTableViewDelegate {
 
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
         guard tableColumn != nil else { return nil }
-        let device = model.device(at: row)
+        let device = model.devices[row]
         guard let view = tableView.makeView(withIdentifier: identifierDeviceCell, owner: nil) as? CheckboxTableCellView,
             let textField = view.textField
             else { return nil }

@@ -7,13 +7,23 @@
 //
 
 protocol CSVEncodable {
-    var csvString: String { get }
+    /// Return `nil` if type should not be encoded
+    var csvLine: CSV.Line? { get }
+}
+
+extension Array where Element: CSVEncodable {
+    func encodeCSV(appendTo csv: CSV) {
+        forEach {
+            if let line = $0.csvLine {
+                csv.append(line: line)
+            }
+        }
+    }
 }
 
 class CSV {
 
-    struct Line: CSVEncodable {
-
+    struct Line {
         var csvString: String {
             return values.joined(separator: ",")
         }

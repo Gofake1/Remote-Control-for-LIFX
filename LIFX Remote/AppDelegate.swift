@@ -23,9 +23,16 @@ class AppDelegate: NSObject {
 
     override init() {
         super.init()
-        let booleanToColor = BooleanToColor()
-        ValueTransformer.setValueTransformer(booleanToColor,
+        ValueTransformer.setValueTransformer(BooleanToColor(),
                                              forName: NSValueTransformerName(rawValue: "BooleanToColor"))
+        ValueTransformer.setValueTransformer(NotEqual(0),
+                                             forName: NSValueTransformerName(rawValue: "NotEqualTo0"))
+        ValueTransformer.setValueTransformer(NotEqual(1),
+                                             forName: NSValueTransformerName(rawValue: "NotEqualTo1"))
+        ValueTransformer.setValueTransformer(NotEqual(2),
+                                             forName: NSValueTransformerName(rawValue: "NotEqualTo2"))
+        ValueTransformer.setValueTransformer(AppendString(" Settings"),
+                                             forName: NSValueTransformerName(rawValue: "AppendStringSettings"))
     }
 }
 

@@ -9,6 +9,7 @@
 import Foundation
 
 let notificationDevicesChanged = NSNotification.Name(rawValue: "net.gofake1.devicesChangedKey")
+let notificationGroupsChanged = NSNotification.Name(rawValue: "net.gofake1.groupsChangedKey")
 
 enum SavedStateError: Error {
     case unknownVersionFormat
@@ -19,17 +20,19 @@ private func savedStateVersion(_ line: CSV.Line) throws -> Int {
     guard line.values.count == 2, line.values[0] == "version"
         else { throw SavedStateError.unknownVersionFormat }
     guard let version = Int(line.values[1]),
-        version == 1 || version == 2
+        version == 1 || version == 2 || version == 3
         else { throw SavedStateError.illegalValue }
     return version
 }
 
 class LIFXModel: NSObject {
-
     static let shared: LIFXModel = {
         let model = LIFXModel()
         for group in model.groups {
-            group.restoreDevices(from: model)
+            group.restore(from: model)
+        }
+        for keyBinding in model.keyBindings {
+            keyBinding.restore(from: model)
         }
         return model
     }()
@@ -40,63 +43,55 @@ class LIFXModel: NSObject {
             .path
     @objc dynamic var devices = [LIFXDevice]() {
         didSet {
-            if devices.count != oldValue.count {
-                devicesCountChangeHandlers.forEach { $0(devices.count) }
-            }
             NotificationCenter.default.post(name: notificationDevicesChanged, object: self)
         }
     }
     @objc dynamic var groups = [LIFXGroup]() {
         didSet {
-            if groups.count != oldValue.count {
-                groupsCountChangeHandlers.forEach { $0(groups.count) }
-            }
+            NotificationCenter.default.post(name: notificationGroupsChanged, object: self)
         }
     }
+    @objc dynamic var keyBindings = [KeyBinding]()
     let network = LIFXNetworkController()
     private var statusChangeHandlers: [(LIFXNetworkController.Status) -> Void] = []
-    private var devicesCountChangeHandlers: [(Int) -> Void] = []
-    private var groupsCountChangeHandlers: [(Int) -> Void] = []
 
     override init() {
         super.init()
         network.receiver.registerForUnknown(newDevice)
-        if FileManager.default.fileExists(atPath: LIFXModel.savedStateCSVPath),
-            let savedState = FileManager.default.contents(atPath: LIFXModel.savedStateCSVPath) {
-
-            let savedStateCSV = CSV(String(data: savedState, encoding: .utf8))
-            guard let line = savedStateCSV.lines.first else { return }
-            do {
-                let version = try savedStateVersion(line)
-                print("Saved state version: \(version)")
-                for line in savedStateCSV.lines[1...] {
-                    switch line.values[0] {
-                    case "device":
-                        add(device: LIFXLight(network: network, csvLine: line, version: version))
-                    case "group":
-                        add(group: LIFXGroup(csvLine: line, version: version))
-                    default:
-                        break
+        guard let savedStateData = FileManager.default.contents(atPath: LIFXModel.savedStateCSVPath)
+            else { return }
+        let savedStateCSV = CSV(String(data: savedStateData, encoding: .utf8))
+        guard let line = savedStateCSV.lines.first else { return }
+        do {
+            let version = try savedStateVersion(line)
+            for line in savedStateCSV.lines[1...] {
+                switch line.values[0] {
+                case "device":
+                    if let device = LIFXLight(network: network, csvLine: line, version: version) {
+                        add(device: device)
                     }
+                case "group":
+                    add(group: LIFXGroup(csvLine: line, version: version))
+                case "hotkey":
+                    add(keyBinding: KeyBinding(csvLine: line, version: version))
+                default:
+                    break
                 }
-                print("Saved devices: \(devices)")
-                print("Saved groups: \(groups)")
-            } catch let error {
-                print(error)
             }
+            let info = """
+            Saved state version: \(version)
+            Saved devices: \(devices)
+            Saved groups: \(groups)
+            Saved key bindings: \(keyBindings)
+            """
+            print(info)
+        } catch let error {
+            print(error)
         }
-    }
-
-    func device(at index: Int) -> LIFXDevice {
-        return devices[index]
     }
 
     func device(for address: Address) -> LIFXDevice? {
         return devices.first { return $0.address == address }
-    }
-
-    func group(at index: Int) -> LIFXGroup {
-        return groups[index]
     }
 
     func group(for id: String) -> LIFXGroup? {
@@ -111,17 +106,26 @@ class LIFXModel: NSObject {
         groups.append(group)
     }
 
-    func remove(device: LIFXDevice) {
-        guard let index = devices.index(of: device) else { return }
+    func add(keyBinding: KeyBinding) {
+        keyBindings.append(keyBinding)
+    }
+
+    func remove(deviceIndex index: Int) {
         groups.forEach {
-            $0.remove(device: device)
+            $0.remove(device: devices[index])
         }
+        devices[index].willBeRemoved()
         devices.remove(at: index)
     }
 
-    func remove(group: LIFXGroup) {
-        guard let index = groups.index(of: group) else { return }
+    func remove(groupIndex index: Int) {
+        groups[index].willBeRemoved()
         groups.remove(at: index)
+    }
+
+    func remove(keyBindingIndex index: Int) {
+        keyBindings[index].willBeRemoved()
+        keyBindings.remove(at: index)
     }
 
     func changeAllDevices(power: LIFXDevice.PowerState) {
@@ -161,14 +165,6 @@ class LIFXModel: NSObject {
         add(device: light)
     }
 
-    func onDevicesCountChange(_ handler: @escaping (Int) -> Void) {
-        devicesCountChangeHandlers.append(handler)
-    }
-
-    func onGroupsCountChange(_ handler: @escaping (Int) -> Void) {
-        groupsCountChangeHandlers.append(handler)
-    }
-
     func onStatusChange(_ handler: @escaping (LIFXNetworkController.Status) -> Void) {
         statusChangeHandlers.append(handler)
     }
@@ -179,12 +175,19 @@ class LIFXModel: NSObject {
     // Version 2:
     // - "device" address label isVisible
     // - "group" id name isVisible device_address...
+    // Version 3:
+    // - "hotkey" "device"|"group" address|id keyCode modifiers (action ↓)
+    //   - "power" "on"|"off"
+    //   - "color" rgb
+    //   - "brightness" 0-100
+    //   - "temperature" 0-100
     /// Write devices and groups to CSV file
     func saveState() {
         let savedStateCSV = CSV()
-        savedStateCSV.append(line: CSV.Line("version", "2"))
-        devices.forEach { savedStateCSV.append(lineString: $0.csvString) }
-        groups.forEach { savedStateCSV.append(lineString: $0.csvString) }
+        savedStateCSV.append(line: CSV.Line("version", "3"))
+        devices.encodeCSV(appendTo: savedStateCSV)
+        groups.encodeCSV(appendTo: savedStateCSV)
+        keyBindings.encodeCSV(appendTo: savedStateCSV)
         do { try savedStateCSV.write(to: LIFXModel.savedStateCSVPath) }
         catch { fatalError("Failed to write saved state") }
     }
@@ -195,7 +198,6 @@ class LIFXNetworkController {
     /// `Receiver` continually receives device state updates from the network and executes their associated 
     /// completion handlers
     class Receiver {
-
         private var isReceiving = false
         private var ipAddresses: [Address: String] = [:]
         private var socket: Int32

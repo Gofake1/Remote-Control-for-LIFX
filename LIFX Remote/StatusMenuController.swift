@@ -41,24 +41,16 @@ class StatusMenuController: NSObject {
             toggleAllMenuItem.title = toggleAllMessage.rawValue
         }
     }
-    private let model = LIFXModel.shared
+    @objc private let model = LIFXModel.shared
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     
     override func awakeFromNib() {
-        statusItem.image = #imageLiteral(resourceName: "StatusBarButtonImage")
+        statusItem.image = #imageLiteral(resourceName: "StatusBarButton")
         statusItem.menu = statusMenu
-
         model.onStatusChange { [weak self] status in
             self?.statusMessageMenuItem.title = statusMessages[status]!
         }
-        model.onDevicesCountChange { [weak self] count in
-            self?.toggleAllMenuItem.isEnabled = count > 0
-            self?.placeholderMenuItem.isHidden = count > 0
-        }
         model.discover()
-
-        toggleAllMenuItem.isEnabled = model.devices.count > 0
-        placeholderMenuItem.isHidden = model.devices.count > 0
     }
 
     private func updateVisibility(_ representables: [NSMenuItemRepresentable], insertionIndex: Int) {

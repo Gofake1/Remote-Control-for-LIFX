@@ -47,7 +47,7 @@ class GroupMenuItemViewController: NSViewController {
 
     @IBAction func setBrightness(_ sender: NSSlider) {
         var color = group.color
-        color.brightness = UInt16(sender.doubleValue/sender.maxValue * Double(UInt16.max))
+        color.brightness = UInt16(percentage: sender.doubleValue)
         group.setColor(color)
     }
 

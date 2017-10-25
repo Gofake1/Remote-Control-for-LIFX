@@ -17,7 +17,7 @@ let notificationDevicePowerChanged = NSNotification.Name(rawValue: "net.gofake1.
 let notificationDeviceWifiChanged  = NSNotification.Name(rawValue: "net.gofake1.deviceWifiChangedKey")
 let notificationDeviceModelChanged = NSNotification.Name(rawValue: "net.gofake1.deviceModelChangedKey")
 
-class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
+class LIFXDevice: NSObject, HudRepresentable, StatusMenuItemRepresentable {
 
     enum Service: UInt8 {
         case udp = 1
@@ -117,12 +117,12 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
         return address.hashValue
     }
 
-    var network: LIFXNetworkController!
-    var hudController: HudController
+    let network: LIFXNetworkController
+    var hudController = HudController()
     var hudTitle: String {
         return label
     }
-    var menuItem: NSMenuItem
+    var statusMenuItem = NSMenuItem()
     var service = Service.udp
     var port    = UInt32(56700)
     @objc dynamic var ipAddress = "Unknown"
@@ -160,8 +160,6 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
         self.address   = address
         self.label     = label ?? "Unknown"
         self.isVisible = isVisible
-        hudController = HudController()
-        menuItem = NSMenuItem()
         super.init()
         makeControllers()
         network.receiver.register(address: address, type: DeviceMessage.stateService) { [weak self] in
@@ -199,17 +197,18 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
         })
     }
 
-    convenience init(network: LIFXNetworkController, csvLine: CSV.Line, version: Int) {
+    convenience init?(network: LIFXNetworkController, csvLine: CSV.Line, version: Int) {
         guard let address = UInt64(csvLine.values[1]) else { fatalError() }
         let label = csvLine.values[2]
         switch version {
         case 1:
             self.init(network: network, address: address, label: label)
-        case 2:
+        case 2: fallthrough
+        case 3:
             let isVisible = csvLine.values[3] == "visible"
             self.init(network: network, address: address, label: label, isVisible: isVisible)
         default:
-            fatalError()
+            return nil
         }
     }
 
@@ -219,15 +218,14 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
 
     func makeControllers() {
         hudController.representable = self
-
         let hudViewController = DeviceHudViewController()
         hudViewController.device = self
         hudController.contentViewController = hudViewController
 
         let menuItemViewController = DeviceMenuItemViewController()
         menuItemViewController.device = self
-        menuItem.representedObject = menuItemViewController
-        menuItem.view = menuItemViewController.view
+        statusMenuItem.representedObject = menuItemViewController
+        statusMenuItem.view = menuItemViewController.view
     }
 
     func getService() {
@@ -386,17 +384,16 @@ class LIFXDevice: NSObject, HudRepresentable, NSMenuItemRepresentable {
         print("echo:\n\t\(response)\n")
     }
 
-    deinit {
+    func willBeRemoved() {
         network.receiver.unregister(address)
-        network = nil
         hudController.close()
-        menuItem.menu?.removeItem(menuItem)
+        statusMenuItem.menu?.removeItem(statusMenuItem)
     }
 }
 
 extension LIFXDevice: CSVEncodable {
-    var csvString: String {
-        return CSV.Line("device", String(address), label, isVisible ? "visible" : "hidden").csvString
+    var csvLine: CSV.Line? {
+        return CSV.Line("device", String(address), label, isVisible ? "visible" : "hidden")
     }
 }
 

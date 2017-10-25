@@ -21,7 +21,7 @@ class DevicesViewController: NSViewController {
     }
 
     @IBAction func forgetDevice(_ sender: NSButton) {
-        model.remove(device: model.device(at: arrayController.selectionIndex))
+        model.remove(deviceIndex: arrayController.selectionIndex)
     }
 
     @IBAction func searchForDevices(_ sender: NSButton) {

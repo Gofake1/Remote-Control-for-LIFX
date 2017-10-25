@@ -12,10 +12,8 @@ private let identifierGroupName = NSUserInterfaceItemIdentifier(rawValue: "group
 private let identifierGroupDetailViewController = NSStoryboard.SceneIdentifier(rawValue: "groupDetail")
 
 class GroupsViewController: NSViewController {
-
     @IBOutlet weak var tableView: NSTableView!
-    @IBOutlet weak var removeGroupButton: NSButton!
-    @IBOutlet weak var detailView: NSView! // Holds tabView, noGroupsView, noGroupsSelectedView
+    @IBOutlet weak var detailView: NSView! // Holds tabView, noGroupsView
     @IBOutlet weak var tabView: NSTabView!
     @IBOutlet weak var noGroupsView: NSView!
     
@@ -24,15 +22,7 @@ class GroupsViewController: NSViewController {
     override func viewDidLoad() {
         preferredContentSize = NSSize(width: 450, height: 300)
         detailView.addSubview(noGroupsView)
-        model.onGroupsCountChange { [weak self] count in
-            self?.removeGroupButton.isEnabled = count > 0
-            self?.tabView.isHidden = count == 0
-            self?.noGroupsView.isHidden = count > 0
-        }
         model.groups.forEach { addViewController(for: $0) }
-        removeGroupButton.isEnabled = model.groups.count > 0
-        tabView.isHidden = model.groups.count == 0
-        noGroupsView.isHidden = model.groups.count > 0
     }
 
     func addViewController(for group: LIFXGroup) {
@@ -50,9 +40,8 @@ class GroupsViewController: NSViewController {
 
     @IBAction func removeGroup(_ sender: NSButton) {
         let index = (tableView.selectedRow != -1) ? tableView.selectedRow : model.groups.count-1
-        let group = model.group(at: index)
-        model.remove(group: group)
         tabView.removeTabViewItem(tabView.tabViewItem(at: index))
+        model.remove(groupIndex: index)
     }
 }
 

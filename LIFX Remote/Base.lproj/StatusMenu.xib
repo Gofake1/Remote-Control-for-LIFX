@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13156.6" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13196" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13156.6"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13196"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -21,7 +21,7 @@
                 <outlet property="toggleAllMenuItem" destination="oge-hP-jC1" id="6Rf-Zz-7xN"/>
             </connections>
         </customObject>
-        <menu id="du0-rD-JRD">
+        <menu title="Remote Control for LIFX" id="du0-rD-JRD">
             <items>
                 <menuItem title="LIFX: Normal" enabled="NO" id="KLq-rh-UW9">
                     <modifierMask key="keyEquivalentModifierMask"/>
@@ -30,11 +30,15 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="toggleAllLights:" target="xwc-Ns-ab1" id="Oeh-Nl-tic"/>
+                        <binding destination="xwc-Ns-ab1" name="enabled" keyPath="self.model.devices.@count" id="Va4-nt-xvv"/>
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="7ia-mP-UYC"/>
                 <menuItem title="No Lights" enabled="NO" id="UfO-PO-e2Q">
                     <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <binding destination="xwc-Ns-ab1" name="hidden" keyPath="self.model.devices.@count" id="G9M-85-CQO"/>
+                    </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="KXh-in-qTR"/>
                 <menuItem title="Preferences..." id="BOR-oB-dRY">

@@ -12,7 +12,7 @@ let notificationGroupColorChanged = NSNotification.Name(rawValue: "net.gofake1.g
 let notificationGroupNameChanged  = NSNotification.Name(rawValue: "net.gofake1.groupNameChangedKey")
 let notificationGroupPowerChanged = NSNotification.Name(rawValue: "net.gofake1.groupPowerChangedKey")
 
-class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
+class LIFXGroup: NSObject, HudRepresentable, StatusMenuItemRepresentable {
 
     struct NumberedNameSequence {
         var count: Int = 1
@@ -24,7 +24,7 @@ class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
     }
 
     override var description: String {
-        return "group: { name: \(name), device_addresses: \(deviceAddresses) }}"
+        return "group: { name: \(name), device_addresses: \(promisedDeviceAddresses) }"
     }
 
     override var hashValue: Int {
@@ -38,13 +38,13 @@ class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
             NotificationCenter.default.post(name: notificationGroupColorChanged, object: self)
         }
     }
-    var hudController: HudController
+    var hudController = HudController()
     var hudTitle: String {
         return name
     }
     /// Visibility in status menu
     @objc dynamic var isVisible = true
-    var menuItem: NSMenuItem
+    var statusMenuItem = NSMenuItem()
     @objc dynamic var name: String {
         didSet {
             NotificationCenter.default.post(name: notificationGroupNameChanged, object: self)
@@ -56,13 +56,11 @@ class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
         }
     }
     let id: String
-    private var deviceAddresses = [Address]()
+    private var promisedDeviceAddresses = [Address]()
 
     override init() {
         id = String(Date().timeIntervalSince1970)
         name = LIFXGroup.names.next()
-        hudController = HudController()
-        menuItem = NSMenuItem()
         super.init()
         makeControllers()
     }
@@ -70,29 +68,26 @@ class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
     init(csvLine: CSV.Line, version: Int) {
         id = csvLine.values[1]
         name = csvLine.values[2]
-        if version == 2 {
-            isVisible = csvLine.values[3] == "visible"
-        }
-        hudController = HudController()
-        menuItem = NSMenuItem()
         super.init()
         switch version {
         case 1:
             guard csvLine.values.count >= 3 else { return }
             csvLine.values[3...].forEach {
                 if let address = Address($0) {
-                    deviceAddresses.append(address)
+                    promisedDeviceAddresses.append(address)
                 }
             }
-        case 2:
+        case 2: fallthrough
+        case 3:
+            isVisible = csvLine.values[3] == "visible"
             guard csvLine.values.count >= 4 else { return }
             csvLine.values[4...].forEach {
                 if let address = Address($0) {
-                    deviceAddresses.append(address)
+                    promisedDeviceAddresses.append(address)
                 }
             }
         default:
-            fatalError()
+            break
         }
         makeControllers()
     }
@@ -103,19 +98,19 @@ class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
 
     func makeControllers() {
         hudController.representable = self
-
         let hudViewController = GroupHudViewController()
         hudViewController.group = self
         hudController.contentViewController = hudViewController
 
         let menuItemViewController = GroupMenuItemViewController()
         menuItemViewController.group = self
-        menuItem.representedObject = menuItemViewController
-        menuItem.view = menuItemViewController.view
+        statusMenuItem.representedObject = menuItemViewController
+        statusMenuItem.view = menuItemViewController.view
     }
 
-    func restoreDevices(from model: LIFXModel) {
-        for address in deviceAddresses {
+    /// Finish initialization from saved state after LIFX objects created
+    func restore(from model: LIFXModel) {
+        for address in promisedDeviceAddresses {
             if let device = model.device(for: address) {
                 devices.append(device)
             }
@@ -146,19 +141,19 @@ class LIFXGroup: NSObject, HudRepresentable, NSMenuItemRepresentable {
         devices.forEach { ($0 as? LIFXLight)?.setColor(color) }
     }
 
-    deinit {
+    func willBeRemoved() {
         hudController.close()
-        menuItem.menu?.removeItem(menuItem)
+        statusMenuItem.menu?.removeItem(statusMenuItem)
         devices.removeAll()
     }
 }
 
 extension LIFXGroup: CSVEncodable {
-    var csvString: String {
-        var csvLine = CSV.Line("group", id, name, isVisible ? "visible" : "hidden")
+    var csvLine: CSV.Line? {
+        var line = CSV.Line("group", id, name, isVisible ? "visible" : "hidden")
         for device in devices {
-            csvLine.append(String(device.address))
+            line.append(String(device.address))
         }
-        return csvLine.csvString
+        return line
     }
 }
