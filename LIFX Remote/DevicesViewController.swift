@@ -9,7 +9,6 @@
 import Cocoa
 
 class DevicesViewController: NSViewController {
-
     @IBOutlet weak var arrayController: NSArrayController!
 
     @objc private let model = LIFXModel.shared

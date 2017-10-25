@@ -8,15 +8,15 @@
 
 import Cocoa
 
-protocol NSMenuItemRepresentable: class {
-    var isVisible: Bool { get set }
-    var menuItem: NSMenuItem { get set }
-}
-
 private let statusMessages: [LIFXNetworkController.Status: String] = [
     .normal: "LIFX: Normal",
     .error:  "LIFX: Error"
 ]
+
+protocol StatusMenuItemRepresentable: class {
+    var isVisible: Bool { get set }
+    var statusMenuItem: NSMenuItem { get set }
+}
 
 class StatusMenuController: NSObject {
 
@@ -53,14 +53,14 @@ class StatusMenuController: NSObject {
         model.discover()
     }
 
-    private func updateVisibility(_ representables: [NSMenuItemRepresentable], insertionIndex: Int) {
+    private func updateVisibility(_ representables: [StatusMenuItemRepresentable], insertionIndex: Int) {
         for (index, representable) in representables.enumerated() {
             if !representable.isVisible {
-                guard statusMenu.index(of: representable.menuItem) != -1 else { continue }
+                guard statusMenu.index(of: representable.statusMenuItem) != -1 else { continue }
                 // Workaround: `NSMenuItem.isHidden` doesn't work if `NSMenuItem` has custom view
-                statusMenu.removeItem(representable.menuItem)
-            } else if representable.isVisible && statusMenu.index(of: representable.menuItem) == -1 {
-                statusMenu.insertItem(representable.menuItem, at: insertionIndex+index)
+                statusMenu.removeItem(representable.statusMenuItem)
+            } else if representable.isVisible && statusMenu.index(of: representable.statusMenuItem) == -1 {
+                statusMenu.insertItem(representable.statusMenuItem, at: insertionIndex+index)
             }
         }
     }

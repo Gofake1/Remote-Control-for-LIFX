@@ -1,4 +1,8 @@
-### 1.4 - Quality of Life Update
+### 1.5 (25 Oct. 2017)
+* Key bindings
+* Persistence format v3
+
+### 1.4 (20 July 2017) - Quality of Life Update
 * Remove dependency on ReactiveCocoa
 * Improved Menu UI
 * Lightbulb connection status reflected in Menu and Preferences

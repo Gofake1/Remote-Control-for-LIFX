@@ -9,8 +9,7 @@
 import Cocoa
 
 @NSApplicationMain
-class AppDelegate: NSObject {
-
+class AppDelegate: NSObject { 
     private lazy var preferences: NSWindowController? = {
         return NSStoryboard(name: NSStoryboard.Name(rawValue: "Preferences"), bundle: nil)
             .instantiateInitialController() as? NSWindowController
@@ -37,7 +36,6 @@ class AppDelegate: NSObject {
 }
 
 extension AppDelegate: NSApplicationDelegate {
-
     func applicationWillTerminate(_ notification: Notification) {
         LIFXModel.shared.saveState()
     }

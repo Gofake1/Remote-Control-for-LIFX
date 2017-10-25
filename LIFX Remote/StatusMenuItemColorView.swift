@@ -10,7 +10,6 @@ import Cocoa
 
 @IBDesignable
 class StatusMenuItemColorView: NSView {
-    
     override var allowsVibrancy: Bool {
         return true
     }

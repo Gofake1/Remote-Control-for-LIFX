@@ -43,24 +43,24 @@ class LIFXDevice: NSObject, HudRepresentable, StatusMenuItemRepresentable {
     struct DeviceInfo {
 
         enum Product: UInt32, CustomStringConvertible {
-            case original1000     = 1
-            case color650         = 3
-            case white800LV       = 10
-            case white800HV       = 11
-            case white900BR30LV   = 18
-            case color1000BR30    = 20
-            case color1000        = 22
-            case lifxA19_27       = 27
-            case lifxBR30_28      = 28
-            case lifxPlusA19_29   = 29
-            case lifxPlusBR30_30  = 30
-            case lifxZ            = 31
-            case lifxDownlight_36 = 36
-            case lifxDownlight_37 = 37
-            case lifxA19_43       = 43
-            case lifxBR30_44      = 44
-            case lifxPlusA19_45   = 45
-            case lifxPlusBR30_46  = 46
+            case original1000       = 1
+            case color650           = 3
+            case white800LV         = 10
+            case white800HV         = 11
+            case white900BR30LV     = 18
+            case color1000BR30      = 20
+            case color1000          = 22
+            case lifxA19_27         = 27
+            case lifxBR30_28        = 28
+            case lifxPlusA19_29     = 29
+            case lifxPlusBR30_30    = 30
+            case lifxZ              = 31
+            case lifxDownlight_36   = 36
+            case lifxDownlight_37   = 37
+            case lifxA19_43         = 43
+            case lifxBR30_44        = 44
+            case lifxPlusA19_45     = 45
+            case lifxPlusBR30_46    = 46
 
             var description: String {
                 switch self {

@@ -9,7 +9,5 @@
 import Cocoa
 
 class CheckboxTableCellView: NSTableCellView {
-
     @IBOutlet weak var checkbox: NSButton!
-
 }

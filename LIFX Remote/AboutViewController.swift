@@ -9,7 +9,6 @@
 import Cocoa
 
 class AboutViewController: NSViewController {
-
     @IBOutlet weak var acknowledgementsText: NSTextView!
 
     override func viewDidLoad() {

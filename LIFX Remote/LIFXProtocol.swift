@@ -12,33 +12,33 @@ protocol LIFXMessageType {
 }
 
 enum DeviceMessage: UInt16, LIFXMessageType {
-    case getService        = 2
-    case stateService      = 3
-    case getHostInfo       = 12
-    case stateHostInfo     = 13
-    case getHostFirmware   = 14
-    case stateHostFirmware = 15
-    case getWifiInfo       = 16
-    case stateWifiInfo     = 17
-    case getWifiFirmware   = 18
-    case stateWifiFirmware = 19
-    case getPower          = 20
-    case setPower          = 21
-    case statePower        = 22
-    case getLabel          = 23
-    case setLabel          = 24
-    case stateLabel        = 25
-    case getVersion        = 32
-    case stateVersion      = 33
-    case getInfo           = 34
-    case stateInfo         = 35
-    case acknowledgement   = 45
-    case getLocation       = 48
-    case stateLocation     = 50
-    case getGroup          = 51
-    case stateGroup        = 53
-    case echoRequest       = 58
-    case echoResponse      = 59
+    case getService         = 2
+    case stateService       = 3
+    case getHostInfo        = 12
+    case stateHostInfo      = 13
+    case getHostFirmware    = 14
+    case stateHostFirmware  = 15
+    case getWifiInfo        = 16
+    case stateWifiInfo      = 17
+    case getWifiFirmware    = 18
+    case stateWifiFirmware  = 19
+    case getPower           = 20
+    case setPower           = 21
+    case statePower         = 22
+    case getLabel           = 23
+    case setLabel           = 24
+    case stateLabel         = 25
+    case getVersion         = 32
+    case stateVersion       = 33
+    case getInfo            = 34
+    case stateInfo          = 35
+    case acknowledgement    = 45
+    case getLocation        = 48
+    case stateLocation      = 50
+    case getGroup           = 51
+    case stateGroup         = 53
+    case echoRequest        = 58
+    case echoResponse       = 59
     
     var message: UInt16 {
         return rawValue
@@ -46,15 +46,15 @@ enum DeviceMessage: UInt16, LIFXMessageType {
 }
 
 enum LightMessage: UInt16, LIFXMessageType {
-    case getState      = 101
-    case setColor      = 102
-    case state         = 107
-    case getPower      = 116
-    case setPower      = 117
-    case statePower    = 118
-    case getInfrared   = 120
-    case stateInfrared = 121
-    case setInfrared   = 122
+    case getState       = 101
+    case setColor       = 102
+    case state          = 107
+    case getPower       = 116
+    case setPower       = 117
+    case statePower     = 118
+    case getInfrared    = 120
+    case stateInfrared  = 121
+    case setInfrared    = 122
     
     var message: UInt16 {
         return rawValue
@@ -89,28 +89,28 @@ struct Header {
     /// Size of the whole packet (header and payload)
     var size: UInt16 {
         switch type {
-        case DeviceMessage.stateService:      return 41
-        case DeviceMessage.stateHostInfo:     return 50
-        case DeviceMessage.stateHostFirmware: return 56
-        case DeviceMessage.stateWifiInfo:     return 50
-        case DeviceMessage.stateWifiFirmware: return 56
-        case DeviceMessage.setPower:          return 38
-        case DeviceMessage.statePower:        return 38
-        case DeviceMessage.setLabel:          return 68
-        case DeviceMessage.stateLabel:        return 68
-        case DeviceMessage.stateVersion:      return 48
-        case DeviceMessage.stateInfo:         return 60
-        case DeviceMessage.stateLocation:     return 92
-        case DeviceMessage.stateGroup:        return 92
-        case DeviceMessage.echoRequest:       return 100
-        case DeviceMessage.echoResponse:      return 100
-        case LightMessage.setColor:           return 49
-        case LightMessage.state:              return 84
-        case LightMessage.setPower:           return 42
-        case LightMessage.statePower:         return 38
-        case LightMessage.stateInfrared:      return 38
-        case LightMessage.setInfrared:        return 38
-        default:                              return 36
+        case DeviceMessage.stateService:        return 41
+        case DeviceMessage.stateHostInfo:       return 50
+        case DeviceMessage.stateHostFirmware:   return 56
+        case DeviceMessage.stateWifiInfo:       return 50
+        case DeviceMessage.stateWifiFirmware:   return 56
+        case DeviceMessage.setPower:            return 38
+        case DeviceMessage.statePower:          return 38
+        case DeviceMessage.setLabel:            return 68
+        case DeviceMessage.stateLabel:          return 68
+        case DeviceMessage.stateVersion:        return 48
+        case DeviceMessage.stateInfo:           return 60
+        case DeviceMessage.stateLocation:       return 92
+        case DeviceMessage.stateGroup:          return 92
+        case DeviceMessage.echoRequest:         return 100
+        case DeviceMessage.echoResponse:        return 100
+        case LightMessage.setColor:             return 49
+        case LightMessage.state:                return 84
+        case LightMessage.setPower:             return 42
+        case LightMessage.statePower:           return 38
+        case LightMessage.stateInfrared:        return 38
+        case LightMessage.setInfrared:          return 38
+        default:                                return 36
         }
     }
     var tagged: Bool   = false

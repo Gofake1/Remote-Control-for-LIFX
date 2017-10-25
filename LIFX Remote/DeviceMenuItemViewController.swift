@@ -9,25 +9,20 @@
 import Cocoa
 
 class DeviceMenuItemViewController: NSViewController {
-
-    override var nibName: NSNib.Name? {
-        return NSNib.Name(rawValue: "DeviceMenuItemViewController")
-    }
-
     @IBOutlet weak var deviceColorView:  StatusMenuItemColorView!
     @IBOutlet weak var brightnessSlider: NSSlider!
 
     @objc weak var device: LIFXDevice!
 
+    override var nibName: NSNib.Name? {
+        return NSNib.Name(rawValue: "DeviceMenuItemViewController")
+    }
+
     override func viewDidLoad() {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(DeviceMenuItemViewController.devicePowerChanged),
-                                               name: notificationDevicePowerChanged,
-                                               object: device)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(DeviceMenuItemViewController.lightColorChanged),
-                                               name: notificationLightColorChanged,
-                                               object: device)
+        NotificationCenter.default.addObserver(self, selector: #selector(devicePowerChanged),
+                                               name: notificationDevicePowerChanged, object: device)
+        NotificationCenter.default.addObserver(self, selector: #selector(lightColorChanged),
+                                               name: notificationLightColorChanged, object: device)
     }
 
     @objc func devicePowerChanged() {

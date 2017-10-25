@@ -9,30 +9,27 @@
 import Cocoa
 
 class GroupHudViewController: NSViewController {
-
-    override var nibName: NSNib.Name? {
-        return NSNib.Name(rawValue: "GroupHudViewController")
-    }
-
     @IBOutlet weak var colorWheel:       ColorWheel!
     @IBOutlet weak var kelvinSlider:     NSSlider!
     @IBOutlet weak var brightnessSlider: NSSlider!
 
     @objc weak var group: LIFXGroup!
 
+    override var nibName: NSNib.Name? {
+        return NSNib.Name(rawValue: "GroupHudViewController")
+    }
+
     override func viewDidLoad() {
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(GroupHudViewController.groupColorChanged),
+                                               selector: #selector(groupColorChanged),
                                                name: notificationGroupColorChanged,
                                                object: group)
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(GroupHudViewController.groupNameChanged),
+                                               selector: #selector(groupNameChanged),
                                                name: notificationGroupNameChanged,
                                                object: group)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(GroupHudViewController.groupPowerChanged),
-                                               name: notificationGroupPowerChanged,
-                                               object: group)
+        NotificationCenter.default.addObserver(self, selector: #selector(groupPowerChanged),
+                                               name: notificationGroupPowerChanged, object: group)
         colorWheel.target = self
         colorWheel.action = #selector(setColor(_:))
         kelvinSlider.integerValue = group.color.kelvinAsPercentage

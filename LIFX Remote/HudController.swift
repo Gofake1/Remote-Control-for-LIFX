@@ -13,12 +13,11 @@ protocol HudRepresentable: class {
 }
 
 class HudController: NSWindowController {
-    
+    weak var representable: HudRepresentable!
+
     override var windowNibName: NSNib.Name? {
         return NSNib.Name(rawValue: "HudController")
     }
-
-    weak var representable: HudRepresentable!
 
     override func windowDidLoad() {
         window?.title = representable.hudTitle

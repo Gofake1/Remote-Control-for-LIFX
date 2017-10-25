@@ -9,11 +9,6 @@
 import Cocoa
 
 class DeviceHudViewController: NSViewController {
-    
-    override var nibName: NSNib.Name? {
-        return NSNib.Name(rawValue: "DeviceHudViewController")
-    }
-    
     @IBOutlet weak var colorWheel:       ColorWheel!
     @IBOutlet weak var kelvinSlider:     NSSlider!
     @IBOutlet weak var brightnessSlider: NSSlider!
@@ -22,28 +17,22 @@ class DeviceHudViewController: NSViewController {
 
     @objc weak var device: LIFXDevice!
 
+    override var nibName: NSNib.Name? {
+        return NSNib.Name(rawValue: "DeviceHudViewController")
+    }
+
     override func viewDidLoad() {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(DeviceHudViewController.deviceNameChanged),
-                                               name: notificationDeviceLabelChanged,
-                                               object: device)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(DeviceHudViewController.devicePowerChanged),
-                                               name: notificationDevicePowerChanged,
-                                               object: device)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(DeviceHudViewController.deviceWifiChanged),
-                                               name: notificationDeviceWifiChanged,
-                                               object: device)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(DeviceHudViewController.deviceModelChanged),
-                                               name: notificationDeviceModelChanged,
-                                               object: device)
+        NotificationCenter.default.addObserver(self, selector: #selector(deviceNameChanged),
+                                               name: notificationDeviceLabelChanged, object: device)
+        NotificationCenter.default.addObserver(self, selector: #selector(devicePowerChanged),
+                                               name: notificationDevicePowerChanged, object: device)
+        NotificationCenter.default.addObserver(self, selector: #selector(deviceWifiChanged),
+                                               name: notificationDeviceWifiChanged, object: device)
+        NotificationCenter.default.addObserver(self, selector: #selector(deviceModelChanged),
+                                               name: notificationDeviceModelChanged, object: device)
         if device is LIFXLight {
-            NotificationCenter.default.addObserver(self,
-                                                   selector: #selector(DeviceHudViewController.lightColorChanged),
-                                                   name: notificationLightColorChanged,
-                                                   object: device)
+            NotificationCenter.default.addObserver(self, selector: #selector(lightColorChanged),
+                                                   name: notificationLightColorChanged, object: device)
         }
         colorWheel.target = self
         colorWheel.action = #selector(setColor(_:))

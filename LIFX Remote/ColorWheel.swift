@@ -12,7 +12,6 @@ typealias RGB = (r: UInt8, g: UInt8, b: UInt8)
 
 @IBDesignable
 class ColorWheel: NSControl {
-
     static var blackImage: CGImage?
     static var colorWheelImage: CGImage?
     private(set) var selectedColor = NSColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
