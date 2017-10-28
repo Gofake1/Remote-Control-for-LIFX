@@ -78,6 +78,7 @@ class LIFXModel: NSObject {
                     break
                 }
             }
+        #if DEBUG
             let info = """
             Saved state version: \(version)
             Saved devices: \(devices)
@@ -85,6 +86,7 @@ class LIFXModel: NSObject {
             Saved key bindings: \(keyBindings)
             """
             print(info)
+        #endif
         } catch let error {
             print(error)
         }
@@ -133,9 +135,7 @@ class LIFXModel: NSObject {
     }
     
     func discover() {
-        devices.forEach {
-            $0.isReachable = false
-        }
+        devices.forEach { $0.isReachable = false }
         network.send(Packet(type: DeviceMessage.getService))
     }
 

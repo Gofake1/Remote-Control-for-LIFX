@@ -143,6 +143,9 @@ class KeyBindingCommandTableCellView: NSTableCellView {
 
     deinit {
         unbindControls()
+        brightnessSlider.removeFromSuperview()
+        colorWell.removeFromSuperview()
+        powerPopUpButton.removeFromSuperview()
     }
 }
 

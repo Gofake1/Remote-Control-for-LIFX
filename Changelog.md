@@ -1,3 +1,6 @@
+### 1.5.1 (28 Oct. 2017)
+* (Fix) Crash when opening Preferences on macOS 10.11
+
 ### 1.5 (25 Oct. 2017)
 * Key bindings
 * Persistence format v3

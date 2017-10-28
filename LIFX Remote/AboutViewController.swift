@@ -9,7 +9,8 @@
 import Cocoa
 
 class AboutViewController: NSViewController {
-    @IBOutlet weak var acknowledgementsText: NSTextView!
+    // Workaround: macOS 10.11 and earlier do not support weak references to `NSTextView`
+    @IBOutlet var acknowledgementsText: NSTextView!
 
     override func viewDidLoad() {
         preferredContentSize = NSSize(width: 450, height: 300)
