@@ -47,7 +47,7 @@ class StatusMenuController: NSObject {
     override func awakeFromNib() {
         statusItem.image = #imageLiteral(resourceName: "StatusBarButton")
         statusItem.menu = statusMenu
-        model.onStatusChange { [weak self] status in
+        model.onNetworkStatusChange { [weak self] status in
             self?.statusMessageMenuItem.title = statusMessages[status]!
         }
         model.discover()

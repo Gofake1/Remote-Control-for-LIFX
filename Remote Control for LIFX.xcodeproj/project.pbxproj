@@ -45,6 +45,7 @@
 		4AEC75D91F136CE100AD8CD7 /* DeviceHudViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4AEC75C81F136BEA00AD8CD7 /* DeviceHudViewController.xib */; };
 		4AEC75DA1F136E4C00AD8CD7 /* DeviceHudViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AEC75C31F136B8000AD8CD7 /* DeviceHudViewController.swift */; };
 		4AEC75DB1F136E5000AD8CD7 /* GroupHudViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AEC75C41F136BB100AD8CD7 /* GroupHudViewController.swift */; };
+		633610C31FBE3CA0000C1860 /* LIFXNetworkController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 633610C21FBE3CA0000C1860 /* LIFXNetworkController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -104,6 +105,7 @@
 		4AEC75CE1F136C8A00AD8CD7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/DeviceMenuItemViewController.xib; sourceTree = "<group>"; };
 		4AEC75D01F136C9500AD8CD7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/GroupMenuItemViewController.xib; sourceTree = "<group>"; };
 		4AEC75D21F136C9E00AD8CD7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/GroupHudViewController.xib; sourceTree = "<group>"; };
+		633610C21FBE3CA0000C1860 /* LIFXNetworkController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LIFXNetworkController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,6 +173,7 @@
 				4A61D0DA1E2200C10026221A /* AboutViewController.swift */,
 				4A70F4D41E10CFDA0026ED27 /* Preferences.storyboard */,
 				4AA6BDC31D14C52300F0D0CF /* LIFXModel.swift */,
+				633610C21FBE3CA0000C1860 /* LIFXNetworkController.swift */,
 				4AA517A01DFA3C1600C148C4 /* LIFXDevice.swift */,
 				4A8147A21E1CCF0900118BB7 /* LIFXGroup.swift */,
 				4A583AD41D139800005A4691 /* LIFXProtocol.swift */,
@@ -294,6 +297,7 @@
 				4A90B7DA1E380557004E24CE /* CSV.swift in Sources */,
 				4A62C99B1DD99F55000F77FE /* StatusMenuItemColorView.swift in Sources */,
 				4A62C9881DD98C74000F77FE /* HudController.swift in Sources */,
+				633610C31FBE3CA0000C1860 /* LIFXNetworkController.swift in Sources */,
 				4A7FF5D31F8C1621006CAC56 /* KeyBinding.swift in Sources */,
 				4A5B5B541D37569F009CD119 /* StatusMenuController.swift in Sources */,
 				4A07F8C71F1B0E0800C44874 /* ValueTransformers.swift in Sources */,

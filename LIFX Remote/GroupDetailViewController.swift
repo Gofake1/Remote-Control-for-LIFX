@@ -23,9 +23,7 @@ class GroupDetailViewController: NSViewController {
     }
 
     @objc func devicesChanged() {
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-        }
+        DispatchQueue.main.async { self.tableView.reloadData() }
     }
 
     @IBAction func toggleIsInGroup(_ sender: NSButton) {

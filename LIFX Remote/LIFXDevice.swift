@@ -18,7 +18,6 @@ let notificationDeviceWifiChanged  = NSNotification.Name(rawValue: "net.gofake1.
 let notificationDeviceModelChanged = NSNotification.Name(rawValue: "net.gofake1.deviceModelChangedKey")
 
 class LIFXDevice: NSObject, HudRepresentable, StatusMenuItemRepresentable {
-
     enum Service: UInt8 {
         case udp = 1
     }
@@ -41,7 +40,6 @@ class LIFXDevice: NSObject, HudRepresentable, StatusMenuItemRepresentable {
     }
 
     struct DeviceInfo {
-
         enum Product: UInt32, CustomStringConvertible {
             case original1000       = 1
             case color650           = 3
@@ -55,33 +53,43 @@ class LIFXDevice: NSObject, HudRepresentable, StatusMenuItemRepresentable {
             case lifxPlusA19_29     = 29
             case lifxPlusBR30_30    = 30
             case lifxZ              = 31
+            case lifxZ2             = 32
             case lifxDownlight_36   = 36
             case lifxDownlight_37   = 37
             case lifxA19_43         = 43
             case lifxBR30_44        = 44
             case lifxPlusA19_45     = 45
             case lifxPlusBR30_46    = 46
+            case lifxMini           = 49
+            case lifxMiniWhite      = 50
+            case lifxMiniDayAndDusk = 51
+            case lifxGU10           = 52
 
             var description: String {
                 switch self {
-                case .original1000:     return "Original 1000"
-                case .color650:         return "Color 650"
-                case .white800LV:       return "White 800 LV"
-                case .white800HV:       return "White 800 HV"
-                case .white900BR30LV:   return "White 900 BR30 LV"
-                case .color1000BR30:    return "Color 1000 BR30"
-                case .color1000:        return "Color 1000"
-                case .lifxA19_27:       return "LIFX A19"
-                case .lifxBR30_28:      return "LIFX BR30"
-                case .lifxPlusA19_29:   return "LIFX+ A19"
-                case .lifxPlusBR30_30:  return "LIFX+ BR30"
-                case .lifxZ:            return "LIFX Z"
-                case .lifxDownlight_36: return "LIFX Downlight"
-                case .lifxDownlight_37: return "LIFX Downlight"
-                case .lifxA19_43:       return "LIFX A19"
-                case .lifxBR30_44:      return "LIFX BR30"
-                case .lifxPlusA19_45:   return "LIFX+ A19"
-                case .lifxPlusBR30_46:  return "LIFX+ BR30"
+                case .original1000:         return "Original 1000"
+                case .color650:             return "Color 650"
+                case .white800LV:           return "White 800 LV"
+                case .white800HV:           return "White 800 HV"
+                case .white900BR30LV:       return "White 900 BR30 LV"
+                case .color1000BR30:        return "Color 1000 BR30"
+                case .color1000:            return "Color 1000"
+                case .lifxA19_27:           return "LIFX A19"
+                case .lifxBR30_28:          return "LIFX BR30"
+                case .lifxPlusA19_29:       return "LIFX+ A19"
+                case .lifxPlusBR30_30:      return "LIFX+ BR30"
+                case .lifxZ:                return "LIFX Z"
+                case .lifxZ2:               return "LIFX Z 2"
+                case .lifxDownlight_36:     return "LIFX Downlight"
+                case .lifxDownlight_37:     return "LIFX Downlight"
+                case .lifxA19_43:           return "LIFX A19"
+                case .lifxBR30_44:          return "LIFX BR30"
+                case .lifxPlusA19_45:       return "LIFX+ A19"
+                case .lifxPlusBR30_46:      return "LIFX+ BR30"
+                case .lifxMini:             return "LIFX Mini"
+                case .lifxMiniWhite:        return "LIFX Mini White"
+                case .lifxMiniDayAndDusk:   return "LIFX Mini Day and Dusk"
+                case .lifxGU10:             return "LIFX GU10"
                 }
             }
         }
@@ -232,15 +240,10 @@ class LIFXDevice: NSObject, HudRepresentable, StatusMenuItemRepresentable {
         network.send(Packet(type: DeviceMessage.getService, to: address))
     }
 
-    func stateService(_ response: [UInt8]) {
-        if let service = Service(rawValue: response[0]) {
-            self.service = service
-        }
-        port = UnsafePointer(Array(response[1...4]))
-            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
-        DispatchQueue.main.async {
-            self.isReachable = true
-        }
+    func stateService(_ res: [UInt8]) {
+        service = Service(rawValue: res[0]) ?? .udp
+        port = UnsafePointer(Array(res[1...4])).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee }
+        DispatchQueue.main.async { self.isReachable = true }
     }
 
     func getPower() {
@@ -249,16 +252,12 @@ class LIFXDevice: NSObject, HudRepresentable, StatusMenuItemRepresentable {
 
     func setPower(_ power: PowerState, duration: Duration = 1024) {
         self.power = power
-        network.send(Packet(type: DeviceMessage.setPower,
-                            with: power.bytes + duration.bytes,
-                            to:   address))
+        network.send(Packet(type: DeviceMessage.setPower, with: power.bytes+duration.bytes, to: address))
     }
 
     func statePower(_ response: [UInt8]) {
         let value = UnsafePointer(response).withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee })
-        if let power = PowerState(rawValue: value) {
-            self.power = power
-        }
+        power = PowerState(rawValue: value) ?? .standby
     }
 
     func getLabel() {
@@ -271,9 +270,7 @@ class LIFXDevice: NSObject, HudRepresentable, StatusMenuItemRepresentable {
     }
 
     func stateLabel(_ response: [UInt8]) {
-        if let label = String(bytes: response[0...31], encoding: .utf8) {
-            self.label = label
-        }
+        label = String(bytes: response[0...31], encoding: .utf8) ?? "Unknown"
     }
 
     /// Get host signal, tx, rx
@@ -299,13 +296,11 @@ class LIFXDevice: NSObject, HudRepresentable, StatusMenuItemRepresentable {
         network.send(Packet(type: DeviceMessage.getWifiInfo, to: address))
     }
 
-    func stateWifiInfo(_ response: [UInt8]) {
-        wifiInfo.signal = UnsafePointer(Array(response[0...3]))
-            .withMemoryRebound(to: Float32.self, capacity: 1, { $0.pointee })
-        wifiInfo.tx     = UnsafePointer(Array(response[4...7]))
-            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
-        wifiInfo.rx     = UnsafePointer(Array(response[8...11]))
-            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
+    func stateWifiInfo(_ res: [UInt8]) {
+        let a = Array(res[0...3]), b = Array(res[4...7]), c = Array(res[8...11])
+        wifiInfo.signal = UnsafePointer(a).withMemoryRebound(to: Float32.self, capacity: 1) { $0.pointee }
+        wifiInfo.tx     = UnsafePointer(b).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee }
+        wifiInfo.rx     = UnsafePointer(c).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee }
     }
 
     /// Get Wifi subsystem build, version
@@ -313,11 +308,10 @@ class LIFXDevice: NSObject, HudRepresentable, StatusMenuItemRepresentable {
         network.send(Packet(type: DeviceMessage.getWifiFirmware, to: address))
     }
 
-    func stateWifiFirmware(_ response: [UInt8]) {
-        wifiInfo.build   = UnsafePointer(Array(response[0...7]))
-            .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
-        wifiInfo.version = UnsafePointer(Array(response[16...19]))
-            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
+    func stateWifiFirmware(_ res: [UInt8]) {
+        let a = Array(res[0...7]), b = Array(res[16...19])
+        wifiInfo.build   = UnsafePointer(a).withMemoryRebound(to: UInt64.self, capacity: 1) { $0.pointee }
+        wifiInfo.version = UnsafePointer(b).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee }
     }
 
     /// Get device hardware vendor, product, version
@@ -325,13 +319,12 @@ class LIFXDevice: NSObject, HudRepresentable, StatusMenuItemRepresentable {
         network.send(Packet(type: DeviceMessage.getVersion, to: address))
     }
 
-    func stateVersion(_ response: [UInt8]) {
-        deviceInfo.vendor  = UnsafePointer(Array(response[0...3]))
-            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
-        deviceInfo.product = DeviceInfo.Product(rawValue: UnsafePointer(Array(response[4...7]))
-            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee }))
-        deviceInfo.version = UnsafePointer(Array(response[8...11]))
-            .withMemoryRebound(to: UInt32.self, capacity: 1, { $0.pointee })
+    func stateVersion(_ res: [UInt8]) {
+        let a = Array(res[0...3]), b = Array(res[4...7]), c = Array(res[8...11])
+        let productRaw = UnsafePointer(b).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee }
+        deviceInfo.vendor  = UnsafePointer(a).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee }
+        deviceInfo.product = DeviceInfo.Product(rawValue: productRaw)
+        deviceInfo.version = UnsafePointer(c).withMemoryRebound(to: UInt32.self, capacity: 1) { $0.pointee }
     }
 
     /// Print device time, uptime, downtime
@@ -339,13 +332,11 @@ class LIFXDevice: NSObject, HudRepresentable, StatusMenuItemRepresentable {
         network.send(Packet(type: DeviceMessage.getInfo, to: address))
     }
 
-    func stateInfo(_ response: [UInt8]) {
-        runtimeInfo.time     = UnsafePointer(Array(response[0...8]))
-            .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
-        runtimeInfo.uptime   = UnsafePointer(Array(response[8...16]))
-            .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
-        runtimeInfo.downtime = UnsafePointer(Array(response[16...24]))
-            .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
+    func stateInfo(_ res: [UInt8]) {
+        let a = Array(res[0...7]), b = Array(res[8...15]), c = Array(res[16...23])
+        runtimeInfo.time     = UnsafePointer(a).withMemoryRebound(to: UInt64.self, capacity: 1) { $0.pointee }
+        runtimeInfo.uptime   = UnsafePointer(b).withMemoryRebound(to: UInt64.self, capacity: 1) { $0.pointee }
+        runtimeInfo.downtime = UnsafePointer(c).withMemoryRebound(to: UInt64.self, capacity: 1) { $0.pointee }
     }
 
     /// Get device location, label, updated_at
@@ -353,13 +344,11 @@ class LIFXDevice: NSObject, HudRepresentable, StatusMenuItemRepresentable {
         network.send(Packet(type: DeviceMessage.getLocation, to: address))
     }
 
-    func stateLocation(_ response: [UInt8]) {
-        locationInfo.location = Array(response[0...15])
-        if let label = String(bytes: response[16...47], encoding: .utf8) {
-            locationInfo.label = label
-        }
-        locationInfo.updatedAt = UnsafePointer(Array(response[48...55]))
-            .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
+    func stateLocation(_ res: [UInt8]) {
+        let a = Array(res[0...15]), b = Array(res[48...55])
+        locationInfo.location = a
+        locationInfo.label = String(bytes: res[16...47], encoding: .utf8) ?? "Unknown"
+        locationInfo.updatedAt = UnsafePointer(b).withMemoryRebound(to: UInt64.self, capacity: 1) { $0.pointee }
     }
 
     /// Get group, label, updated_at
@@ -367,13 +356,11 @@ class LIFXDevice: NSObject, HudRepresentable, StatusMenuItemRepresentable {
         network.send(Packet(type: DeviceMessage.getGroup, to: address))
     }
 
-    func stateGroup(_ response: [UInt8]) {
-        groupInfo.group = Array(response[0...15])
-        if let label = String(bytes: response[16...47], encoding: .utf8) {
-            groupInfo.label = label
-        }
-        groupInfo.updatedAt = UnsafePointer(Array(response[48...55]))
-            .withMemoryRebound(to: UInt64.self, capacity: 1, { $0.pointee })
+    func stateGroup(_ res: [UInt8]) {
+        let a = Array(res[0...15]), b = Array(res[48...55])
+        groupInfo.group = a
+        groupInfo.label = String(bytes: res[16...47], encoding: .utf8) ?? "Unknown"
+        groupInfo.updatedAt = UnsafePointer(b).withMemoryRebound(to: UInt64.self, capacity: 1) { $0.pointee }
     }
 
     func echoRequest(payload: [UInt8]) {
@@ -400,9 +387,7 @@ extension LIFXDevice: CSVEncodable {
 let notificationLightColorChanged = NSNotification.Name(rawValue: "net.gofake1.lightColorChangedKey")
 
 class LIFXLight: LIFXDevice {
-
     struct Color {
-
         var hue:        UInt16
         var saturation: UInt16
         var brightness: UInt16
@@ -417,11 +402,8 @@ class LIFXLight: LIFXDevice {
         }
 
         var bytes: [UInt8] {
-            let hue:        [UInt8] = [self.hue[0].toU8       , self.hue[1].toU8       ]
-            let saturation: [UInt8] = [self.saturation[0].toU8, self.saturation[1].toU8]
-            let brightness: [UInt8] = [self.brightness[0].toU8, self.brightness[1].toU8]
-            let kelvin:     [UInt8] = [self.kelvin[0].toU8    , self.kelvin[1].toU8    ]
-            return hue + saturation + brightness + kelvin
+            return [hue[0].toU8, hue[1].toU8, saturation[0].toU8, saturation[1].toU8, brightness[0].toU8,
+                    brightness[1].toU8, kelvin[0].toU8, kelvin[1].toU8]
         }
 
         var nsColor: NSColor {
@@ -486,39 +468,29 @@ class LIFXLight: LIFXDevice {
 
     override func setPower(_ power: PowerState, duration: Duration = 1024) {
         self.power = power
-        network.send(Packet(type: LightMessage.setPower,
-                            with: power.bytes + duration.bytes,
-                            to:   address))
+        network.send(Packet(type: LightMessage.setPower, with: power.bytes+duration.bytes, to: address))
     }
 
     func getState() {
         network.send(Packet(type: LightMessage.getState, to: address))
     }
 
-    func state(_ response: [UInt8]) {
-        color = Color(hue:        UnsafePointer(Array(response[0...1]))
-                          .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee }),
-                      saturation: UnsafePointer(Array(response[2...3]))
-                          .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee }),
-                      brightness: UnsafePointer(Array(response[4...5]))
-                          .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee }),
-                      kelvin:     UnsafePointer(Array(response[6...7]))
-                          .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee }))
-        let powerValue = UnsafePointer(Array(response[10...11]))
-            .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee })
-        if let power = PowerState(rawValue: powerValue) {
-            self.power = power
-        }
-        if let label = String(bytes: response[12...43], encoding: .utf8) {
-            self.label = label
-        }
+    func state(_ res: [UInt8]) {
+        let a = Array(res[0...1]), b = Array(res[2...3]), c = Array(res[4...5]), d = Array(res[6...7]),
+            e = Array(res[10...11])
+        let hue         = UnsafePointer(a).withMemoryRebound(to: UInt16.self, capacity: 1) { $0.pointee }
+        let saturation  = UnsafePointer(b).withMemoryRebound(to: UInt16.self, capacity: 1) { $0.pointee }
+        let brightness  = UnsafePointer(c).withMemoryRebound(to: UInt16.self, capacity: 1) { $0.pointee }
+        let kelvin      = UnsafePointer(d).withMemoryRebound(to: UInt16.self, capacity: 1) { $0.pointee }
+        let powerRaw    = UnsafePointer(e).withMemoryRebound(to: UInt16.self, capacity: 1) { $0.pointee }
+        color = Color(hue: hue, saturation: saturation, brightness: brightness, kelvin: kelvin)
+        power = PowerState(rawValue: powerRaw) ?? .standby
+        label = String(bytes: res[12...43], encoding: .utf8) ?? "Unknown"
     }
 
     func setColor(_ color: Color, duration: Duration = 1024) {
         self.color = color
-        network.send(Packet(type: LightMessage.setColor,
-                            with: [0] + color.bytes + duration.bytes,
-                            to:   address))
+        network.send(Packet(type: LightMessage.setColor, with: [0]+color.bytes+duration.bytes, to: address))
     }
 
     func getInfrared() {
@@ -531,8 +503,8 @@ class LIFXLight: LIFXDevice {
     }
 
     func stateInfrared(_ response: [UInt8]) {
-        infrared = UnsafePointer(Array(response[0...1]))
-            .withMemoryRebound(to: UInt16.self, capacity: 1, { $0.pointee })
+        let a = Array(response[0...1])
+        infrared = UnsafePointer(a).withMemoryRebound(to: UInt16.self, capacity: 1) { $0.pointee }
     }
 }
 
