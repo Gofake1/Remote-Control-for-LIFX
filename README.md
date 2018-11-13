@@ -1,8 +1,8 @@
-# [Remote Control for LIFX](http://gofake1.net/projects/lifx_remote.html)
+# [Remote Control for LIFX](http://gofake1.net/projects/lifx_remote.html) <img src="https://gofake1.net/images/lifx_remote_icon.png" align="right" height="50">
 
 LIFX smart lightbulb status bar app for macOS
 
-![Remote Control for LIFX screenshot](http://gofake1.net/images/lifx_remote.jpg)
+![Remote Control for LIFX screenshot](https://gofake1.net/images/lifx_remote_hero.jpg)
 
 LIFX Remote features:
 
