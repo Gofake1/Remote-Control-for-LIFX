@@ -1,3 +1,6 @@
+### 1.5.2
+* Added labels for LIFX Mini, Mini White, Mini Day and Dusk, and GU10
+
 ### 1.5.1 (28 Oct. 2017)
 * (Fix) Crash when opening Preferences on macOS 10.11
 

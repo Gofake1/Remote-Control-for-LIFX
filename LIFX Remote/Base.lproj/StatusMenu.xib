@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13196" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14295.6" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13196"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14295.6"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -30,14 +30,14 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="toggleAllLights:" target="xwc-Ns-ab1" id="Oeh-Nl-tic"/>
-                        <binding destination="xwc-Ns-ab1" name="enabled" keyPath="self.model.devices.@count" id="Va4-nt-xvv"/>
+                        <binding destination="xwc-Ns-ab1" name="enabled" keyPath="self.model.devices.@count" id="6ev-9M-fXS"/>
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="7ia-mP-UYC"/>
                 <menuItem title="No Lights" enabled="NO" id="UfO-PO-e2Q">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
-                        <binding destination="xwc-Ns-ab1" name="hidden" keyPath="self.model.devices.@count" id="G9M-85-CQO"/>
+                        <binding destination="xwc-Ns-ab1" name="hidden" keyPath="self.model.devices.@count" id="NXL-o1-a8D"/>
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="KXh-in-qTR"/>

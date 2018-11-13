@@ -35,14 +35,14 @@ extension LIFXDevice: KeyBindingCommandTargetType {
     }
 }
 
-extension LIFXGroup: KeyBindingCommandTargetType {
+extension LIFXDeviceGroup: KeyBindingCommandTargetType {
     var keyBindingCommandTargetSavedState: (kind: KeyBinding.CommandTargetKind, id: String) {
         return (.group, id)
     }
     
     func newCommandTargetMenuItem() -> NSMenuItem {
         let menuItem = NSMenuItem()
-        menuItem.bind(.title, to: self, withKeyPath: #keyPath(LIFXGroup.name), options: nil)
+        menuItem.bind(.title, to: self, withKeyPath: #keyPath(LIFXDeviceGroup.name), options: nil)
         menuItem.representedObject = self
         return menuItem
     }
@@ -74,7 +74,6 @@ class KeyBindingCommandTableCellView: NSTableCellView {
         addSubview(popUpButton)
         return popUpButton
     }()
-    private let model = LIFXModel.shared
 
     override var objectValue: Any? {
         didSet {
@@ -90,20 +89,20 @@ class KeyBindingCommandTableCellView: NSTableCellView {
         super.awakeFromNib()
         commandTargetPopUpButton.menu = KeyBindingCommandTargetMenuFactory.vend()
         NotificationCenter.default.addObserver(self, selector: #selector(devicesChanged),
-                                               name: notificationDevicesChanged, object: model)
+                                               name: .devicesChanged, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(groupsChanged),
-                                               name: notificationGroupsChanged, object: model)
+                                               name: .groupsChanged, object: nil)
     }
 
     @objc func devicesChanged() {
         KeyBindingCommandTargetMenuFactory.updateMenu(commandTargetPopUpButton.menu!,
-                                                      for: model.devices,
-                                                      insertionIndex: model.groups.count)
+                                                      for: Model.shared.devices,
+                                                      insertionIndex: Model.shared.groups.count)
     }
 
     @objc func groupsChanged() {
         KeyBindingCommandTargetMenuFactory.updateMenu(commandTargetPopUpButton.menu!,
-                                                      for: model.groups,
+                                                      for: Model.shared.groups,
                                                       insertionIndex: 0)
     }
 
@@ -152,14 +151,14 @@ class KeyBindingCommandTableCellView: NSTableCellView {
 struct KeyBindingCommandTargetMenuFactory {
     static func vend() -> NSMenu {
         let menu = NSMenu()
-        updateMenu(menu, for: LIFXModel.shared.groups, insertionIndex: 0)
-        updateMenu(menu, for: LIFXModel.shared.devices, insertionIndex: LIFXModel.shared.groups.count)
+        updateMenu(menu, for: Model.shared.groups, insertionIndex: 0)
+        updateMenu(menu, for: Model.shared.devices, insertionIndex: Model.shared.groups.count)
         return menu
     }
 
-    static func updateMenu<T: NSObject & KeyBindingCommandTargetType>(_ menu: NSMenu,
-                                                                      for commandTargets: [T],
-                                                                      insertionIndex: Int) {
+    static func updateMenu<T: NSObject & KeyBindingCommandTargetType>(_ menu: NSMenu, for commandTargets: [T],
+                                                                      insertionIndex: Int)
+    {
         DispatchQueue.main.async {
             // Remove menu items for removed command targets
             var removedMenuItems = [NSMenuItem]()

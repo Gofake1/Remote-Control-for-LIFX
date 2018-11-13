@@ -1,15 +1,14 @@
 //
-//  NSColor+.swift
+//  Common+AppKit.swift
 //  Remote Control for LIFX
 //
 //  Created by David Wu on 7/10/17.
 //  Copyright © 2017 Gofake1. All rights reserved.
 //
 
-import Cocoa
+import AppKit
 
 extension NSColor {
-
     // Workaround: `NSColor`'s `brightnessComponent` is sometimes a value in [0-255] instead of in [0-1]
     /// Brightness value scaled between 0 and 1
     var scaledBrightness: CGFloat {

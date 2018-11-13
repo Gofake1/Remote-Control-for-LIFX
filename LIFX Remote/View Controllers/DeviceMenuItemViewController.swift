@@ -20,9 +20,9 @@ class DeviceMenuItemViewController: NSViewController {
 
     override func viewDidLoad() {
         NotificationCenter.default.addObserver(self, selector: #selector(devicePowerChanged),
-                                               name: notificationDevicePowerChanged, object: device)
+                                               name: .devicePowerChanged, object: device)
         NotificationCenter.default.addObserver(self, selector: #selector(lightColorChanged),
-                                               name: notificationLightColorChanged, object: device)
+                                               name: .lightColorChanged, object: device)
     }
 
     @objc func devicePowerChanged() {

@@ -11,13 +11,13 @@ import Cocoa
 class KeyBindingsViewController: NSViewController {
     @IBOutlet weak var arrayController: NSArrayController!
 
-    @objc private let model = LIFXModel.shared
+    @objc private let model = Model.shared
 
     @IBAction func addKeyBinding(_ sender: NSButton) {
-        model.add(keyBinding: KeyBinding())
+        Model.shared.add(keyBinding: KeyBinding())
     }
 
     @IBAction func removeKeyBinding(_ sender: NSButton) {
-        model.remove(keyBindingIndex: arrayController.selectionIndex)
+        Model.shared.removeKeyBinding(at: arrayController.selectionIndex)
     }
 }

@@ -14,7 +14,7 @@ protocol KeyBindingBlockProvider: class {
     func powerKeyBinding(_ value: LIFXLight.PowerState) -> (() -> Void)
 }
 
-extension LIFXGroup: KeyBindingBlockProvider {
+extension LIFXDeviceGroup: KeyBindingBlockProvider {
     func brightnessKeyBinding(_ value: Int) -> (() -> Void) {
         return { [weak self] in
             guard var color = self?.color else { return }
@@ -79,14 +79,6 @@ class KeyBinding: NSObject {
         case group
     }
 
-    override var description: String {
-        let targetKind = promisedCommandTarget?.kind.rawValue ?? "nil"
-        let targetId = promisedCommandTarget?.id ?? "nil"
-        let actionKind = promisedCommandAction?.kind.rawValue ?? "nil"
-        let actionValue = promisedCommandAction?.value ?? "nil"
-        return "hotkey: { target: \(targetKind) \(targetId), action: \(actionKind) \(actionValue) }"
-    }
-
     @objc dynamic var commandActionIndex = -1 {
         didSet {
             switch commandActionIndex {
@@ -137,59 +129,31 @@ class KeyBinding: NSObject {
     }
     private var hotkeyBlock: (() -> Void)?
     private var hotkey: Hotkey?
-    private var promisedCommandTarget: (kind: CommandTargetKind, id: String)?
-    private var promisedCommandAction: (kind: CommandActionKind, value: String)?
 
-    convenience init(csvLine: CSV.Line, version: Int) {
+    convenience init?(target: AnyObject, action: CommandActionKind, actionValue: String, keyCode: UInt16,
+          modifierFlags: NSEvent.ModifierFlags)
+    {
         self.init()
-        switch version {
-        case 3:
-            guard csvLine.values.count >= 6,
-                let keyCode = UInt16(csvLine.values[3]),
-                let modifierFlags = UInt32(csvLine.values[4])?.modifierFlags,
-                Hotkey.validate(keyCode, modifierFlags),
-                let targetKind = CommandTargetKind(rawValue: csvLine.values[1]),
-                let actionKind = CommandActionKind(rawValue: csvLine.values[5])
-                else { return }
-            promisedCommandTarget = (targetKind, csvLine.values[2])
-            hotkeyKeys = Hotkey.Keys(keyCode: keyCode, modifierFlags: modifierFlags)
-            promisedCommandAction = (actionKind, csvLine.values[6])
-        default:
-            return
-        }
-    }
-
-    /// Finish initialization from saved state after LIFX objects created
-    func restore(from model: LIFXModel) {
-        guard let promisedCommandTarget = promisedCommandTarget,
-            let promisedCommandAction = promisedCommandAction else { return }
-        switch promisedCommandTarget.kind {
-        case .device:
-            guard let address = Address(promisedCommandTarget.id) else { return }
-            commandTargetObject = model.device(for: address)
-        case .group:
-            commandTargetObject = model.group(for: promisedCommandTarget.id)
-        }
-        commandActionIndex = promisedCommandAction.kind.index
-        switch promisedCommandAction.kind {
+        commandTargetObject = target
+        commandActionIndex = action.index
+        switch action {
         case .brightness:
-            guard let brightness = Int(promisedCommandAction.value) else { return }
+            guard let brightness = Int(actionValue) else { return nil }
             commandActionBrightnessValue = brightness
         case .color:
-            let tokens = promisedCommandAction.value.split(separator: " ")
-            guard tokens.count == 4,
-                let hue = UInt16(tokens[0]),
-                let saturation = UInt16(tokens[1]),
-                let brightness = UInt16(tokens[2]),
-                let kelvin = UInt16(tokens[3])
-                else { return }
-            commandActionColorValue = LIFXLight.Color(hue: hue, saturation: saturation,
-                                                      brightness: brightness, kelvin: kelvin).nsColor
+            let hsbk = actionValue.split(separator: " ")
+            guard hsbk.count == 4,
+                let h = UInt16(hsbk[0]),
+                let s = UInt16(hsbk[1]),
+                let b = UInt16(hsbk[2]),
+                let k = UInt16(hsbk[3])
+                else { return nil }
+            commandActionColorValue = LIFXLight.Color(hue: h, saturation: s, brightness: b, kelvin: k).nsColor
         case .power:
-            guard let powerState = LIFXLight.PowerState(savedStateValue: promisedCommandAction.value)
-                else { return }
+            guard let powerState = LIFXLight.PowerState(savedStateValue: actionValue) else { return nil }
             commandActionPowerValueIndex = powerState.index
         }
+        hotkeyKeys = Hotkey.Keys(keyCode: keyCode, modifierFlags: modifierFlags)
     }
 
     func willBeRemoved() {

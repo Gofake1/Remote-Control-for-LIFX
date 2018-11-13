@@ -10,8 +10,8 @@ import Cocoa
 
 class DevicesViewController: NSViewController {
     @IBOutlet weak var arrayController: NSArrayController!
-
-    @objc private let model = LIFXModel.shared
+    
+    @objc private let model = Model.shared
 
     override func viewDidLoad() {
         preferredContentSize = NSSize(width: 450, height: 300)
@@ -20,10 +20,10 @@ class DevicesViewController: NSViewController {
     }
 
     @IBAction func forgetDevice(_ sender: NSButton) {
-        model.remove(deviceIndex: arrayController.selectionIndex)
+        Model.shared.removeDevice(at: arrayController.selectionIndex)
     }
 
     @IBAction func searchForDevices(_ sender: NSButton) {
-        model.discover()
+        Model.shared.refresh()
     }
 }

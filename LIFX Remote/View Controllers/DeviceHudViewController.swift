@@ -23,17 +23,15 @@ class DeviceHudViewController: NSViewController {
 
     override func viewDidLoad() {
         NotificationCenter.default.addObserver(self, selector: #selector(deviceNameChanged),
-                                               name: notificationDeviceLabelChanged, object: device)
+                                               name: .deviceLabelChanged, object: device)
         NotificationCenter.default.addObserver(self, selector: #selector(devicePowerChanged),
-                                               name: notificationDevicePowerChanged, object: device)
+                                               name: .devicePowerChanged, object: device)
         NotificationCenter.default.addObserver(self, selector: #selector(deviceWifiChanged),
-                                               name: notificationDeviceWifiChanged, object: device)
+                                               name: .deviceWifiChanged, object: device)
         NotificationCenter.default.addObserver(self, selector: #selector(deviceModelChanged),
-                                               name: notificationDeviceModelChanged, object: device)
-        if device is LIFXLight {
-            NotificationCenter.default.addObserver(self, selector: #selector(lightColorChanged),
-                                                   name: notificationLightColorChanged, object: device)
-        }
+                                               name: .deviceModelChanged, object: device)
+        NotificationCenter.default.addObserver(self, selector: #selector(lightColorChanged),
+                                               name: .lightColorChanged, object: device)
         colorWheel.target = self
         colorWheel.action = #selector(setColor(_:))
         updateControls()

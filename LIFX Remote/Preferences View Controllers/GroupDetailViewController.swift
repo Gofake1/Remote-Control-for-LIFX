@@ -11,15 +11,13 @@ import Cocoa
 private let identifierDeviceCell = NSUserInterfaceItemIdentifier(rawValue: "deviceCell")
 
 class GroupDetailViewController: NSViewController {
-    @IBOutlet weak var groupNameLabel: NSTextField!
     @IBOutlet weak var tableView: NSTableView!
     
-    @objc dynamic weak var group: LIFXGroup!
-    private let model = LIFXModel.shared
+    @objc dynamic weak var group: LIFXDeviceGroup!
 
     override func viewDidLoad() {
         NotificationCenter.default.addObserver(self, selector: #selector(devicesChanged),
-                                               name: notificationDevicesChanged, object: model)
+                                               name: .devicesChanged, object: nil)
     }
 
     @objc func devicesChanged() {
@@ -27,7 +25,7 @@ class GroupDetailViewController: NSViewController {
     }
 
     @IBAction func toggleIsInGroup(_ sender: NSButton) {
-        let device = model.devices[tableView.row(for: sender)]
+        let device = Model.shared.devices[tableView.row(for: sender)]
         if sender.state == .off {
             group.remove(device: device)
         } else {
@@ -42,22 +40,19 @@ class GroupDetailViewController: NSViewController {
 
 extension GroupDetailViewController: NSTableViewDataSource {
     func numberOfRows(in tableView: NSTableView) -> Int {
-        return model.devices.count
+        return Model.shared.devices.count
     }
 }
 
 extension GroupDetailViewController: NSTableViewDelegate {
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
         guard tableColumn != nil else { return nil }
-        let device = model.devices[row]
+        let device = Model.shared.devices[row]
         guard let view = tableView.makeView(withIdentifier: identifierDeviceCell, owner: nil) as? CheckboxTableCellView,
             let textField = view.textField
             else { return nil }
         view.checkbox.state = (group.devices.contains(device)) ? .on : .off
-        textField.bind(.value,
-                       to: device,
-                       withKeyPath: #keyPath(LIFXDevice.label),
-                       options: nil)
+        textField.bind(.value, to: device, withKeyPath: #keyPath(LIFXDevice.label), options: nil)
         return view
     }
 

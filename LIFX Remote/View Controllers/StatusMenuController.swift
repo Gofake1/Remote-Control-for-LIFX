@@ -8,10 +8,10 @@
 
 import Cocoa
 
-private let statusMessages: [LIFXNetworkController.Status: String] = [
-    .normal: "LIFX: Normal",
-    .error:  "LIFX: Error"
-]
+//private let statusMessages: [LIFXNetworkController.Status: String] = [
+//    .normal: "Normal",
+//    .error:  "Error"
+//]
 
 protocol StatusMenuItemRepresentable: class {
     var isVisible: Bool { get set }
@@ -19,7 +19,6 @@ protocol StatusMenuItemRepresentable: class {
 }
 
 class StatusMenuController: NSObject {
-
     enum ToggleAllMessage: String {
         case on  = "Turn On All Lights"
         case off = "Turn Off All Lights"
@@ -34,23 +33,20 @@ class StatusMenuController: NSObject {
     @IBOutlet weak var toggleAllMenuItem:     NSMenuItem!
     @IBOutlet weak var placeholderMenuItem:   NSMenuItem!
 
+    @objc private let model = Model.shared
     private var deviceMenuItems  = [LIFXDevice: NSMenuItem]()
-    private var groupMenuItems   = [LIFXGroup: NSMenuItem]()
+    private var groupMenuItems   = [LIFXDeviceGroup: NSMenuItem]()
     private var toggleAllMessage = ToggleAllMessage.on {
-        didSet {
-            toggleAllMenuItem.title = toggleAllMessage.rawValue
-        }
+        didSet { toggleAllMenuItem.title = toggleAllMessage.rawValue }
     }
-    @objc private let model = LIFXModel.shared
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     
     override func awakeFromNib() {
         statusItem.image = #imageLiteral(resourceName: "StatusBarButton")
         statusItem.menu = statusMenu
-        model.onNetworkStatusChange { [weak self] status in
-            self?.statusMessageMenuItem.title = statusMessages[status]!
-        }
-        model.discover()
+//        model.onNetworkStatusChange { [weak self] status in
+//            self?.statusMessageMenuItem.title = "LIFX: \(statusMessages[status]!)"
+//        }
     }
 
     private func updateVisibility(_ representables: [StatusMenuItemRepresentable], insertionIndex: Int) {
@@ -66,16 +62,16 @@ class StatusMenuController: NSObject {
     }
     
     @IBAction func toggleAllLights(_ sender: NSMenuItem) {
-        model.changeAllDevices(power: (toggleAllMessage == .on) ? .enabled : .standby)
+        Model.shared.powerAll(toggleAllMessage == .on ? .enabled : .standby)
         toggleAllMessage.flip()
     }
 }
 
 extension StatusMenuController: NSMenuDelegate {
     func menuWillOpen(_ menu: NSMenu) {
-        updateVisibility(model.groups, insertionIndex: statusMenu.index(of: placeholderMenuItem))
-        updateVisibility(model.devices, insertionIndex: statusMenu.index(of: placeholderMenuItem)+1)
-        for device in model.devices {
+        updateVisibility(Model.shared.groups, insertionIndex: statusMenu.index(of: placeholderMenuItem))
+        updateVisibility(Model.shared.devices, insertionIndex: statusMenu.index(of: placeholderMenuItem)+1)
+        for device in Model.shared.devices {
             if let light = device as? LIFXLight {
                 light.getState()
             }

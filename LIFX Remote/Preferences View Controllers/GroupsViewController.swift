@@ -17,44 +17,39 @@ class GroupsViewController: NSViewController {
     @IBOutlet weak var tabView: NSTabView!
     @IBOutlet weak var noGroupsView: NSView!
     
-    @objc private let model = LIFXModel.shared
-
+    @objc private let model = Model.shared
+    
     override func viewDidLoad() {
         preferredContentSize = NSSize(width: 450, height: 300)
         detailView.addSubview(noGroupsView)
-        model.groups.forEach { addViewController(for: $0) }
+        Model.shared.groups.forEach { addViewController(for: $0) }
     }
 
-    func addViewController(for group: LIFXGroup) {
+    @IBAction func addGroup(_ sender: NSButton) {
+        let group = LIFXDeviceGroup()
+        Model.shared.add(group: group)
+        addViewController(for: group)
+    }
+
+    @IBAction func removeGroup(_ sender: NSButton) {
+        let index = (tableView.selectedRow != -1) ? tableView.selectedRow : Model.shared.groups.count-1
+        tabView.removeTabViewItem(tabView.tabViewItem(at: index))
+        Model.shared.removeGroup(at: index)
+    }
+    
+    private func addViewController(for group: LIFXDeviceGroup) {
         guard let viewController = storyboard?.instantiateController(withIdentifier:
             identifierGroupDetailViewController) as? GroupDetailViewController else { return }
         viewController.group = group
         tabView.addTabViewItem(NSTabViewItem(viewController: viewController))
     }
-
-    @IBAction func addGroup(_ sender: NSButton) {
-        let group = LIFXGroup()
-        model.add(group: group)
-        addViewController(for: group)
-    }
-
-    @IBAction func removeGroup(_ sender: NSButton) {
-        let index = (tableView.selectedRow != -1) ? tableView.selectedRow : model.groups.count-1
-        tabView.removeTabViewItem(tabView.tabViewItem(at: index))
-        model.remove(groupIndex: index)
-    }
 }
 
 extension GroupsViewController: NSControlTextEditingDelegate {
     func control(_ control: NSControl, isValidObject obj: Any?) -> Bool {
-        if control.identifier == identifierGroupName {
-            guard let newName = obj as? String else { return false }
-            if model.groups
-                .filter({ return newName == $0.name })
-                .reduce(0, { (result, _) -> Int in return result + 1 }) > 0
-            { return false }
-        }
-        return true
+        guard control.identifier == identifierGroupName else { return true }
+        guard let newName = obj as? String else { return false }
+        return Model.shared.groups.first(where: { $0.name == newName }) == nil
     }
 }
 

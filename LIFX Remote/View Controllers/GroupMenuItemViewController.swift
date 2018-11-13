@@ -11,7 +11,7 @@ import Cocoa
 class GroupMenuItemViewController: NSViewController {
     @IBOutlet weak var brightnessSlider: NSSlider!
 
-    @objc weak var group: LIFXGroup!
+    @objc weak var group: LIFXDeviceGroup!
 
     override var nibName: NSNib.Name? {
         return NSNib.Name(rawValue: "GroupMenuItemViewController")
@@ -19,9 +19,9 @@ class GroupMenuItemViewController: NSViewController {
 
     override func viewDidLoad() {
         NotificationCenter.default.addObserver(self, selector: #selector(groupColorChanged),
-                                               name: notificationGroupColorChanged, object: group)
+                                               name: .groupColorChanged, object: group)
         NotificationCenter.default.addObserver(self, selector: #selector(groupPowerChanged),
-                                               name: notificationGroupPowerChanged, object: group)
+                                               name: .groupPowerChanged, object: group)
     }
 
     @objc func groupColorChanged() {
